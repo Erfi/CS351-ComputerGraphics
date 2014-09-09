@@ -57,7 +57,7 @@ all:
 
 
 # put the specific executable rules here
-ppmtest: $(ODIR)/ppmmain.o
+lab1: $(ODIR)/lab1.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
