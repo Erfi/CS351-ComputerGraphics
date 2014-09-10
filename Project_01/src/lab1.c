@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
   //image1 = makeMask(image, imagesize);
   image1 = setBackground(image1, image2, image3, imagesize);
   //image1 = translate(image1, image2, image3, imagesize, cols, 100, 100);
+  image1 = toGreyscale(image1, imagesize);
+  //image1 = toNegative(image1, imagesize);
 
 
 

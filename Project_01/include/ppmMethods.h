@@ -7,6 +7,7 @@ Pixel* makeMask(Pixel* image,int imageSize);
 Pixel* setBackground(Pixel* background, Pixel* image, Pixel* imageMask, int imageSize);
 Pixel* translate(Pixel* background, Pixel* image, Pixel* imageMask, int imageSize, int cols, int dx, int dy);
 Pixel* toGreyscale(Pixel* image, int imageSize);
+Pixel* toNegative(Pixel* image, int imageSize);
 
 
 #endif

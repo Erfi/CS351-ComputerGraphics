@@ -35,7 +35,7 @@ DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 EXECUTABLES = ppmtest lab1
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = ppmmain.o lab1.o
+_OBJ = ppmmain.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))

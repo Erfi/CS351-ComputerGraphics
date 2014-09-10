@@ -64,10 +64,10 @@ Pixel* translate(Pixel* background, Pixel* image, Pixel* imageMask, int imageSiz
   return background;
 }
 
-/*This method turns the given image into grayscale
+/*This method turns the given image into its negative
 Returns a pointer to the final image
 */
-Pixel* toGreyscale(Pixel* image, int imageSize){
+Pixel* toNegative(Pixel* image, int imageSize){
 	int i;
 	for (i=0; i<imageSize; i++){
 	    int intensity = ((int)image[i].r + (int)image[i].g + (int)image[i].b) / 3;
@@ -77,5 +77,21 @@ Pixel* toGreyscale(Pixel* image, int imageSize){
 	}
 	return image;
 }
+
+/*
+This method turns the image into greyscale.
+Returns a pointer to the greyscale image
+*/
+Pixel* toGreyscale(Pixel* image, int imageSize){
+	int i;
+	for (i=0; i<imageSize; i++){
+		int intensity = ((int)image[i].r + (int)image[i].g + (int)image[i].b) / 3;
+	    image[i].r = intensity;
+	    image[i].g = intensity;
+	    image[i].b = intensity;
+	}
+	return image;
+}
+
 
 
