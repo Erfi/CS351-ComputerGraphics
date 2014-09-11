@@ -93,5 +93,38 @@ Pixel* toGreyscale(Pixel* image, int imageSize){
 	return image;
 }
 
+/*
+This method adds a horizontal blur to the image.
+Returns a pointer to the image.
+*/
+Pixel* horizontalBlur(Pixel* image, int imageSize){
+	int i;
+	int avg_r;
+	int avg_g;
+	int avg_b;
+	for (i=0; i<imageSize; i++){
+		// this piece of code creates a horizontal blur by averaging 5 adjacent pixels
+		if (i < 5) {
+	      avg_r = ((int)image[0].r + (int)image[1].r + (int)image[2].r + (int)image[3].r + (int)image[4].r)/5;
+	      avg_g = ((int)image[0].g + (int)image[1].g + (int)image[2].g + (int)image[3].g + (int)image[4].g)/5;
+	      avg_b = ((int)image[0].b + (int)image[1].b + (int)image[2].b + (int)image[3].b + (int)image[4].b)/5;
+
+	      image[i].r = avg_r;
+	      image[i].g = avg_g;
+	      image[i].b = avg_b;
+    	}
+    	else{
+	      avg_r = ((int)image[i-4].r + (int)image[i-3].r + (int)image[i-2].r + (int)image[i-1].r + (int)image[i].r)/5;
+	      avg_g = ((int)image[i-4].g + (int)image[i-3].g + (int)image[i-2].g + (int)image[i-1].g + (int)image[i].g)/5;
+	      avg_b = ((int)image[i-4].b + (int)image[i-3].b + (int)image[i-2].b + (int)image[i-1].b + (int)image[i].b)/5;
+
+	      image[i].r = avg_r;
+	      image[i].g = avg_g;
+	      image[i].b = avg_b;
+	    }
+	}
+	return image;
+}
+
 
 

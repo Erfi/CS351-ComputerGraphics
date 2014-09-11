@@ -56,8 +56,9 @@ int main(int argc, char *argv[]) {
   //image1 = makeMask(image, imagesize);
   image1 = setBackground(image1, image2, image3, imagesize);
   //image1 = translate(image1, image2, image3, imagesize, cols, 100, 100);
-  image1 = toGreyscale(image1, imagesize);
-  //image1 = toNegative(image1, imagesize);
+  //image1 = toGreyscale(image1, imagesize);
+  image1 = toNegative(image1, imagesize);
+  //image1 = horizontalBlur(image1, imagesize);
 
 
 
@@ -77,13 +78,7 @@ int main(int argc, char *argv[]) {
 }
 
 /* code snippets for different tasks that were done in previous steps:
-............
-    // this little piece of code converts the image to inverse greyscale
-    //intensity = ((int)image[i].r + (int)image[i].g + (int)image[i].b) / 3;
-    //image[i].r = 255 - intensity;
-    //image[i].g = 255 - intensity;
-    //image[i].b = 255 - intensity;
-............
+
 // this piece of code creates a horizontal blur by averaging 5 adjacent pixels
 // if (i < 5) {
     //   avg_r = ((int)image[0].r + (int)image[1].r + (int)image[2].r + (int)image[3].r + (int)image[4].r)/5;
