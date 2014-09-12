@@ -53,12 +53,12 @@ int main(int argc, char *argv[]) {
   /* calculate the image size */
   imagesize = (long)rows * (long)cols;
 
-  //image1 = makeMask(image, imagesize);
-  image1 = setBackground(image1, image2, image3, imagesize);
-  //image1 = translate(image1, image2, image3, imagesize, cols, 100, 100);
+  //image1 = makeMask(image1, imagesize);
+  //image1 = setBackground(image1, image2, image3, imagesize);
+  image1 = translate(image1, image2, image3, imagesize, cols, rows,0,0);
   //image1 = toGreyscale(image1, imagesize);
-  image1 = toNegative(image1, imagesize);
-  //image1 = horizontalBlur(image1, imagesize);
+  //image1 = toNegative(image1, imagesize);
+  image1 = horizontalBlur(image1, imagesize);
 
 
 
@@ -76,28 +76,4 @@ int main(int argc, char *argv[]) {
 
   return(0);
 }
-
-/* code snippets for different tasks that were done in previous steps:
-
-// this piece of code creates a horizontal blur by averaging 5 adjacent pixels
-// if (i < 5) {
-    //   avg_r = ((int)image[0].r + (int)image[1].r + (int)image[2].r + (int)image[3].r + (int)image[4].r)/5;
-    //   avg_g = ((int)image[0].g + (int)image[1].g + (int)image[2].g + (int)image[3].g + (int)image[4].g)/5;
-    //   avg_b = ((int)image[0].b + (int)image[1].b + (int)image[2].b + (int)image[3].b + (int)image[4].b)/5;
-
-    //   image[i].r = avg_r;
-    //   image[i].g = avg_g;
-    //   image[i].b = avg_b;
-    // }
-    // else{
-    //   avg_r = ((int)image[i-4].r + (int)image[i-3].r + (int)image[i-2].r + (int)image[i-1].r + (int)image[i].r)/5;
-    //   avg_g = ((int)image[i-4].g + (int)image[i-3].g + (int)image[i-2].g + (int)image[i-1].g + (int)image[i].g)/5;
-    //   avg_b = ((int)image[i-4].b + (int)image[i-3].b + (int)image[i-2].b + (int)image[i-1].b + (int)image[i].b)/5;
-
-    //   image[i].r = avg_r;
-    //   image[i].g = avg_g;
-    //   image[i].b = avg_b;
-    // }
-..........
-*/
 

@@ -48,18 +48,52 @@ Pixel* setBackground(Pixel* background, Pixel* image, Pixel* imageMask, int imag
 /* translate the foground image using the mask.
 Returns a pointer to the translated image
 */
-Pixel* translate(Pixel* background, Pixel* image, Pixel* imageMask, int imageSize, int cols, int dx, int dy){
+Pixel* translate(Pixel* background, Pixel* image, Pixel* imageMask, int imageSize, int cols, int rows, int dx, int dy){
   int i;
   for(i=0;i<imageSize;i++) {
-    int translation = i+dx+dy*cols;
-    if (translation > imageSize){
-      translation = translation - imageSize;
-    }
-    float alpha = imageMask[translation].g/255.0; /*r,g,b of the mask are the same*/
+  	int translation = i+dx+dy*cols;
+  	int transIndex_X = i+dx;
+  	int transIndex_Y = i+dy*cols;
+  	int lowBound = i - (i % cols);
+  	int highBound = i + ((cols-1) - (i % cols));
+  	if ((lowBound > transIndex_X) || (transIndex_X > highBound) || (transIndex_Y < 0) || (transIndex_Y > imageSize)){ //if destination index in out of the bounds
+  		continue;
+  	}else{
+  		float alpha = imageMask[translation].g/255.0; /*r,g,b of the mask are the same*/
 
-    background[i].r = (alpha * background[i].r) + ((1-alpha) * image[translation].r);
-    background[i].g = (alpha * background[i].g) + ((1-alpha) * image[translation].g);
-   	background[i].b = (alpha * background[i].b) + ((1-alpha) * image[translation].b);
+	    background[i].r = (alpha * background[i].r) + ((1-alpha) * image[translation].r);
+	    background[i].g = (alpha * background[i].g) + ((1-alpha) * image[translation].g);
+	   	background[i].b = (alpha * background[i].b) + ((1-alpha) * image[translation].b);
+  	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //int translation = i+dx+dy*cols;
+    // if (translation > imageSize){
+    //   translation = translation - imageSize;
+    // }
+    // float alpha = imageMask[translation].g/255.0; /*r,g,b of the mask are the same*/
+
+    // background[i].r = (alpha * background[i].r) + ((1-alpha) * image[translation].r);
+    // background[i].g = (alpha * background[i].g) + ((1-alpha) * image[translation].g);
+   	// background[i].b = (alpha * background[i].b) + ((1-alpha) * image[translation].b);
   }
   return background;
 }
@@ -99,7 +133,7 @@ Returns a pointer to the image.
 */
 Pixel* horizontalBlur(Pixel* image, int imageSize){
 	int i;
-	int avg_r;
+	int avg_r; 
 	int avg_g;
 	int avg_b;
 	for (i=0; i<imageSize; i++){
