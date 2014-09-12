@@ -53,12 +53,12 @@ int main(int argc, char *argv[]) {
   /* calculate the image size */
   imagesize = (long)rows * (long)cols;
 
-  //image1 = makeMask(image1, imagesize);
-  //image1 = setBackground(image1, image2, image3, imagesize);
-  image1 = translate(image1, image2, image3, imagesize, cols, rows,0,0);
-  //image1 = toGreyscale(image1, imagesize);
-  //image1 = toNegative(image1, imagesize);
-  image1 = horizontalBlur(image1, imagesize);
+  //image1 = makeMask(image1, imagesize); // use for creating the mask
+  //image1 = setBackground(image1, image2, image3, imagesize); // setting the back ground ***use either this method or "translate" method. NOT BOTH
+  image1 = translate(image1, image2, image3, imagesize, cols, rows,0,0); // sets the back ground as well as translates the front image.
+  //image1 = toGreyscale(image1, imagesize); // turns an image to greyscale
+  image1 = toNegative(image1, imagesize); // turns an image to negative
+  //image1 = horizontalBlur(image1, imagesize); // turns the  image blury
 
 
 

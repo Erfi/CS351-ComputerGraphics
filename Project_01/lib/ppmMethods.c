@@ -65,35 +65,6 @@ Pixel* translate(Pixel* background, Pixel* image, Pixel* imageMask, int imageSiz
 	    background[i].g = (alpha * background[i].g) + ((1-alpha) * image[translation].g);
 	   	background[i].b = (alpha * background[i].b) + ((1-alpha) * image[translation].b);
   	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //int translation = i+dx+dy*cols;
-    // if (translation > imageSize){
-    //   translation = translation - imageSize;
-    // }
-    // float alpha = imageMask[translation].g/255.0; /*r,g,b of the mask are the same*/
-
-    // background[i].r = (alpha * background[i].r) + ((1-alpha) * image[translation].r);
-    // background[i].g = (alpha * background[i].g) + ((1-alpha) * image[translation].g);
-   	// background[i].b = (alpha * background[i].b) + ((1-alpha) * image[translation].b);
   }
   return background;
 }
