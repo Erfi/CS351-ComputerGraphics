@@ -1,9 +1,10 @@
 # set the C compiler, for C++ use g++
+
 # use this setting on most sane machines
 CC = gcc
 
-# use this line on the engin linux machines
-# CC = gcc296
+# use this setting on the engin elf machines
+#CC = gcc296
 
 # set the path to the include directory
 INCDIR =../include
@@ -12,36 +13,34 @@ INCDIR =../include
 CFLAGS = -I$(INCDIR) -O2 -Wall -Wstrict-prototypes -Wnested-externs -Wmissing-prototypes -Wmissing-declarations
 CPPFLAGS = $(CFLAGS)
 
+# library tool defs
+AR = ar
+ARFLAGS = rv
+RANLIB = ranlib
+
 # path to the object file directory
 ODIR = obj
 
 # path to the lib directory
-LIBDIR =../lib
+LIBDIR =.
 
 # path to the bin directory
 BINDIR =../bin
 
-# libraries to include
-LIBS = -lm -limageIO
-LFLAGS = -L$(LIBDIR)
-
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h
+_DEPS = ppmIO.h ppmMethods.h Image.h
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
-# put a list of the executables here
-EXECUTABLES = ppmtest lab1
-
-# put a list of all the object files here for all executables (with .o endings)
-_OBJ = ppmmain.o
+# put a list of all the object files (with .o endings)
+_COMMON = ppmIO.o ppmMethods.o Image.h
 
 # convert them to point to the right place
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+COMMON = $(patsubst %,$(ODIR)/%,$(_COMMON))
+
 
 # patterns for compiling source code
-# $< is the file that caused the action to occur
 $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
@@ -51,14 +50,16 @@ $(ODIR)/%.o: %.C $(DEPS)
 $(ODIR)/%.o: %.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+# output library
+OUTPUT_LIB = libimageIO.a
 
-all:
-	for i in $(EXECUTABLES); do (make $$i) ; done
+# make rules
+all: $(OUTPUT_LIB)
 
-
-# put the specific executable rules here
-lab1: $(ODIR)/lab1.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+$(OUTPUT_LIB) : $(COMMON) $(DEPS)
+	rm -f $@
+	$(AR) $(ARFLAGS) $@ $(COMMON)
+	$(RANLIB) $@
 
 .PHONY: clean
 
