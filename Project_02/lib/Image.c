@@ -185,7 +185,7 @@ int image_write(Image* src, char* filename){
 	int k;
 	for(i=0; i<src->rows; i++){
 		for(j=0; j<src->cols; j++){
-			image[k] = imagesrc->data[i][j];
+			image[k] = (unsigned char)imagesrc->data[i][j]; //(?) casting...
 			k++;
 		}
 	}
@@ -196,20 +196,123 @@ int image_write(Image* src, char* filename){
 /* Acces functions */
 
 /*
-
+Returns the FPixel at (r, c)
 */
-FPixel image_getf(Image* src, int r, int c);
-float image_getc(Image* src, int r, int c, int b);
-float image_geta(Image* src, int r, int c);
-float image_getz(Image* src, int r, int c);
-void image_setf(Image* src, int r, int c, FPixel val);
-void image_setc(Image* src, int r, int c, int b, float val);
-void image_seta(Image* src, int r, int c, float val);
-void image_setz(Image* src, int r, int c, float val);
+FPixel image_getf(Image* src, int r, int c){
+	return src->data[r][c];
+}
+
+/*
+Returns the value of band b at
+pixel (r, c).
+*/
+float image_getc(Image* src, int r, int c, int b){
+	switch (b){
+		case 0:
+			return src->data[r][c].rgb[0];
+		case 1: 
+			return src->data[r][c].rgb[1];
+		case 2;
+			return src->data[r][c].rgb[2]; 
+	}
+}
+
+/*
+Returns the alpha value at pixel (r, c)
+*/
+float image_geta(Image* src, int r, int c){
+	return src->data[r][c].a;
+}
+
+/*
+Returns the depth value at pixel (r, c)
+*/
+float image_getz(Image* src, int r, int c){
+	return src->data[r][c].z;
+}
+
+/*
+Sets the values of pixel (r,c) to the FPixel val
+*/
+void image_setf(Image* src, int r, int c, FPixel val){
+	src->data[r][c].rgb[0] = val.rgb[0];
+	src->data[r][c].rgb[1] = val.rgb[1];
+	src->data[r][c].rgb[2] = val.rgb[2];
+	src->data[r][c].a = val.a;
+	src->data[r][c].z = val.z;
+}
+
+/*
+Sets the value of pixel (r, c) band b to val.
+*/
+void image_setc(Image* src, int r, int c, int b, float val){
+	switch(b){
+		case 0:
+			src->data[r][c].rgb[0] = val;
+			break;
+		case 1:
+			src->data[r][c].rgb[1] = val;
+			break;
+		case 2:
+			src->data[r][c].rgb[2] = val;
+			break;
+	}
+}
+
+/*
+Sets the alpha value of pixel (r, c) to val.
+*/
+void image_seta(Image* src, int r, int c, float val){
+	src->data[r][c].a = val;
+}
+
+/*
+Sets the depth value of pixel (r, c) to val.
+*/
+void image_setz(Image* src, int r, int c, float val){
+	src->data[r][c].z = val;
+}
 
 /* Utility functions */
-void image_reset(Image* src);
-void image_fill(Image* src, FPixel val);
+
+/*
+Resets every pixel to a default value (e.g. Black, alpha value
+of 1.0, z value of 1.0)
+*/
+void image_reset(Image* src){
+	int i;
+	int j;
+	for(i=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++){
+			src->data[i][j].rgb[0] = 0.0;
+			src->data[i][j].rgb[1] = 0.0;
+			src->data[i][j].rgb[2] = 0.0;
+			src->data[i][j].a = 1.0;
+			src->data[i][j].z = 1.0;
+		}
+	}
+}
+
+/*
+Sets every FPixel to the given value
+*/
+void image_fill(Image* src, FPixel val){
+	int i;
+	int j;
+	for(i=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++){
+			src->data[i][j].rgb[0] = val.rgb[0];
+			src->data[i][j].rgb[1] = val.rgb[1];
+			src->data[i][j].rgb[2] = val.rgb[2];
+			src->data[i][j].a = val.a;
+			src->data[i][j].z = val.z;
+		}
+	}
+}
+
+/*
+
+*/
 void image_fillrgb(Image* src, float r, float g, float b);
 void image_filla(Image* src, float a);
 void image_fillz(Image *src, float z);
