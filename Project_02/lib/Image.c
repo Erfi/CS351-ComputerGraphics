@@ -34,7 +34,7 @@ Image* image_create(int rows, int cols){
 De-allocates image data and frees the Image structure
 */
 void image_free(Image* src){
-	if(NULL != src){
+	if(NULL != src && NULL != src->data){
 		int i;
 		int j;
 		for (i=0; i<src->rows; i++){
@@ -46,7 +46,7 @@ void image_free(Image* src){
 		free(src);
 		src->NULL;
 	}else{
-		printf("ERROR: cannot free image >> image pointer is NULL\n");
+		printf("ERROR: cannot free image >> image pointer or data pointer is NULL\n");
 	}
 }
 
@@ -136,22 +136,17 @@ Image* image_read(char* filename){
 		image_alloc(image, rows, cols); // allocate memory for the FPixels and initialize them
 		int i;
 		int j;
-		int p=0;
-		for(i=0; i<rows; i++){ // transfering the rgb values from ppm file Pixel array to the new FPixels of Image structure
-			for(j=0; j<cols; j++){
-				image->data[i][j].rgb[0] = (float)pixel[p].r;
-				image->data[i][j].rgb[1] = (float)pixel[p].g;
-				image->data[i][j].rgb[2] = (float)pixel[p].b;
+		int p;
+		for(i=0, p=0; i<rows; i++){ // transfering the rgb values from ppm file Pixel array to the new FPixels of Image structure
+			for(j=0; j<cols; j++, p++){
+				image->data[i][j].rgb[0] = (float)(pixel[p].r/255.0);
+				image->data[i][j].rgb[1] = (float)(pixel[p].g/255.0);
+				image->data[i][j].rgb[2] = (float)(pixel[p].b/255.0);
 				image->data[i][j].a = 1.0;
 				image->data[i][j].z = 1.0;
-				p++;
 			}
 		}
 		// free the ppm array
-		int m;
-		for(m=0; m<p; m++){
-			free(pixel[m]);
-		}
 		free(pixel);
 		pixel = NULL;
 
