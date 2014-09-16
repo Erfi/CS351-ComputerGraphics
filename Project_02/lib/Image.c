@@ -183,13 +183,13 @@ int image_write(Image* src, char* filename){
 	int i;
 	int j;
 	int k;
-	for(i=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++){
+	for(i=0, k=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++, k++){
 			image[k] = (unsigned char)imagesrc->data[i][j]; //(?) casting...
-			k++;
 		}
 	}
 	writePPM(image, src->rows, src->cols, 255, filename); //manually setting the color to 255 (?)
+	//free
 	return 0;
 }
 
