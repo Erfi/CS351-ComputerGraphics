@@ -5,6 +5,7 @@ This file contains the definitions of all the method declarations in
 image.c which deals with Constructors & Destructors, I/O functions, Access, Utility
 */
 #include "Image.h"
+#include "ppmIO.h"
 #include <stdlib.h>
 #include <stdio.h>
 /* constructors & destructors */
@@ -121,11 +122,82 @@ void image_dealloc(Image* src){
 }
 
 /*I/O functions */
+	
+/*
+Reads a PPM image from the given filename. 
+Initializes the alpha channel to 1.0 and the z channel to 1.0. 
+Returns a NULL pointer if the operation fails.
+*** IT will free the memory of readPPM() after copying the data into the new Image structure
+*/
+Image* image_read(char* filename){
+	if(strlen(filename)==0){
+		printf("ERROR: could not read image >> filename is empty\n");
+		return NULL;
+	}else{
+		int rows;
+		int cols;
+		int color;
+		Pixel* pixel = readPPM(&rows, &cols, &color, filename); //reading the .ppm file
 
-Image* image_read(char* filename);
-int image_write(Image* src, char* filename);
+		Image* image = image_create(rows, cols); // creating an image using our image structure.
+		image_alloc(image, rows, cols); // allocate memory for the FPixels and initialize them
+		int i;
+		int j;
+		int p=0;
+		for(i=0; i<rows; i++){ // transfering the rgb values from ppm file Pixel array to the new FPixels of Image structure
+			for(j=0; j<cols; j++){
+				image->data[i][j].rgb[0] = (float)pixel[p].r;
+				image->data[i][j].rgb[1] = (float)pixel[p].g;
+				image->data[i][j].rgb[2] = (float)pixel[p].b;
+				image->data[i][j].a = 1.0;
+				image->data[i][j].z = 1.0;
+				p++;
+			}
+		}
+		// free the ppm array
+		int m;
+		for(m=0; m<p; m++){
+			free(pixel[m]);
+		}
+		free(pixel);
+		pixel = NULL;
+
+		//final checkpoint and return
+		if (NULL != image){
+			return image;
+		}else{
+			return NULL;
+		}
+	}
+}
+
+/*
+Writes a PPm image to the given filename.
+Returns 0 on success.
+This function DOES NOT free the memory of the Image src.
+*/
+int image_write(Image* src, char* filename){
+	int imagesize = src->rows * src->cols; // number of pixels (image size)
+	Pixel* image = malloc(sizeof(Pixel)*imagesize);//allocate memory for the PPM array that will be written later to a file
+	
+	int i;
+	int j;
+	int k;
+	for(i=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++){
+			image[k] = imagesrc->data[i][j];
+			k++;
+		}
+	}
+	writePPM(image, src->rows, src->cols, 255, filename); //manually setting the color to 255 (?)
+	return 0;
+}
 
 /* Acces functions */
+
+/*
+
+*/
 FPixel image_getf(Image* src, int r, int c);
 float image_getc(Image* src, int r, int c, int b);
 float image_geta(Image* src, int r, int c);
