@@ -68,31 +68,26 @@ void image_init(Image* src){
 Allocates space for the image data given rows and columns and initializes the image data to appropriate values,
 such as 0.0 for RGBA and 1.0 for Z.
 Returns 0 if the operation is successful. Returns a non-zero value if the operation fails.
-(?)This function should probably free existing memory if rows and cols are both non-zero.(?)
+This function does free existing memory if rows and cols are both non-zero.
 */
 int image_alloc(Image* src, int rows, int cols){
 	if(NULL != src){
-		if(rows==0 || cols==0)
+		if(rows==0 || cols==0){
 			printf("WARNING: rows or cols is Zero\n");
+		}else{ // if rows and cols are non-zero, deallocate the src first
+			image_dealloc(src);
+		}
 
-		src->data = malloc(sizeof(FPixel*)*rows); // creating "rows". an Array of FPixel pointers
-		
+		src->data = malloc(sizeof(FPixel*)*rows); // creating "rows". an array of FPixel pointers
 		int k;
 		for(k=0; k<rows; k++){
-			src[i] = malloc(sizeof(FPixel)*cols); // creating "cols". an array of FPixels.
+			src->data[i] = malloc(sizeof(FPixel)*cols); // creating "cols". arrays of FPixels.
 		}
+		src->rows = rows;
+		src->cols = cols;
 
-		int i;
-		int j;
-		for(i=0; i<rows; i++){ // initializing image data
-			for(j=0; j<cols; j++){
-				src->data[i][j].rgb[0]=0.0; //r
-				src->data[i][j].rgb[1]=0.0; //g
-				src->data[i][j].rgb[2]=0.0; //b
-				src->data[i][j].a = 0.0; // a
-				src->data[i][j].z = 1.0; // z
-			}
-		}
+		image_reset(src); // resets all FPixels to black, a=1.0, z=1.0.
+		image_filla(src, 0.0); // sets the alpha value of each FPixel to 0.0
 		return 0;
 	}else{
 		printf("ERROR: could not allocate data >> image pointer in NULL\n");
@@ -107,12 +102,10 @@ fields. The function does not free the Image structure.
 void image_dealloc(Image* src){
 	if(NULL != src){
 		int i;
-		int j;
-		for (i=0; i<src->rows; i++){
-			for (j=0; j<src->cols; j++){
-				free(src[i][j]);
-			}
+		for (i=0; i<src->rows; i++){ 
+			free(src->data[i]); // free all the data cols
 		}
+		free(src->data); // free the data rows
 		src->data = NULL;
 		src->rows = 0;
 		src->cols = 0;
@@ -185,11 +178,14 @@ int image_write(Image* src, char* filename){
 	int k;
 	for(i=0, k=0; i<src->rows; i++){
 		for(j=0; j<src->cols; j++, k++){
-			image[k] = (unsigned char)imagesrc->data[i][j]; //(?) casting...
+			image[k].r = (unsigned char)(imagesrc->data[i][j].rgb[0] * 255);
+			image[k].g = (unsigned char)(imagesrc->data[i][j].rgb[1] * 255);
+			image[k].b = (unsigned char)(imagesrc->data[i][j].rgb[2] * 255);
 		}
 	}
-	writePPM(image, src->rows, src->cols, 255, filename); //manually setting the color to 255 (?)
-	//free
+	
+	writePPM(image, src->rows, src->cols, 255, filename);
+	free(image);	
 	return 0;
 }
 
