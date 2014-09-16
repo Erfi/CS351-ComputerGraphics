@@ -311,8 +311,51 @@ void image_fill(Image* src, FPixel val){
 }
 
 /*
-
+Sets the (r,g,b) value of each pixel to the given color.
 */
-void image_fillrgb(Image* src, float r, float g, float b);
-void image_filla(Image* src, float a);
-void image_fillz(Image *src, float z);
+void image_fillrgb(Image* src, float r, float g, float b){
+	int i;
+	int j;
+	for(i=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++){
+			src->data[i][j].rgb[0] = r;
+			src->data[i][j].rgb[1] = g;
+			src->data[i][j].rgb[2] = b;
+		}
+	}
+}
+
+/*
+Sets the alpha value of each pixel to the given value.
+*/
+void image_filla(Image* src, float a){
+	int i;
+	int j;
+	for(i=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++){
+			src->data[i][j].a = a;
+		}
+	}
+}
+
+/*
+Sets the z value of each pixel to the given value.
+*/
+void image_fillz(Image *src, float z){
+	int i;
+	int j;
+	for(i=0; i<src->rows; i++){
+		for(j=0; j<src->cols; j++){
+			src->data[i][j].z = z;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
