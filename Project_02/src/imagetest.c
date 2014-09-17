@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
       image_setc( src, i, j, 2, ((float)(i+j)) / (rows + cols) );
     }
   }
-
+  printf("Writing color.ppm\n");
   // write it out
   image_write( src, "../images/colors.ppm");
 
@@ -42,7 +42,8 @@ int main(int argc, char *argv[]) {
 
   image_reset( src );
 
-  image_write( src, "black.ppm");
+  printf("Writing black.ppm\n");
+  image_write( src, "../images/black.ppm");
 
   for(i=0;i<rows;i++) {
     for(j=0;j<cols;j++) {
@@ -50,7 +51,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  image_write( src, "skyblue.ppm" );
+  printf("Writing skyblue.ppm\n");
+  image_write( src, "../images/skyblue.ppm" );
   
   image_dealloc(src);
 

@@ -20,31 +20,35 @@ the operation fails.
 */
 Image* image_create(int rows, int cols){
 	if((rows == 0) || (cols == 0)){
-		printf("ERROR: Cannot create image >> rows or cols is Zero\n");
-		return NULL;
-	}else{
-		Image* image = malloc(sizeof(Image));
-		image_init(image);
-		image_alloc(image, rows, cols);
-		return image;
+		printf("WARNING: image_create >> rows or cols is Zero\n");
 	}
+	Image* image = malloc(sizeof(Image));
+	if(NULL == image){return NULL;}
+	image_init(image);
+	image_alloc(image, rows, cols);
+	return image;
 }
 
 /*
 De-allocates image data and frees the Image structure
 */
 void image_free(Image* src){
-	if((NULL != src) && (NULL != src->data)){
-		int i;
-		for (i=0; i<src->rows; i++){ 
-			free(src->data[i]); // free all the data cols
+	if(NULL != src){
+		if(NULL != src->data){
+			int i;
+			for (i=0; i<src->rows; i++){ 
+				free(src->data[i]); // free all the data cols
+			}
+			free(src->data); // free the data rows
+			src->data = NULL;
+			free(src);
+			src = NULL;
+		}else{
+			free(src);
+			src = NULL;
 		}
-		free(src->data); // free the data rows
-		src->data = NULL;
-		free(src);
-		src = NULL;
 	}else{
-		printf("WARNING: cannot free image >> image pointer or data pointer is NULL\n");
+		printf("WARNING: image_free >> src is NULL\n");
 	}
 }
 
@@ -71,7 +75,7 @@ This function does free existing memory if rows and cols are both non-zero.
 int image_alloc(Image* src, int rows, int cols){
 	if(NULL != src){
 		if(rows==0 || cols==0){
-			printf("WARNING: rows or cols is Zero\n");
+			printf("WARNING: image_alloc >> rows or cols is Zero\n");
 		}else{ // if rows and cols are non-zero, deallocate the src first
 			image_dealloc(src);
 		}
@@ -111,10 +115,10 @@ void image_dealloc(Image* src){
 			src->rows = 0;
 			src->cols = 0;
 		}else{
-			printf("src->data is already free\n");
+			printf("WARNING: image_dealloc >> src->data is already free\n");
 		}
 	}else{
-		printf("WARNING: cannot deallocate image >> image pointer is NULL\n");
+		printf("WARNING: image_dealloc >> image pointer is NULL\n");
 	}
 }
 
