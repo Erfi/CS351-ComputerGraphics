@@ -94,7 +94,7 @@ int image_alloc(Image* src, int rows, int cols){
 		image_filla(src, 0.0); // sets the alpha value of each FPixel to 0.0
 		return 0;
 	}else{
-		printf("ERROR: could not allocate data >> image pointer in NULL\n");
+		printf("ERROR: image_alloc >> image pointer in NULL\n");
 		return -1;
 	}
 }
