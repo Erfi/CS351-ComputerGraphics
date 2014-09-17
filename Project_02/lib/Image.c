@@ -8,6 +8,7 @@ image.c which deals with Constructors & Destructors, I/O functions, Access, Util
 #include "ppmIO.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 /* constructors & destructors */
 
 /*
@@ -34,19 +35,17 @@ Image* image_create(int rows, int cols){
 De-allocates image data and frees the Image structure
 */
 void image_free(Image* src){
-	if(NULL != src && NULL != src->data){
+	if((NULL != src) && (NULL != src->data)){
 		int i;
-		int j;
-		for (i=0; i<src->rows; i++){
-			for (j=0; j<src->cols; j++){
-				free(src[i][j]);
-			}
+		for (i=0; i<src->rows; i++){ 
+			free(src->data[i]); // free all the data cols
 		}
+		free(src->data); // free the data rows
 		src->data = NULL;
 		free(src);
-		src->NULL;
+		src = NULL;
 	}else{
-		printf("ERROR: cannot free image >> image pointer or data pointer is NULL\n");
+		printf("WARNING: cannot free image >> image pointer or data pointer is NULL\n");
 	}
 }
 
@@ -79,9 +78,11 @@ int image_alloc(Image* src, int rows, int cols){
 		}
 
 		src->data = malloc(sizeof(FPixel*)*rows); // creating "rows". an array of FPixel pointers
+		if(NULL == src->data){return -1;}
 		int k;
 		for(k=0; k<rows; k++){
-			src->data[i] = malloc(sizeof(FPixel)*cols); // creating "cols". arrays of FPixels.
+			src->data[k] = malloc(sizeof(FPixel)*cols); // creating "cols". arrays of FPixels.
+			if(NULL == src->data[k]){return -1;}
 		}
 		src->rows = rows;
 		src->cols = cols;
@@ -100,7 +101,7 @@ De-allocates image data and resets the Image structure
 fields. The function does not free the Image structure.
 */
 void image_dealloc(Image* src){
-	if(NULL != src){
+	if((NULL != src) && (NULL != src->data)){
 		int i;
 		for (i=0; i<src->rows; i++){ 
 			free(src->data[i]); // free all the data cols
@@ -110,7 +111,7 @@ void image_dealloc(Image* src){
 		src->rows = 0;
 		src->cols = 0;
 	}else{
-		printf("ERROR: cannot deallocate image >> image pointer is NULL\n");
+		printf("WARNING: cannot deallocate image >> image pointer or image->data is NULL\n");
 	}
 }
 
@@ -167,15 +168,16 @@ This function DOES NOT free the memory of the Image src.
 int image_write(Image* src, char* filename){
 	int imagesize = src->rows * src->cols; // number of pixels (image size)
 	Pixel* image = malloc(sizeof(Pixel)*imagesize);//allocate memory for the PPM array that will be written later to a file
+	if(NULL == image){return -1;} // checking the malloc
 	
 	int i;
 	int j;
 	int k;
 	for(i=0, k=0; i<src->rows; i++){
 		for(j=0; j<src->cols; j++, k++){
-			image[k].r = (unsigned char)(imagesrc->data[i][j].rgb[0] * 255);
-			image[k].g = (unsigned char)(imagesrc->data[i][j].rgb[1] * 255);
-			image[k].b = (unsigned char)(imagesrc->data[i][j].rgb[2] * 255);
+			image[k].r = (unsigned char)(src->data[i][j].rgb[0] * 255);
+			image[k].g = (unsigned char)(src->data[i][j].rgb[1] * 255);
+			image[k].b = (unsigned char)(src->data[i][j].rgb[2] * 255);
 		}
 	}
 	
@@ -198,13 +200,21 @@ Returns the value of band b at
 pixel (r, c).
 */
 float image_getc(Image* src, int r, int c, int b){
-	switch (b){
-		case 0:
-			return src->data[r][c].rgb[0];
-		case 1: 
-			return src->data[r][c].rgb[1];
-		case 2;
-			return src->data[r][c].rgb[2]; 
+	if((NULL != src) && (NULL != src->data)){
+		switch (b){
+			case 0:
+				return src->data[r][c].rgb[0];
+			case 1: 
+				return src->data[r][c].rgb[1];
+			case 2:
+				return src->data[r][c].rgb[2]; 
+			default:
+				printf("ERROR: invalid band request: b = %d.\n", b);
+				return -1.0;
+		}
+	}else{
+		printf("ERROR: Image src or src->data is NULL");
+		return -1.0;
 	}
 }
 
@@ -226,27 +236,31 @@ float image_getz(Image* src, int r, int c){
 Sets the values of pixel (r,c) to the FPixel val
 */
 void image_setf(Image* src, int r, int c, FPixel val){
-	src->data[r][c].rgb[0] = val.rgb[0];
-	src->data[r][c].rgb[1] = val.rgb[1];
-	src->data[r][c].rgb[2] = val.rgb[2];
-	src->data[r][c].a = val.a;
-	src->data[r][c].z = val.z;
+	if((NULL != src)&&(NULL != src->data)){
+		src->data[r][c].rgb[0] = val.rgb[0];
+		src->data[r][c].rgb[1] = val.rgb[1];
+		src->data[r][c].rgb[2] = val.rgb[2];
+		src->data[r][c].a = val.a;
+		src->data[r][c].z = val.z;
+	}
 }
 
 /*
 Sets the value of pixel (r, c) band b to val.
 */
 void image_setc(Image* src, int r, int c, int b, float val){
-	switch(b){
-		case 0:
-			src->data[r][c].rgb[0] = val;
-			break;
-		case 1:
-			src->data[r][c].rgb[1] = val;
-			break;
-		case 2:
-			src->data[r][c].rgb[2] = val;
-			break;
+	if((NULL != src)&&(NULL != src->data)){
+		switch(b){
+			case 0:
+				src->data[r][c].rgb[0] = val;
+				break;
+			case 1:
+				src->data[r][c].rgb[1] = val;
+				break;
+			case 2:
+				src->data[r][c].rgb[2] = val;
+				break;
+		}
 	}
 }
 
@@ -254,14 +268,18 @@ void image_setc(Image* src, int r, int c, int b, float val){
 Sets the alpha value of pixel (r, c) to val.
 */
 void image_seta(Image* src, int r, int c, float val){
-	src->data[r][c].a = val;
+	if((NULL != src)&&(NULL != src->data)){
+		src->data[r][c].a = val;
+	}
 }
 
 /*
 Sets the depth value of pixel (r, c) to val.
 */
 void image_setz(Image* src, int r, int c, float val){
-	src->data[r][c].z = val;
+	if((NULL != src)&&(NULL != src->data)){
+		src->data[r][c].z = val;
+	}
 }
 
 /* Utility functions */
@@ -271,15 +289,17 @@ Resets every pixel to a default value (e.g. Black, alpha value
 of 1.0, z value of 1.0)
 */
 void image_reset(Image* src){
-	int i;
-	int j;
-	for(i=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++){
-			src->data[i][j].rgb[0] = 0.0;
-			src->data[i][j].rgb[1] = 0.0;
-			src->data[i][j].rgb[2] = 0.0;
-			src->data[i][j].a = 1.0;
-			src->data[i][j].z = 1.0;
+	if ((NULL != src)&&(NULL != src->data)){
+		int i;
+		int j;
+		for(i=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++){
+				src->data[i][j].rgb[0] = 0.0;
+				src->data[i][j].rgb[1] = 0.0;
+				src->data[i][j].rgb[2] = 0.0;
+				src->data[i][j].a = 1.0;
+				src->data[i][j].z = 1.0;
+			}
 		}
 	}
 }
@@ -288,15 +308,17 @@ void image_reset(Image* src){
 Sets every FPixel to the given value
 */
 void image_fill(Image* src, FPixel val){
-	int i;
-	int j;
-	for(i=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++){
-			src->data[i][j].rgb[0] = val.rgb[0];
-			src->data[i][j].rgb[1] = val.rgb[1];
-			src->data[i][j].rgb[2] = val.rgb[2];
-			src->data[i][j].a = val.a;
-			src->data[i][j].z = val.z;
+	if((NULL != src)&&(NULL != src->data)){
+		int i;
+		int j;
+		for(i=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++){
+				src->data[i][j].rgb[0] = val.rgb[0];
+				src->data[i][j].rgb[1] = val.rgb[1];
+				src->data[i][j].rgb[2] = val.rgb[2];
+				src->data[i][j].a = val.a;
+				src->data[i][j].z = val.z;
+			}
 		}
 	}
 }
@@ -305,13 +327,15 @@ void image_fill(Image* src, FPixel val){
 Sets the (r,g,b) value of each pixel to the given color.
 */
 void image_fillrgb(Image* src, float r, float g, float b){
-	int i;
-	int j;
-	for(i=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++){
-			src->data[i][j].rgb[0] = r;
-			src->data[i][j].rgb[1] = g;
-			src->data[i][j].rgb[2] = b;
+	if((NULL != src)&&(NULL != src->data)){
+		int i;
+		int j;
+		for(i=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++){
+				src->data[i][j].rgb[0] = r;
+				src->data[i][j].rgb[1] = g;
+				src->data[i][j].rgb[2] = b;
+			}
 		}
 	}
 }
@@ -320,11 +344,13 @@ void image_fillrgb(Image* src, float r, float g, float b){
 Sets the alpha value of each pixel to the given value.
 */
 void image_filla(Image* src, float a){
-	int i;
-	int j;
-	for(i=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++){
-			src->data[i][j].a = a;
+	if ((NULL != src)&&(NULL != src->data)){
+		int i;
+		int j;
+		for(i=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++){
+				src->data[i][j].a = a;
+			}
 		}
 	}
 }
@@ -333,11 +359,13 @@ void image_filla(Image* src, float a){
 Sets the z value of each pixel to the given value.
 */
 void image_fillz(Image *src, float z){
-	int i;
-	int j;
-	for(i=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++){
-			src->data[i][j].z = z;
+	if((NULL != src)&&(NULL != src->data)){
+		int i;
+		int j;
+		for(i=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++){
+				src->data[i][j].z = z;
+			}
 		}
 	}
 }

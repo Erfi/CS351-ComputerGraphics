@@ -26,16 +26,16 @@ LIBS = -lm -limageIO
 LFLAGS = -L$(LIBDIR)
 
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h
+_DEPS = ppmIO.h ppmMethods.h Image.h 
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = ppmtest lab1
+EXECUTABLES = ppmtest lab1 imagetest
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = ppmmain.o lab1.o
+_OBJ = ppmmain.o lab1.o Image.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))

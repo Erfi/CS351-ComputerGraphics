@@ -26,16 +26,16 @@ LIBS = -lm -limageIO
 LFLAGS = -L$(LIBDIR)
 
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h 
+_DEPS = ppmIO.h ppmMethods.h Image.h 
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = ppmtest lab1
+EXECUTABLES = imagetest
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = ppmmain.o lab1.o 
+_OBJ = imagetest.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -57,7 +57,7 @@ all:
 
 
 # put the specific executable rules here
-lab1: $(ODIR)/lab1.o
+imagetest: $(ODIR)/imagetest.o
 	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean

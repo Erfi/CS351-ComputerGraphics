@@ -34,7 +34,7 @@ _DEPS = ppmIO.h ppmMethods.h Image.h
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of all the object files (with .o endings)
-_COMMON = ppmIO.o ppmMethods.o Image.h
+_COMMON = ppmIO.o ppmMethods.o Image.o
 
 # convert them to point to the right place
 COMMON = $(patsubst %,$(ODIR)/%,$(_COMMON))
