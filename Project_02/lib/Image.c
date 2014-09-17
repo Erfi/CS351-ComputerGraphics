@@ -24,9 +24,8 @@ Image* image_create(int rows, int cols){
 		return NULL;
 	}else{
 		Image* image = malloc(sizeof(Image));
-		image->data = NULL;
-		image->rows = rows;
-		image->cols = cols;
+		image_init(image);
+		image_alloc(image, rows, cols);
 		return image;
 	}
 }
@@ -101,17 +100,21 @@ De-allocates image data and resets the Image structure
 fields. The function does not free the Image structure.
 */
 void image_dealloc(Image* src){
-	if((NULL != src) && (NULL != src->data)){
-		int i;
-		for (i=0; i<src->rows; i++){ 
-			free(src->data[i]); // free all the data cols
+	if(NULL != src){
+		if(NULL != src->data){
+			int i;
+			for (i=0; i<src->rows; i++){ 
+				free(src->data[i]); // free all the data cols
+			}
+			free(src->data); // free the data rows
+			src->data = NULL;
+			src->rows = 0;
+			src->cols = 0;
+		}else{
+			printf("src->data is already free\n");
 		}
-		free(src->data); // free the data rows
-		src->data = NULL;
-		src->rows = 0;
-		src->cols = 0;
 	}else{
-		printf("WARNING: cannot deallocate image >> image pointer or image->data is NULL\n");
+		printf("WARNING: cannot deallocate image >> image pointer is NULL\n");
 	}
 }
 
@@ -166,24 +169,28 @@ Returns 0 on success.
 This function DOES NOT free the memory of the Image src.
 */
 int image_write(Image* src, char* filename){
-	int imagesize = src->rows * src->cols; // number of pixels (image size)
-	Pixel* image = malloc(sizeof(Pixel)*imagesize);//allocate memory for the PPM array that will be written later to a file
-	if(NULL == image){return -1;} // checking the malloc
-	
-	int i;
-	int j;
-	int k;
-	for(i=0, k=0; i<src->rows; i++){
-		for(j=0; j<src->cols; j++, k++){
-			image[k].r = (unsigned char)(src->data[i][j].rgb[0] * 255);
-			image[k].g = (unsigned char)(src->data[i][j].rgb[1] * 255);
-			image[k].b = (unsigned char)(src->data[i][j].rgb[2] * 255);
+	if((NULL != src)&&(NULL != src->data)){
+		int imagesize = src->rows * src->cols; // number of pixels (image size)
+		Pixel* image = malloc(sizeof(Pixel)*imagesize);//allocate memory for the PPM array that will be written later to a file
+		if(NULL == image){return -1;} // checking the malloc
+		
+		int i;
+		int j;
+		int k;
+		for(i=0, k=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++, k++){
+				image[k].r = (unsigned char)(src->data[i][j].rgb[0] * 255);
+				image[k].g = (unsigned char)(src->data[i][j].rgb[1] * 255);
+				image[k].b = (unsigned char)(src->data[i][j].rgb[2] * 255);
+			}
 		}
+		
+		writePPM(image, src->rows, src->cols, 255, filename);
+		free(image);	
+		return 0;
+	}else{
+		return -1;
 	}
-	
-	writePPM(image, src->rows, src->cols, 255, filename);
-	free(image);	
-	return 0;
 }
 
 /* Acces functions */
@@ -261,6 +268,8 @@ void image_setc(Image* src, int r, int c, int b, float val){
 				src->data[r][c].rgb[2] = val;
 				break;
 		}
+	}else{
+		printf("ERROR: can't set the color >> src or src->data is NULL\n");
 	}
 }
 

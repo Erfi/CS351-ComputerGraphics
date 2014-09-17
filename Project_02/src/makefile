@@ -58,7 +58,7 @@ all:
 
 # put the specific executable rules here
 imagetest: $(ODIR)/imagetest.o
-	$(CC) -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
 

@@ -6,6 +6,7 @@
 */
 #include <math.h>
 #include "Image.h"
+#include <stdio.h>
 
 int main(int argc, char *argv[]) {
   Image *src;
@@ -17,6 +18,7 @@ int main(int argc, char *argv[]) {
   // initialize an image
   src = image_create(rows, cols);
 
+
   // fill it with colors
   for(i=0;i<rows;i++) {
     for(j=0;j<cols;j++) {
@@ -27,7 +29,7 @@ int main(int argc, char *argv[]) {
   }
 
   // write it out
-  image_write( src, "colors.ppm");
+  image_write( src, "../images/colors.ppm");
 
   // free it
   image_free( src );
