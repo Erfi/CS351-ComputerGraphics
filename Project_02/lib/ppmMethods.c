@@ -36,11 +36,13 @@ Returns a pointer to the final image
 Pixel* setBackground(Pixel* background, Pixel* image, Pixel* imageMask, int imageSize){
 	int i;
 	for(i=0;i<imageSize;i++) {
-    float alpha = imageMask[i].g/255.0; /*r,g,b of the mask are the same*/
+		float alpha_r = imageMask[i].r/255.0;
+	    float alpha_g = imageMask[i].g/255.0; 
+		float alpha_b = imageMask[i].b/255.0;
 
-    background[i].r = (alpha * background[i].r) + ((1-alpha) * image[i].r);
-    background[i].g = (alpha * background[i].g) + ((1-alpha) * image[i].g);
-   	background[i].b = (alpha * background[i].b) + ((1-alpha) * image[i].b);
+	    background[i].r = (alpha_r * background[i].r) + ((1-alpha_r) * image[i].r);
+	    background[i].g = (alpha_g * background[i].g) + ((1-alpha_g) * image[i].g);
+	   	background[i].b = (alpha_b * background[i].b) + ((1-alpha_b) * image[i].b);
   }
 	return background;
 }

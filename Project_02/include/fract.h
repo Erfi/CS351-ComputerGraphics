@@ -9,5 +9,6 @@ File: fract.h
 
 void mandelbrot( Image *dst, float x0, float y0, float dx);
 void julia(Image *dst, float x0, float y0, float dx);
+Image* makeNoise(Image* img);
 
 #endif

@@ -188,9 +188,50 @@ int image_write(Image* src, char* filename){
 				image[k].b = (unsigned char)(src->data[i][j].rgb[2] * 255);
 			}
 		}
-		
 		writePPM(image, src->rows, src->cols, 255, filename);
 		free(image);	
+		return 0;
+	}else{
+		return -1;
+	}
+}
+
+/*
+Writes a PPm image to the given filename.
+The format should be included in the filename. e.g. "../images/test.jpg"
+Returns 0 on success.
+This function DOES NOT free the memory of the Image src.
+*/
+int image_fwrite(Image* src, char* filename){
+	if((NULL != src)&&(NULL != src->data)){
+		int imagesize = src->rows * src->cols; // number of pixels (image size)
+		Pixel* image = malloc(sizeof(Pixel)*imagesize);//allocate memory for the PPM array that will be written later to a file
+		if(NULL == image){return -1;} // checking the malloc
+		
+		int i;
+		int j;
+		int k;
+		for(i=0, k=0; i<src->rows; i++){
+			for(j=0; j<src->cols; j++, k++){
+				image[k].r = (unsigned char)(src->data[i][j].rgb[0] * 255);
+				image[k].g = (unsigned char)(src->data[i][j].rgb[1] * 255);
+				image[k].b = (unsigned char)(src->data[i][j].rgb[2] * 255);
+			}
+		}
+		// write the file using writePPM and then convert it using system call
+		writePPM(image, src->rows, src->cols, 255, filename);
+		free(image);	
+		if(NULL != filename){
+			char command[200] = "convert ";
+			strcat(command, filename);
+			strcat(command, " ");
+			strcat(command, filename);
+			int s = system(command);
+			if(0 != s){
+				printf("ERROR: image_fwrite >> format conversion failed");
+				return -1;
+			}
+		}
 		return 0;
 	}else{
 		return -1;
@@ -382,6 +423,52 @@ void image_fillz(Image *src, float z){
 		}
 	}
 }
+
+/* Blending */
+
+/*
+This function takes three Image pointers and blends src1 and src2 together according to the 
+alpha value of 0 to 1 and writed it into Image* dst.
+*** ALL THREE IMAGE* HAVE TO BE OF THE SAME SIZE **
+Returns dst, Image pointer.
+*/
+Image* image_blend(Image* src1, Image* src2, Image* dst, float alpha){
+	if((NULL != src1) || (NULL != src2)|| (NULL != dst) ){
+		if((src1->rows == dst->rows) && (src1->cols == dst->cols) && (src2->rows == dst->rows) && (src2->cols == dst->cols)){
+			if((alpha > 1.0) || (alpha < 0.0)){
+				printf("ERROR: image_blend >> alpha value out of range!\n");
+				return NULL;
+			}
+			float alpha_r;
+			float alpha_g;
+			float alpha_b;
+
+			int i;
+			int j;
+			for (i=0; i< src1->rows; i++){
+				for (j=0; j< src1->cols; j++){
+					alpha_r = (alpha * src1->data[i][j].rgb[0]) + ((1.0-alpha) * src2->data[i][j].rgb[0]); 
+					alpha_g = (alpha * src1->data[i][j].rgb[1]) + ((1.0-alpha) * src2->data[i][j].rgb[1]);
+					alpha_b = (alpha * src1->data[i][j].rgb[2]) + ((1.0-alpha) * src2->data[i][j].rgb[2]);
+
+					image_setc(dst, i, j, 0, alpha_r);
+					image_setc(dst, i, j, 1, alpha_g);
+					image_setc(dst, i, j, 2, alpha_b);
+				}
+			}
+			return dst;
+		}else{
+			printf("ERROR: image_blend >> Image pointers have different sizes.\n");
+			return NULL;
+		}
+	}else{
+		printf("ERROR: image_blend >> One or more Image pointers are NULL.\n");
+			return NULL;
+	}
+}
+
+
+
 
 
 

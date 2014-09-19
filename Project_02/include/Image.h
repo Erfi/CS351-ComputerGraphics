@@ -30,6 +30,7 @@ void image_dealloc(Image* src);
 /*I/O functions */
 Image* image_read(char* filename);
 int image_write(Image* src, char* filename);
+int image_fwrite(Image* src, char* filename);
 
 /* Acces functions */
 FPixel image_getf(Image* src, int r, int c);
@@ -48,6 +49,6 @@ void image_fillrgb(Image* src, float r, float g, float b);
 void image_filla(Image* src, float a);
 void image_fillz(Image *src, float z);
 
-
-
+/* Blending */
+Image* image_blend(Image* src1, Image* src2, Image* dst, float alpha);
 #endif
