@@ -19,13 +19,13 @@ int main(int argc, char *argv[]) {
 
   mandelbrot( src1, -2.0, 1.0, 0.0025);
   //julia( src1, -2, -2, 4000);//finds stuff ar zoom 0.4
-  //makeNoise(src2);
-  //image_blend(src1, src2, dst, 0.9);
+  makeNoise(src2);
+  image_blend(src1, src2, dst, 0.9);
 
   image_write( src1, "../images/fractal.ppm");
-  //image_write( src2, "../images/noise.ppm");
-  //image_write( dst, "../images/noise_blend.ppm");
-  //image_fwrite( dst, "../images/noise_blend.jpg");
+  image_write( src2, "../images/noise.ppm");
+  image_write( dst, "../images/noise_blend.ppm");
+  image_fwrite( dst, "../images/noise_blend.jpg");
 
 
   image_free( src1 );

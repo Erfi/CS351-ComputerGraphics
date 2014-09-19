@@ -23,7 +23,7 @@ void mandelbrot( Image *dst, float x0, float y0, float dx){
 		float MaxRe = MinRe + (float)((dst->cols - 1) * dx);
 		float MinIm = MaxIm - (float)((dst->rows - 1) * dx);
 		printf("MaxRe, MinIm: %f, %f\n",MaxRe, MinIm);
-		int maxIterations = 2;
+		int maxIterations = 100;
 
 		float Re_factor = (float)((MaxRe - MinRe) / (dst->cols -1));
 		float Im_factor = (float)((MaxIm - MinIm) / (dst->rows -1));
@@ -110,13 +110,14 @@ void julia(Image *dst, float x0, float y0, float dx){
 					z_re = z_re2 - z_im2 + c_re;
 				}
 				if(is_inside==1){ // paint blue
+					printf("found something inside\n");
 					image_setc(dst,y, x, 0, 0.0);
 					image_setc(dst,y, x, 1, 0.0);
 					image_setc(dst,y, x, 2, 1.0);
 				}else{ // paint reddish
 					float color = (float)((float)(n) / (float)(maxIterations));
 					image_setc(dst,y, x, 0, color);
-					image_setc(dst,y, x, 1, 0.2);
+					image_setc(dst,y, x, 1, 0.0);
 					image_setc(dst,y, x, 2, 0.0);
 				}
 			}
