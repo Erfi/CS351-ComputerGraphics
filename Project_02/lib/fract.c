@@ -82,40 +82,43 @@ void julia(Image *dst, float x0, float y0, float dx){
 		float MaxRe = MinRe + (float)((dst->cols - 1) * dx);
 		float MinIm = MaxIm - (float)((dst->rows - 1) * dx);
 		printf("MaxRe, MinIm: %f, %f\n",MaxRe, MinIm);
-		int maxIterations = 500;
+		int maxIterations = 100;
 
-		float Re_factor = (float)((MaxRe - MinRe) / (dst->cols -1));
-		float Im_factor = (float)((MaxIm - MinIm) / (dst->rows -1));
+		float step = dx / dst->cols;
 
-		float c_re = 0.7454054 * Re_factor; 
-		float c_im = 0.1130063 * Im_factor; 
-
+		float c_re = 0.7454054;
+		float c_im = 0.1130063;
+		int p = 0;
 		int x;
 		int y;
 		for(y=0; y< dst->rows; y++){
 			for(x=0; x< dst->cols; x++){
 				
-				float z_re = c_re;
-				float z_im = c_im;
+				float z_re = x*step + MinRe;
+				float z_im = MaxIm - y*step;
 				int is_inside = 1;
 				int n;
 				for(n=0; n< maxIterations; n++){
 					float z_re2 = z_re * z_re;
 					float z_im2 = z_im * z_im;
 					if((z_re2 + z_im2) > 4.0){
+						printf("%f\n", z_re2+z_im2);
 						is_inside = 0;
+						p=n;
+						//printf("%d\n",p);
 						break;
 					}
 					z_im = 2.0 * z_re * z_im + c_im;
 					z_re = z_re2 - z_im2 + c_re;
 				}
 				if(is_inside==1){ // paint blue
-					printf("found something inside\n");
+					//printf("inside\n");
 					image_setc(dst,y, x, 0, 0.0);
 					image_setc(dst,y, x, 1, 0.0);
 					image_setc(dst,y, x, 2, 1.0);
 				}else{ // paint reddish
-					float color = (float)((float)(n) / (float)(maxIterations));
+					//printf("~~inside\n");
+					float color = (float)((float)(p) / (float)(maxIterations));
 					image_setc(dst,y, x, 0, color);
 					image_setc(dst,y, x, 1, 0.0);
 					image_setc(dst,y, x, 2, 0.0);
@@ -123,7 +126,7 @@ void julia(Image *dst, float x0, float y0, float dx){
 			}
 		} 
 	}else{
-		printf("ERROR: Mandelbrot >> dst is NULL.\n");
+		printf("ERROR: Julia >> dst is NULL.\n");
 	}
 }
 
