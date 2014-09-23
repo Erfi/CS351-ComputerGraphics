@@ -6,10 +6,9 @@
 //
 //
 
-#ifndef ____point__
-#define ____point__
+#ifndef __POINT_H__
+#define __POINT_H__
 
-#include <stdio.h>
 
 
 typedef struct{
@@ -21,11 +20,8 @@ typedef struct{
 void point_set2D(Point *p, double x, double y);
 void point_set3D(Point *p, double x, double y, double z);
 void point_set(Point *p, double x, double y, double z, double h);
-
 void point_copy(Point *to, Point *from);
-
 void point_draw(Point *p, Image *src, Color c);
-
 void point_drawf(Point *p, Image *src, FPixel c);
 
-#endif /* defined(____point__) */
+#endif /* defined(__POINT_H__) */

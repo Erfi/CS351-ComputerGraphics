@@ -6,10 +6,9 @@
 //
 //
 
-#ifndef ____color__
-#define ____color__
+#ifndef __COLOR_H__
+#define __COLOR_H__
 
-#include <stdio.h>
 
 typedef struct{
     float rgb[3];
@@ -20,4 +19,4 @@ void Color_copy(Color *to, Color *from);
 
 void Color_set(Color *to, float r, float g, float b);
 
-#endif /* defined(____color__) */
+#endif /* defined(__COLOR_H__) */

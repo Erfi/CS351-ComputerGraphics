@@ -6,10 +6,9 @@
 //
 //
 
-#ifndef ____circle__
-#define ____circle__
+#ifndef __circle_H__
+#define __circle_H__
 
-#include <stdio.h>
 
 
 void circle_set(Circle *c, Point tc, double tr);

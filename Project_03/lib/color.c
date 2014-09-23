@@ -7,11 +7,12 @@
 //
 
 #include "color.h"
+
 //– copies the Color data.
 void Color_copy(Color *to, Color *from){
     if (to==NULL||from ==NULL) {
-        printf("pointer is null");
-        return;
+        printf("ERROR: Color-copy >> pointer parameter is NULL\n");
+        exit(-1);
     }
     to->rgb[0]=from->rgb[0];
     to->rgb[1]=from->rgb[1];
@@ -22,8 +23,8 @@ void Color_copy(Color *to, Color *from){
 //– sets the Color data.
 void Color_set(Color *to, float r, float g, float b){
     if (to==NULL) {
-        printf("pointer is null");
-        return;
+        printf("ERROR: Color-copy >> pointer parameter is NULL\n");
+        exit(-1);
     }
     to->rgb[0]=r;
     to->rgb[1]=g;
