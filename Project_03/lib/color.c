@@ -6,6 +6,8 @@
 //
 //
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "color.h"
 
 //– copies the Color data.
@@ -14,11 +16,7 @@ void Color_copy(Color *to, Color *from){
         printf("ERROR: Color-copy >> pointer parameter is NULL\n");
         exit(-1);
     }
-    to->rgb[0]=from->rgb[0];
-    to->rgb[1]=from->rgb[1];
-    to->rgb[2]=from->rgb[2];
-
-    
+    *to = *from; // you can copy structuresd like this as long as there is no dynamic allocation
 }
 //– sets the Color data.
 void Color_set(Color *to, float r, float g, float b){

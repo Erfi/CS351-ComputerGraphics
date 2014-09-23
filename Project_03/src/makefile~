@@ -60,6 +60,9 @@ all:
 mandeltest: $(ODIR)/mandeltest.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
+imagetest: $(ODIR)/imagetest.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
 .PHONY: clean
 
 clean:

@@ -6,8 +6,12 @@
 //
 //
 
-#ifndef _line_h
-#define _line_h
+#ifndef __LINE_H__
+#define __LINE_H__
+
+#include "Image.h"
+#include "point.h"
+#include "color.h"
 
 typedef  struct{
     int zBuffer;
@@ -17,13 +21,9 @@ typedef  struct{
 
 
 void line_set2D(Line *l, double x0, double y0, double x1, double y1);
-
-void line_zBuffer(Line *l, int flag);
-
-void line_zBuffer(Line *l, int flag);
-
+void line_set(Line *l, Point ta, Point tb);
+void line_zBuffer(Line *l, int flag);	
 void line_copy(Line *to, Line *from);
-
 void line_draw(Line *l, Image *src, Color c);
 
 #endif

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   dst = image_create(750, 1000);
 
   //mandelbrot( src1, -2.0, 1.0, 0.0025);
-  julia( src1, 2, 2, 3 );
+  julia( src1, -2, -1, 3 );
   //makeNoise(src2);
   //image_blend(src1, src2, dst, 0.9);
 

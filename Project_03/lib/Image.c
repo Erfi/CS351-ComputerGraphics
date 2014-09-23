@@ -5,6 +5,7 @@ This file contains the definitions of all the method declarations in
 image.c which deals with Constructors & Destructors, I/O functions, Access, Utility
 */
 #include "Image.h"
+#include "color.h"
 #include "ppmIO.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -301,7 +302,7 @@ void image_setf(Image* src, int r, int c, FPixel val){
 Sets the value of pixel (r, c) band b to val.
 */
 void image_setc(Image* src, int r, int c, int b, float val){
-	if((NULL != src)&&(NULL != src->data)){
+	if((NULL != src) || (NULL != src->data)){
 		switch(b){
 			case 0:
 				src->data[r][c].rgb[0] = val;
@@ -315,7 +316,21 @@ void image_setc(Image* src, int r, int c, int b, float val){
 		}
 	}else{
 		printf("ERROR: can't set the color >> src or src->data is NULL\n");
+		exit(-1);
 	}
+}
+
+/*
+sets the RGB value of pixel (r,c) to the RGB value of Color c.
+*/
+void image_setColor(Image* src, int r, int c, Color clr){
+	if((NULL == src)&&(NULL == src->data)){
+		printf("ERROR: image_setColor >> src or src->data is NULL");
+		exit(-1);
+	}
+	src->data[r][c].rgb[0] = clr.rgb[0];
+	src->data[r][c].rgb[1] = clr.rgb[1];
+	src->data[r][c].rgb[2] = clr.rgb[2];
 }
 
 /*

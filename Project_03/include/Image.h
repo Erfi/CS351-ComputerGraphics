@@ -6,6 +6,8 @@ Date: Mon 15 Sep 2014
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
+#include "color.h"
+
 typedef struct {
 	float rgb[3];
 	float a;
@@ -41,6 +43,7 @@ void image_setf(Image* src, int r, int c, FPixel val);
 void image_setc(Image* src, int r, int c, int b, float val);
 void image_seta(Image* src, int r, int c, float val);
 void image_setz(Image* src, int r, int c, float val);
+void image_setColor(Image* src, int r, int c, Color clr);
 
 /* Utility functions */
 void image_reset(Image* src);

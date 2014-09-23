@@ -74,15 +74,20 @@ void mandelbrot( Image *dst, float x0, float y0, float dx){
 	}
 }
 
-
+/*
+This function creates and plots a julia set with coloring.
+x0 and y0 are the coordinates of the lower left pixel of the image.
+dx is the distance between the pixels in cartesian coordinates.
+Returns a pointer to the Image structure containing the final image.
+*/
 void julia(Image *dst, float x0, float y0, float dx){
 	if(NULL != dst){
 		float MinRe = x0;
-		float MaxIm = y0;
-		float MaxRe = MinRe + (float)((dst->cols - 1) * dx);
-		float MinIm = MaxIm - (float)((dst->rows - 1) * dx);
+		float MaxIm = y0 + (dst->rows*dx)/dst->cols;
+		float MaxRe = x0 + dx;
+		float MinIm = y0;
 		printf("MaxRe, MinIm: %f, %f\n",MaxRe, MinIm);
-		int maxIterations = 100;
+		int maxIterations = 500;
 
 		float step = dx / dst->cols;
 
@@ -102,26 +107,31 @@ void julia(Image *dst, float x0, float y0, float dx){
 					float z_re2 = z_re * z_re;
 					float z_im2 = z_im * z_im;
 					if((z_re2 + z_im2) > 4.0){
-						printf("%f\n", z_re2+z_im2);
 						is_inside = 0;
 						p=n;
 						//printf("%d\n",p);
 						break;
 					}
-					z_im = 2.0 * z_re * z_im + c_im;
-					z_re = z_re2 - z_im2 + c_re;
+					z_im = 2.0 * z_re * z_im - c_im;
+					z_re = z_re2 - z_im2 - c_re;
 				}
 				if(is_inside==1){ // paint blue
 					//printf("inside\n");
-					image_setc(dst,y, x, 0, 0.0);
-					image_setc(dst,y, x, 1, 0.0);
-					image_setc(dst,y, x, 2, 1.0);
+					image_setc(dst,y, x, 0, 0.4);
+					image_setc(dst,y, x, 1, 0.4);
+					image_setc(dst,y, x, 2, 0.2);
 				}else{ // paint reddish
 					//printf("~~inside\n");
 					float color = (float)((float)(p) / (float)(maxIterations));
-					image_setc(dst,y, x, 0, color);
-					image_setc(dst,y, x, 1, 0.0);
-					image_setc(dst,y, x, 2, 0.0);
+					if(color < 0.7){//black o red
+						image_setc(dst,y, x, 0, color);
+						image_setc(dst,y, x, 1, 0.0);
+						image_setc(dst,y, x, 2, 0.0);
+					}else{ //red to white
+						image_setc(dst,y, x, 0, color);
+						image_setc(dst,y, x, 1, 1.0);
+						image_setc(dst,y, x, 2, 1.0);
+					}	
 				}
 			}
 		} 
