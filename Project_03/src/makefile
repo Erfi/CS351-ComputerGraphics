@@ -26,7 +26,7 @@ LIBS = -lm -limageIO
 LFLAGS = -L$(LIBDIR)
 
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h
+_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
@@ -35,7 +35,7 @@ DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 EXECUTABLES = imagetest mandeltest testbench
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = imagetest.o mandeltest.o testbench.o
+_OBJ = imagetest.o mandeltest.o testbench.o test3a.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -57,7 +57,7 @@ all:
 
 
 # put the specific executable rules here
-mandeltest: $(ODIR)/mandeltest.o
+test3a: $(ODIR)/test3a.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 imagetest: $(ODIR)/imagetest.o
@@ -65,6 +65,7 @@ imagetest: $(ODIR)/imagetest.o
 
 testbench: $(ODIR)/testbench.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
 
 .PHONY: clean
 

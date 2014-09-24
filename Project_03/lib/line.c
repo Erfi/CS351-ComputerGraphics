@@ -53,15 +53,13 @@ void line_draw(Line *l, Image *src, Color c){
         printf("ERROR: line_draw >> pointer parameter is NULL\n");
         exit(-1);
     }
-    int x0 = l->a.val[0];
-    int y0 = l->a.val[1];
-    int x1 = l->b.val[0];
-    int y1 = l->b.val[1];
-    
+    int y0 = l->a.val[0];
+    int x0 = l->a.val[1];
+    int y1 = l->b.val[0];
+    int x1 = l->b.val[1];
     int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
     int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1;
     int err = (dx>dy ? dx : -dy)/2, e2;
-
     Point p;
     for(;;){
         point_set2D(&p,x0,y0);

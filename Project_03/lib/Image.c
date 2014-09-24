@@ -115,8 +115,6 @@ void image_dealloc(Image* src){
 			src->data = NULL;
 			src->rows = 0;
 			src->cols = 0;
-		}else{
-			printf("WARNING: image_dealloc >> src->data is already free\n");
 		}
 	}else{
 		printf("WARNING: image_dealloc >> image pointer is NULL\n");
