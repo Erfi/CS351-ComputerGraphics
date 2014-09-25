@@ -15,6 +15,7 @@
 #include "point.h"
 #include "line.h"
 #include "circle.h"
+#include "ellipse.h"
 
 
 // draw a box
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]) {
   Color Red;
   Point p;
   Circle circ;
+  Ellipse ellip;
   Line line;
 
   Color_set( &White, 1.0, 1.0, 1.0 );
@@ -60,6 +62,10 @@ int main(int argc, char *argv[]) {
   point_set2D( &p, 260, 160 );
   circle_set( &circ, p, 60 );
   circle_draw( &circ, src, White );
+
+  point_set2D( &p, 260, 160 );
+  ellipse_set(&ellip, p, 50, 20);
+  ellipse_drawFill(&ellip, src, White);
 
   line_set2D( &line, 290, 210, 470, 300);//290, 210, 399, 300
   line_draw( &line, src, Red );

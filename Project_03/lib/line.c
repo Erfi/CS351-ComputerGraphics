@@ -53,6 +53,11 @@ void line_draw(Line *l, Image *src, Color c){
         printf("ERROR: line_draw >> pointer parameter is NULL\n");
         exit(-1);
     }
+    /*
+    
+    HERE WE PUT THE SPECIAL CASES FOR HORIZONTAL AND VERTICAL LINES
+
+    */
     int y0 = l->a.val[0];
     int x0 = l->a.val[1];
     int y1 = l->b.val[0];
