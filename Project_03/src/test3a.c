@@ -17,7 +17,6 @@
 #include "circle.h"
 #include "ellipse.h"
 
-
 // draw a box
 static int box( Image *src, Color color, int x, int y, int dx, int dy );
 static int box( Image *src, Color color, int x, int y, int dx, int dy ) {
@@ -61,16 +60,15 @@ int main(int argc, char *argv[]) {
 
   point_set2D( &p, 260, 160 );
   circle_set( &circ, p, 60 );
-  circle_draw( &circ, src, White );
+  circle_drawDash( &circ, src, White );
 
-  point_set2D( &p, 260, 160 );
-  ellipse_set(&ellip, p, 50, 20);
-  ellipse_drawFill(&ellip, src, White);
+  ellipse_set(&ellip, p, 40, 20);
+  ellipse_drawDash(&ellip, src, White);
 
-  line_set2D( &line, 290, 210, 470, 300);//290, 210, 399, 300
-  line_draw( &line, src, Red );
+  line_set2D( &line, 290, 210, 470, 300);
+  line_drawDash( &line, src, Red );
 
-  line_set2D( &line, 295, 205, 475, 280);//
+  line_set2D( &line, 295, 205, 475, 280);
   line_draw( &line, src, Red );
   
   image_write( src, "test3a.ppm" );

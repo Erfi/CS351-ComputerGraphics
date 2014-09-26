@@ -39,8 +39,12 @@ Polyline *polyline_createp(int numV, Point *vlist){
         printf("ERROR: polyline_createp >> malloc failed!\n");
         exit(-1);
     }
-    p->vertex=vlist;
-    
+    p->vertex=malloc(sizeof(Point)*numV);
+    for (int i = 0; i < numV; i++)
+    {
+        point_copy(&(p->vertex[i]),&vlist[i]);
+    }
+    // p=vlist;
     p->numVertex=numV;
     p->zBuffer = 1;
     return p;
@@ -55,7 +59,6 @@ void polyline_free(Polyline *p){
             free(p->vertex);
         }
         free(p);
-        p=NULL;
     }
 }
 
@@ -64,9 +67,6 @@ void polyline_free(Polyline *p){
 initializes the pre-existing Polyline to an empty Polyline.
 */
 void polyline_init(Polyline *p){
-    if (p->vertex!=NULL) {
-        free(p->vertex);
-    }
     p->vertex=NULL;
     p->numVertex=0;
     p->zBuffer = 1;
@@ -80,7 +80,11 @@ void polyline_set(Polyline *p, int numV, Point *vlist){
     if (p->vertex!=NULL) {
         free(p->vertex);
     }
-    p->vertex = vlist;
+        p->vertex=malloc(sizeof(Point)*numV);
+    for (int i = 0; i < numV; i++)
+    {
+        point_copy(&(p->vertex[i]),&vlist[i]);
+    }
     p->numVertex = numV;
     p->zBuffer = 1;
 }

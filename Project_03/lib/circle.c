@@ -28,11 +28,8 @@ void circle_draw(Circle *c, Image *src, Color colr){
   int yCenter = (int)c->c.val[1];
   int p = 1 - radius;
 
-
   /* Plot first set of points */
   circle_PlotPoints(src,xCenter, yCenter, x, y,colr);
-
-
 
   while (x < y) {
     x++;
@@ -43,6 +40,36 @@ void circle_draw(Circle *c, Image *src, Color colr){
       p += 2 * (x - y) + 1;
     }
     	circle_PlotPoints(src,xCenter, yCenter, x, y,colr);
+	}
+}
+
+/*
+Draws a dashed circle
+*/
+void circle_drawDash(Circle *c, Image *src, Color colr){
+	/*draw the dashed circle into src using color p.*/
+  double radius = c->r;
+  int x = 0;
+  int y = radius;
+
+  int xCenter = (int)c->c.val[0];
+  int yCenter = (int)c->c.val[1];
+  int p = 1 - radius;
+
+  /* Plot first set of points */
+  circle_PlotPoints(src,xCenter, yCenter, x, y,colr);
+
+  while (x < y) {
+    x++;
+    if (p < 0) 
+      p += 2 * x + 1;
+    else {
+      y--;
+      p += 2 * (x - y) + 1;
+    }	
+    	if(x%4 == 0){
+    		circle_PlotPoints(src,xCenter, yCenter, x, y,colr);
+		}
 	}
 }
 

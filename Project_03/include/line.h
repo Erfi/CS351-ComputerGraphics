@@ -25,5 +25,6 @@ void line_set(Line *l, Point ta, Point tb);
 void line_zBuffer(Line *l, int flag);	
 void line_copy(Line *to, Line *from);
 void line_draw(Line *l, Image *src, Color c);
+void line_drawDash(Line *l, Image *src, Color c);
 
 #endif
