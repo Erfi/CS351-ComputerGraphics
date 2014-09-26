@@ -133,7 +133,6 @@ void polyline_print(Polyline *p, FILE *fp){
         for(i=0; i<p->numVertex; i++){
             fprintf(fp, "%f %f %f %f\n",p->vertex[i].val[0], p->vertex[i].val[1], p->vertex[i].val[2], p->vertex[i].val[3]);
         }
-        fclose(fp);
     }
 }
 
