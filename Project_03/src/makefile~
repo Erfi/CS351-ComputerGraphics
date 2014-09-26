@@ -57,7 +57,7 @@ all:
 
 
 # put the specific executable rules here
-test3c: $(ODIR)/test3c.o
+test3a: $(ODIR)/test3a.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 imagetest: $(ODIR)/imagetest.o

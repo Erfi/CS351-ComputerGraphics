@@ -35,7 +35,7 @@ DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 EXECUTABLES = imagetest mandeltest testbench
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o
+_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -66,6 +66,8 @@ imagetest: $(ODIR)/imagetest.o
 testbench: $(ODIR)/testbench.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
+3Dmodel: $(ODIR)/3Dmodel.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
 

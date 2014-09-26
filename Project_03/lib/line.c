@@ -61,7 +61,20 @@ void line_draw(Line *l, Image *src, Color c){
 
      /*
     HERE WE PUT THE SPECIAL CASES FOR HORIZONTAL AND VERTICAL LINES
-    */
+    // */
+    // if(y0 == y1){ // if vertical
+    //     int dy = abs(y1 - y0);
+    //     int i;
+    //     int cols = src->cols;
+    //     Point p;
+    //     for(i=0; i<dy; i++){
+    //         point_set2D(&p, x0, y0+(i*cols));
+    //         point_draw(&p, src, c);
+    //     }
+    //     return;
+    // }
+
+
 
     int dx = abs(x1-x0);
     int dy = abs(y1-y0);
@@ -110,6 +123,32 @@ void line_drawDash(Line *l, Image *src, Color c){
      /*
     HERE WE PUT THE SPECIAL CASES FOR HORIZONTAL AND VERTICAL LINES
     */
+    // if(x0 == x1){ // if vertical
+    //     int dy = abs(y1 - y0);
+    //     int i;
+    //     int cols = src->cols;
+    //     Point p;
+    //     for(i=0; i<dy; i++){
+    //         if(i%4 == 0){
+    //             point_set2D(&p, x0, y0+(i*cols));
+    //             point_draw(&p, src, c);
+    //         }
+    //     }
+    //     return;
+    // }
+
+    // if(y0 == y1){ // if horizontal
+    //     int dx = abs(x1 - x0);
+    //     int j;
+    //     Point p;
+    //     for(j=0; j<dx; j++){
+    //         if(j%4 == 0){
+    //             point_set2D(&p, x0+j, y0);
+    //             point_draw(&p, src, c);
+    //         }
+    //     }
+    //     return;
+    // }
 
     int dx = abs(x1-x0);
     int dy = abs(y1-y0);
