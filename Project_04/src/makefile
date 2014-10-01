@@ -26,16 +26,16 @@ LIBS = -lm -limageIO
 LFLAGS = -L$(LIBDIR)
 
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h polyline.h
+_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h polyline.h polygon.h
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = imagetest mandeltest testbench
+EXECUTABLES = imagetest mandeltest testbench test4b
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o
+_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -67,6 +67,9 @@ testbench: $(ODIR)/testbench.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 3Dmodel: $(ODIR)/3Dmodel.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+test4b: $(ODIR)/test4b.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean

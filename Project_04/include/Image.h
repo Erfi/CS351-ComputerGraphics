@@ -52,6 +52,6 @@ void image_fillrgb(Image* src, float r, float g, float b);
 void image_filla(Image* src, float a);
 void image_fillz(Image *src, float z);
 
-/* Blending */
+/* image manipulation */
 Image* image_blend(Image* src1, Image* src2, Image* dst, float alpha);
 #endif

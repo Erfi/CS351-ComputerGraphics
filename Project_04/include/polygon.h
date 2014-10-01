@@ -16,7 +16,7 @@ typedef struct{
 	int zBuffer;
 }Polygon;
 
-Polygon *polygon_create();
+Polygon *polygon_create(void);
 Polygon *polygon_createp(int numV, Point *vlist);
 void polygon_free(Polygon *p);
 void polygon_init(Polygon *p);
@@ -28,5 +28,7 @@ void polygon_print(Polygon *p, FILE *fp);
 void polygon_draw(Polygon *p, Image *src, Color c);
 void polygon_drawFill(Polygon *p, Image *src, Color c);
 void polygon_drawFillB(Polygon *p, Image *src, Color c);
+float Aux_implicit_line(Point p1, Point p2, float x,float y);
+int compare (const void * a, const void * b);
 
 #endif
