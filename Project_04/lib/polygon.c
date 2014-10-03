@@ -14,9 +14,6 @@ file: polygon.h
 #include "Image.h"
 #include "color.h"
 
-
-//*****************************************************************************************************
-//*****************************************************************************************************
 /****************************************
 Start Scanline Fill
 *****************************************/
@@ -181,11 +178,10 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
           continue;
       }
 
-        /**** Your code goes here ****/
-      if(p1->xIntersect < 0){
+      if(p1->xIntersect < 0){ // if starts to draw before the left of the image
         p1->xIntersect = 0;
       }
-      if(p2->xIntersect > src->cols){
+      if(p2->xIntersect > src->cols){ // if ends drawing beyound the right side of the image
         p2->xIntersect = src->cols;
       }
       int colStart = (int)(p1->xIntersect);
@@ -194,11 +190,6 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
       for (i=colStart; i< colEnd; i++){
         image_setColor(src, row, i, c);
       }
-      // identify the starting column
-      // clip to the left side of the image
-      // identify the ending column
-      // clip to the right side of the image
-        // loop from start to end and color in the pixels
 
         // move ahead to the next pair of edges
       p1 = ll_next( active );
@@ -207,10 +198,77 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
     return;
 }
 
+
+/*
+ Draw one scanline of a polygon given the scanline, the active edges,
+ a DrawState, the image, and some Lights (for Phong shading only) using a bitmap
+ */
+static void fillScanBitmap( int scan, LinkedList *active, Image *src,Image *bitmap ) {
+    Edge *p1, *p2;
+    int i;
+    
+    // loop over the list
+    p1 = ll_head( active );
+    while(p1) {
+        // the edges have to come in pairs, draw from one to the next
+        p2 = ll_next( active );
+        if( !p2 ) {
+            printf("bad bad bad (your edges are not coming in pairs)\n");
+            break;
+        }
+        
+        // if the xIntersect values are the same, don't draw anything.
+        // Just go to the next pair.
+        if( p2->xIntersect == p1->xIntersect ) {
+            p1 = ll_next( active );
+            printf("good good good pairs \n" );
+            continue;
+        }
+        
+        /**** Your code goes here ****/
+        if(p1->xIntersect < 0){
+            p1->xIntersect = 0;
+        }
+        if(p2->xIntersect > src->cols){
+            p2->xIntersect = src->cols;
+        }
+        int colStart = (int)(p1->xIntersect);
+        int colEnd = (int)(p2->xIntersect+1);
+        int row = scan;
+        
+        
+        int incrementor=0;
+        int bitmapRow=0;
+        
+        
+        for (i=colStart; i< colEnd; i++){
+            incrementor++;
+            if (incrementor % 8 == 0) {
+                bitmapRow++;
+            }
+            if (bitmapRow>bitmap->rows-1) {
+                bitmapRow=0;
+            }
+            
+            image_setf(src, row, i, bitmap->data[bitmapRow][incrementor]);
+        }
+        // identify the starting column
+        // clip to the left side of the image
+        // identify the ending column
+        // clip to the right side of the image
+        // loop from start to end and color in the pixels
+        
+        // move ahead to the next pair of edges
+        p1 = ll_next( active );
+    }
+    
+    return;
+}
+
 /* 
      Process the edge list, assumes the edges list has at least one entry
 */
-static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
+static int processEdgeList( LinkedList *edges, Image *src, Image *bitmap ,Color c ) {
     LinkedList *active = NULL;
     LinkedList *tmplist = NULL;
     LinkedList *transfer = NULL;
@@ -220,10 +278,9 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
 
     active = ll_new( );
     tmplist = ll_new( );
-
-    // get a pointer to the first item on the list and reset the current pointer
+//
+//    // get a pointer to the first item on the list and reset the current pointer
     current = ll_head( edges );
-
     // start at the first scanline and go until the active list is empty
     for(scan = current->yStart;scan < src->rows;scan++ ) {
 
@@ -232,17 +289,23 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
             ll_insert( active, current, compXIntersect );
             current = ll_next( edges );
         }
-        // current is either null, or the first edge to be handled on some future scanline
-
+//        // current is either null, or the first edge to be handled on some future scanline
+//
         if( ll_empty(active) ) {
             break;
         }
-
-        // if there are active edges
-        // fill out the scanline
-        fillScan( scan, active, src, c);
-
-        // remove any ending edges and update the rest
+//
+////        checks to see if a bitmap has been added, defaults to regular scan if not
+        if (bitmap == NULL) {
+            fillScan( scan, active, src, c);
+        }
+//
+////        if so, bitmap scan
+        else{
+            fillScanBitmap( scan, active, src, bitmap);
+        }
+//
+//        // remove any ending edges and update the rest
         for( tedge = ll_pop( active ); tedge != NULL; tedge = ll_pop( active ) ) {
 
             // keep anything that's not ending
@@ -265,7 +328,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
                 ll_insert( tmplist, tedge, compXIntersect );
             }
         }
-
+//
         transfer = active;
         active = tmplist;
         tmplist = transfer;
@@ -283,8 +346,6 @@ static int processEdgeList( LinkedList *edges, Image *src, Color c ) {
 /****************************************
 End Scanline Fill
 *****************************************/
-//*****************************************************************************************************
-//*****************************************************************************************************
 
 
 // returns an allocated Polygon pointer initialized so that numVertex is 0 and vertex is NULL.
@@ -415,11 +476,34 @@ void polygon_drawFill(Polygon *p, Image *src, Color c ) {
         return;
     
     // process the edge list (should be able to take an arbitrary edge list)
-    processEdgeList( edges, src, c);
+    processEdgeList( edges, src, NULL, c);
 
     // clean up
     ll_delete( edges, (void (*)(const void *))free );
 
+    return;
+}
+
+
+/*
+ Draws a filled polygon of the specified color into the image src, allows for bitmap texture insert
+ */
+void polygon_drawFillBitmap(Polygon *p, Image *src, Image *bitmap ) {
+    LinkedList *edges = NULL;
+    
+//    passing unitialized pointer, will not be used
+    Color c;
+    
+    // set up the edge list
+    edges = setupEdgeList( p, src );
+    if( !edges )
+        return;
+    // process the edge list (should be able to take an arbitrary edge list)
+    processEdgeList( edges, src, bitmap,c);
+    
+    // clean up
+    ll_delete( edges, (void (*)(const void *))free );
+    
     return;
 }
 
@@ -459,6 +543,48 @@ void polygon_drawFillB(Polygon *p, Image *src, Color c){
 			}
 		}
 	}
+}
+
+
+/*
+Draws a filled polygon (triangle) with color gradiant using Barycentric coordinates algorithm.
+Parameters:
+p : pointer to a polygon structure
+src : pointer to an image structure
+c1, c2, c3: Are color structures that will set the color of each corner of the triangle
+*/
+void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1 ,Color c2, Color c3){
+    const float epsilon = 0.00001;
+    float alpha, beta, gamma;
+    float xlist[3] = {p->vertex[0].val[0], p->vertex[1].val[0], p->vertex[2].val[0]};
+    float ylist[3] = {p->vertex[0].val[1], p->vertex[1].val[1], p->vertex[2].val[1]};
+    qsort(xlist, 3, sizeof(float), compare);
+    qsort(ylist, 3, sizeof(float), compare);
+    int Xmin = (int)(xlist[0]+0.5);
+    int Ymin = (int)(ylist[0]+0.5);
+    int Xmax = (int)(ylist[2]+0.5);
+    int Ymax = (int)(ylist[2]+0.5);
+    
+    for (int i = Ymin; i < Ymax; i++){
+        for (int j = Xmin; j < Xmax; j++){
+            beta = Aux_implicit_line(p->vertex[0], p->vertex[2], j,i)/ Aux_implicit_line(p->vertex[0], p->vertex[2],p->vertex[1].val[0], p->vertex[1].val[1]);
+            gamma = Aux_implicit_line(p->vertex[0], p->vertex[1], j,i)/ Aux_implicit_line(p->vertex[0], p->vertex[1],p->vertex[2].val[0], p->vertex[2].val[1]);
+            alpha = 1- beta - gamma;
+            
+            if (beta<-epsilon || gamma <-epsilon || alpha<-epsilon){ //if outside of the triangle
+                continue;
+            }
+            else{ // if inside of the thriangle
+                float im_red =(alpha*c1.rgb[0]) + (beta*c2.rgb[0]) + (gamma*c3.rgb[0]);
+                float im_green =(alpha*c1.rgb[1]) + (beta*c2.rgb[1]) + (gamma*c3.rgb[1]);
+                float im_blue =(alpha*c1.rgb[2]) + (beta*c2.rgb[2]) + (gamma*c3.rgb[2]);
+                
+                image_setc(src,i,j,0,im_red);
+                image_setc(src,i,j,1,im_green);
+                image_setc(src,i,j,2,im_blue);
+            }
+        }
+    }
 }
 
 /*

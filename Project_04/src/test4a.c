@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   p = polygon_createp(4, pt);
 
   printf("drawing a square\n");
-  polygon_drawFill(p, src, Blue);
+  //polygon_drawFill(p, src, Blue);
 
   // something more interesting
   for(i=0;i<50;i++) {
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   polygon_set(p, 50, pt);
 
   printf("drawing second big polygon\n");
-  polygon_drawFill(p, src, Orange);
+  //polygon_drawFill(p, src, Orange);
 
   for(i=0;i<50;i++) {
     float dr = rand() % 10;
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
   polygon_set(p, 50, pt);
 
   printf("drawing third big polygon\n");
-  polygon_drawFill(p, src, White);
+  //polygon_drawFill(p, src, White);
 
   printf("writing output\n");
   image_write(src, "test4a.ppm");
