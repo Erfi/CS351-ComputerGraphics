@@ -118,7 +118,12 @@ vertex data from the source polyline (from) to the destination (to).
 void polyline_copy(Polyline *to, Polyline *from){
     if(NULL != to && NULL != from){
         polyline_clear(to);
-        *to = *from;
+        to->vertex = malloc(sizeof(Point)*from->numVertex);
+        int i;
+        for (i=0; i < from->numVertex; i++)
+        {
+          to->vertex[i] = from->vertex[i];
+        }
     }
 }
 

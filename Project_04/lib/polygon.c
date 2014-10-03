@@ -81,8 +81,28 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src)
     edge->y1 = end.val[1];
     edge->yStart = (int)(edge->y0 + 0.5);
     edge->yEnd = (int)(edge->y1 + 0.5)-1; 
-    edge->xIntersect = edge->x0;
     edge->dxPerScan = (edge->x1 - edge->x0)/(edge->y1 - edge->y0);
+
+    //Correctly initializing xIntersect
+    edge->xIntersect = edge->x0 + abs((edge->y0 - edge->yStart )) * edge->dxPerScan;
+
+    //Clipping if the edge starts off the image or goes off image
+    if(edge->y0 < 0){ //if edge starts below row 0
+        edge->xIntersect += -edge->y0 * edge->dxPerScan;
+        edge->y0 = 0;
+    }
+    if(edge->yEnd > src->rows-1){ // if the edge starts inside the image but continues outside
+        edge->yEnd = src->rows-1;
+    }
+
+
+    // if(edge->xIntersect<edge->x1 && edge->dxPerScan<0){
+    //     edge->xIntersect = edge->x1; 
+    // }
+    // if(edge->xIntersect>edge->x1 && edge->dxPerScan>0){
+    //     edge->xIntersect = edge->x1; 
+    // }
+
     edge->next = NULL;
     return( edge );
 }
@@ -162,6 +182,12 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
       }
 
         /**** Your code goes here ****/
+      if(p1->xIntersect < 0){
+        p1->xIntersect = 0;
+      }
+      if(p2->xIntersect > src->cols){
+        p2->xIntersect = src->cols;
+      }
       int colStart = (int)(p1->xIntersect);
       int colEnd = (int)(p2->xIntersect+1);
       int row = scan;
@@ -344,7 +370,12 @@ void polygon_zBuffer(Polygon *p, int flag){
 void polygon_copy(Polygon *to, Polygon *from){
 	if(NULL != to && NULL != from){
         polygon_clear(to);
-        *to = *from;
+        to->vertex = malloc(sizeof(Point)*from->numVertex);
+        int i;
+        for (i=0; i < from->numVertex; i++)
+        {
+          to->vertex[i] = from->vertex[i];
+        }
     }
 }
 
