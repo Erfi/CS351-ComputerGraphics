@@ -73,14 +73,3 @@ void point_drawf(Point *p, Image *src, FPixel c){
     image_setf(src, x, y, c);
     image_setz(src, x, y, p->val[2]);
 }
-
-
-
-
-
-
-
-
-
-
-

@@ -85,6 +85,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src)
 
     //Clipping if the edge starts off the image or goes off image
     if(edge->y0 < 0){ //if edge starts below row 0
+        printf("edge starts above the image");
         edge->xIntersect += -edge->y0 * edge->dxPerScan;
         edge->y0 = 0;
     }
@@ -526,7 +527,7 @@ void polygon_drawFillB(Polygon *p, Image *src, Color c){
 	qsort(ylist, 3, sizeof(float), compare);
 	int Xmin = (int)(xlist[0]+0.5);
 	int Ymin = (int)(ylist[0]+0.5);
-	int Xmax = (int)(ylist[2]+0.5);
+	int Xmax = (int)(xlist[2]+0.5);
 	int Ymax = (int)(ylist[2]+0.5);
 
 	for (int i = Ymin; i < Ymax; i++){
@@ -562,8 +563,9 @@ void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1 ,Color c2, Colo
     qsort(ylist, 3, sizeof(float), compare);
     int Xmin = (int)(xlist[0]+0.5);
     int Ymin = (int)(ylist[0]+0.5);
-    int Xmax = (int)(ylist[2]+0.5);
+    int Xmax = (int)(xlist[2]+0.5);
     int Ymax = (int)(ylist[2]+0.5);
+
     
     for (int i = Ymin; i < Ymax; i++){
         for (int j = Xmin; j < Xmax; j++){
@@ -572,7 +574,7 @@ void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1 ,Color c2, Colo
             alpha = 1- beta - gamma;
             
             if (beta<-epsilon || gamma <-epsilon || alpha<-epsilon){ //if outside of the triangle
-                continue;
+                    continue;
             }
             else{ // if inside of the thriangle
                 float im_red =(alpha*c1.rgb[0]) + (beta*c2.rgb[0]) + (gamma*c3.rgb[0]);
