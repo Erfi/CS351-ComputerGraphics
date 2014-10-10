@@ -73,3 +73,10 @@ void point_drawf(Point *p, Image *src, FPixel c){
     image_setf(src, x, y, c);
     image_setz(src, x, y, p->val[2]);
 }
+
+void point_print(Point *p, FILE *fp){
+    if(NULL!=p && NULL!=fp){
+        fprintf(fp, "( %.3f %.3f %.3f %.3f )\n",p->val[0], p->val[1], p->val[2], p->val[3]);
+        fprintf(fp, "\n");
+    }
+}

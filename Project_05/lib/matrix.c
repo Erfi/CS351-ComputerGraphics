@@ -24,7 +24,7 @@ void vector_set(Vector *v, double x, double y, double z){
 //Print out the Vector to stream fp in a pretty form
 void vector_print(Vector *v, FILE *fp){
 	if(NULL != v && NULL != fp){
-		fprintf(fp, "%f %f %f %f\n",v->val[0], v->val[1], v->val[2], v->val[3]);
+		fprintf(fp, " ( %.3f %.3f %.3f %.3f\n )",v->val[0], v->val[1], v->val[2], v->val[3]);
 	}
 }
 
@@ -76,10 +76,11 @@ void vector_cross(Vector *a, Vector *b, Vector *c){
 //Print out the matrix in a nice 4x4 arrangement with a blank line below
 void matrix_print(Matrix *mat, FILE *fp){
 	if(NULL != mat && NULL != fp){
-		fprintf(fp, "%f          %f          %f          %f\n",mat->m[0][0], mat->m[0][1], mat->m[0][2], mat->m[0][3]);
-		fprintf(fp, "%f          %f          %f          %f\n",mat->m[1][0], mat->m[1][1], mat->m[1][2], mat->m[1][3]);
-		fprintf(fp, "%f          %f          %f          %f\n",mat->m[2][0], mat->m[2][1], mat->m[2][2], mat->m[2][3]);
-		fprintf(fp, "%f          %f          %f          %f\n",mat->m[3][0], mat->m[3][1], mat->m[3][2], mat->m[3][3]);
+		fprintf(fp, "| %.3f     %.3f     %.3f     %.3f |\n",mat->m[0][0], mat->m[0][1], mat->m[0][2], mat->m[0][3]);
+		fprintf(fp, "| %.3f     %.3f     %.3f     %.3f |\n",mat->m[1][0], mat->m[1][1], mat->m[1][2], mat->m[1][3]);
+		fprintf(fp, "| %.3f     %.3f     %.3f     %.3f |\n",mat->m[2][0], mat->m[2][1], mat->m[2][2], mat->m[2][3]);
+		fprintf(fp, "| %.3f     %.3f     %.3f     %.3f |\n",mat->m[3][0], mat->m[3][1], mat->m[3][2], mat->m[3][3]);
+		fprintf(fp,"\n");
 	}
 }
 
@@ -168,14 +169,16 @@ void matrix_transpose(Matrix *mat){
 void matrix_multiply(Matrix *left, Matrix *right, Matrix *mat){
 	if(NULL != left && NULL != right && NULL != mat){
 		int i, j;
+		Matrix temp;
 		for(i=0; i<4; i++){
 			for(j=0; j<4; j++){
-				mat->m[i][j] = left->m[i][0]*right->m[0][j];
-				mat->m[i][j] += left->m[i][1]*right->m[1][j];
-				mat->m[i][j] += left->m[i][2]*right->m[2][j];
-				mat->m[i][j] += left->m[i][3]*right->m[3][j];
+				temp.m[i][j] = left->m[i][0]*right->m[0][j];
+				temp.m[i][j] += left->m[i][1]*right->m[1][j];
+				temp.m[i][j] += left->m[i][2]*right->m[2][j];
+				temp.m[i][j] += left->m[i][3]*right->m[3][j];
 			}
 		}
+		*mat=temp;
 	}
 }
 
@@ -186,26 +189,30 @@ For this function, p and q need to be different variables.
 void matrix_xformPoint(Matrix *mat, Point *p, Point *q){
 	if(NULL != mat && NULL != p && NULL != q){
 		int i;
+		Point temp;
 		for (i = 0; i < 4; i++)
 		{
-			q->val[i] = mat->m[i][0]*p->val[0];
-			q->val[i] += mat->m[i][1]*p->val[1];
-			q->val[i] += mat->m[i][2]*p->val[2];
-			q->val[i] += mat->m[i][3]*p->val[3];
+			temp.val[i] = mat->m[i][0]*p->val[0];
+			temp.val[i] += mat->m[i][1]*p->val[1];
+			temp.val[i] += mat->m[i][2]*p->val[2];
+			temp.val[i] += mat->m[i][3]*p->val[3];
 		}
+		*q=temp;
 	}
 }
 
 void matrix_xformVector(Matrix *mat, Vector *p, Vector *q){
 	if(NULL != mat && NULL != p && NULL != q){
 		int i;
+		Vector temp;
 		for (i = 0; i < 4; i++)
 		{
-			q->val[i] = mat->m[i][0]*p->val[0];
-			q->val[i] += mat->m[i][1]*p->val[1];
-			q->val[i] += mat->m[i][2]*p->val[2];
-			q->val[i] += mat->m[i][3]*p->val[3];
+			temp.val[i] = mat->m[i][0]*p->val[0];
+			temp.val[i] += mat->m[i][1]*p->val[1];
+			temp.val[i] += mat->m[i][2]*p->val[2];
+			temp.val[i] += mat->m[i][3]*p->val[3];
 		}
+		*q=temp;
 	}
 }
 
@@ -216,14 +223,15 @@ void matrix_xformPolygon(Matrix *mat, Polygon *p){
 		int i,j;
 		for (i = 0; i < p->numVertex; i++)
 		{
+			Point temp;
 			for (j = 0; j < 4; j++)
 			{
-				p->vertex[i].val[j] = mat->m[j][0]*p
-				->vertex[i].val[0];
-				p->vertex[i].val[j] += mat->m[j][1]*p->vertex[i].val[1];
-				p->vertex[i].val[j] += mat->m[j][2]*p->vertex[i].val[2];
-				p->vertex[i].val[j] += mat->m[j][3]*p->vertex[i].val[3];
+				temp.val[j] = mat->m[j][0]*p->vertex[i].val[0];
+				temp.val[j] += mat->m[j][1]*p->vertex[i].val[1];
+				temp.val[j] += mat->m[j][2]*p->vertex[i].val[2];
+				temp.val[j] += mat->m[j][3]*p->vertex[i].val[3];
 			}
+			(p->vertex[i])=temp;
 		}
 	}	
 }
@@ -234,35 +242,41 @@ void matrix_xformPolyline(Matrix *mat, Polyline *p){
 		int i,j;
 		for (i = 0; i < p->numVertex; i++)
 		{
+			Point temp;
 			for (j = 0; j < 4; j++)
 			{
-				p->vertex[i].val[j] = mat->m[j][0]*p->vertex[i].val[0];
-				p->vertex[i].val[j] += mat->m[j][1]*p->vertex[i].val[1];
-				p->vertex[i].val[j] += mat->m[j][2]*p->vertex[i].val[2];
-				p->vertex[i].val[j] += mat->m[j][3]*p->vertex[i].val[3];
+				temp.val[j] = mat->m[j][0]*p->vertex[i].val[0];
+				temp.val[j] += mat->m[j][1]*p->vertex[i].val[1];
+				temp.val[j] += mat->m[j][2]*p->vertex[i].val[2];
+				temp.val[j] += mat->m[j][3]*p->vertex[i].val[3];
 			}
+			(p->vertex[i])=temp;
 		}
-	}
+	}	
 }
 
 // – Transform the points in line by the matrix m.
 void matrix_xformLine(Matrix *mat, Line *line){
 	if(NULL != mat && NULL != &line->a && &line->b != NULL){
 		int j;
+		Point temp;
 		for (j = 0; j < 4; j++)
 		{
-			line->a.val[j] = mat->m[j][0]*line->a.val[0];
-			line->a.val[j] += mat->m[j][1]*line->a.val[1];
-			line->a.val[j] += mat->m[j][2]*line->a.val[2];
-			line->a.val[j] += mat->m[j][3]*line->a.val[3];
+			temp.val[j] = mat->m[j][0]*line->a.val[0];
+			temp.val[j] += mat->m[j][1]*line->a.val[1];
+			temp.val[j] += mat->m[j][2]*line->a.val[2];
+			temp.val[j] += mat->m[j][3]*line->a.val[3];
 		}
+		line->a = temp;
+
 		for (j = 0; j < 4; j++)
 		{
-			line->b.val[j] = mat->m[j][0]*line->b.val[0];
-			line->b.val[j] += mat->m[j][1]*line->b.val[1];
-			line->b.val[j] += mat->m[j][2]*line->b.val[2];
-			line->b.val[j] += mat->m[j][3]*line->b.val[3];
+			temp.val[j] = mat->m[j][0]*line->b.val[0];
+			temp.val[j] += mat->m[j][1]*line->b.val[1];
+			temp.val[j] += mat->m[j][2]*line->b.val[2];
+			temp.val[j] += mat->m[j][3]*line->b.val[3];
 		}
+		line->b = temp;
 	}
 }
 
@@ -276,16 +290,144 @@ void matrix_scale2D(Matrix *mat, double sx, double sy){
 		}
 	}
 }
-void matrix_rotateZ(Matrix *m, double cth, double sth);
-void matrix_translate2D(Matrix *m, double tx, double ty);
-void matrix_shear2D(Matrix *m, double shx, double shy);
-void matrix_translate(Matrix *m, double tx, double ty, double tz);
-void matrix_scale(Matrix *m, double sx, double sy, double sz);
-void matrix_rotateX(Matrix *m, double cth, double sth);
-void matrix_rotateY(Matrix *m, double cth, double sth);
-void matrix_rotateXYZ(Matrix *m, Vector *u, Vector *v, Vector *w);
-void matrix_shearZ(Matrix *m, double shx, double shy);
-void matrix_perspective(Matrix *m, double d);
+
+/*
+– Premultiply the matrix by a Z-axis rotation matrix parameterized by cos(✓) and sin(✓), where ✓ is
+the angle of rotation about the Z-axis
+*/
+void matrix_rotateZ(Matrix *mat, double cth, double sth){
+	if(NULL != mat){
+		Matrix rotate;
+		matrix_identity(&rotate);
+		rotate.m[0][0]=cth;
+		rotate.m[1][0]=sth;
+		rotate.m[0][1]=-sth;
+		rotate.m[1][1]=cth;
+		matrix_multiply(&rotate,mat,mat);
+	}
+}
+
+// – Premultiply the matrix by a 2D translation matrix parameterized by tx and ty.
+void matrix_translate2D(Matrix *mat, double tx, double ty){
+	if(NULL != mat){
+		int i;
+		for(i=0; i<4; i++){
+			mat->m[0][i] = mat->m[0][i] + (tx * mat->m[3][i]);
+			mat->m[1][i] = mat->m[1][i] + (ty * mat->m[3][i]);
+		}
+	}
+}
+
+// – Premultiply the matrix by a 2D shear matrix parameterized by shx and shy.
+// will attempt to optimize later
+void matrix_shear2D(Matrix *mat, double shx, double shy){
+	if(NULL != mat){
+		// int i;
+		// for(i=0; i<4; i++){
+		// 	mat->m[0][i] = mat->m[0][i] + (shx * mat->m[1][i]);
+		// 	mat->m[1][i] = mat->m[1][i] + (shy * mat->m[0][i]);
+		// }
+		Matrix shear;
+		matrix_identity(&shear);
+		shear.m[0][1]=shx;
+		shear.m[1][0]=shy;
+		matrix_multiply(&shear,mat,mat);
+	}
+
+}
+
+// – Premultiply the matrix by a translation matrix parameterized by tx, ty, and tz.
+void matrix_translate(Matrix *mat, double tx, double ty, double tz){
+	if(NULL != mat){
+		int i;
+		for(i=0; i<4; i++){
+			mat->m[0][i] = mat->m[0][i] + (tx * mat->m[3][i]);
+			mat->m[1][i] = mat->m[1][i] + (ty * mat->m[3][i]);
+			mat->m[2][i] = mat->m[2][i] + (tz * mat->m[3][i]);
+		}
+	}
+}
+
+// – Premultiply the matrix by a scale matrix parameterized by sx, sy, sz.
+void matrix_scale(Matrix *mat, double sx, double sy, double sz){
+	if(NULL != mat){
+		int i;
+		for(i=0; i<4; i++){
+			mat->m[0][i]=mat->m[0][i]*sx;
+			mat->m[1][i]=mat->m[1][i]*sy;
+			mat->m[2][i]=mat->m[2][i]*sz;
+		}
+	}
+}
+// – Premultiply the matrix by a X-axis rotation matrix parameterized by cos(✓) and sin(✓), where ✓ is
+// the angle of rotation about the X-axis.
+void matrix_rotateX(Matrix *mat, double cth, double sth){
+	if(NULL != mat){
+		Matrix rotate;
+		matrix_identity(&rotate);
+		rotate.m[1][1]=cth;
+		rotate.m[1][2]=-sth;
+		rotate.m[2][1]=sth;
+		rotate.m[2][2]=cth;
+		matrix_multiply(&rotate,mat,mat);
+	}
+}
+
+// Premultiply the matrix by a Y-axis rotation matrix parameterized by cos(✓) and sin(✓), where ✓ is
+// the angle of rotation about the Y-axis.
+void matrix_rotateY(Matrix *mat, double cth, double sth){
+		if(NULL != mat){
+		Matrix rotate;
+		matrix_identity(&rotate);
+		rotate.m[0][0]=cth;
+		rotate.m[0][2]=sth;
+		rotate.m[2][0]=-sth;
+		rotate.m[2][2]=cth;
+		matrix_multiply(&rotate,mat,mat);
+	}
+}
+
+// – Premultiply the matrix by an XYZ-axis rotation matrix parameterized by the vectors ~u, ~v, and w~,
+// where the three vectors represent an orthonormal 3D basis.
+void matrix_rotateXYZ(Matrix *mat, Vector *u, Vector *v, Vector *w){
+	vector_normalize(u);
+	vector_normalize(v);
+	vector_normalize(w);
+	Matrix rotate;
+	matrix_identity(&rotate);
+	rotate.m[0][0]= u->val[0];
+	rotate.m[0][1]= u->val[1];
+	rotate.m[0][2]= u->val[2];
+	rotate.m[1][0]= v->val[0];
+	rotate.m[1][1]= v->val[1];
+	rotate.m[1][2]= v->val[2];
+	rotate.m[2][0]= w->val[0];
+	rotate.m[2][1]= w->val[1];
+	rotate.m[2][2]= w->val[2];
+	matrix_multiply(&rotate,mat,mat);
+}
+
+// – Premultiply the matrix by a shear Z matrix parameterized by shx and shy.
+void matrix_shearZ(Matrix *mat, double shx, double shy){
+	if(NULL != mat){
+		int i;
+		for(i=0; i<4; i++){
+			mat->m[0][i] = mat->m[0][i] + (shx * mat->m[2][i]);
+			mat->m[1][i] = mat->m[1][i] + (shy * mat->m[2][i]);
+		}
+	}
+}
+
+// – Premultiply the matrix by a perspective matrix parameterized by d.
+void matrix_perspective(Matrix *mat, double d){
+	if(NULL != mat){
+		int i;
+		for(i=0; i<4; i++){
+			mat->m[2][i] = mat->m[2][i]/d;
+		}
+	}
+
+}
 
 
 

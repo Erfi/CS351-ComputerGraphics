@@ -448,7 +448,7 @@ void polygon_print(Polygon *p, FILE *fp){
         fprintf(fp, "%d\n",p->numVertex);//writes number of vertecies
         fprintf(fp, "%d\n",p->zBuffer);//writes the zBuffer value
         for(i=0; i<p->numVertex; i++){
-            fprintf(fp, "%f %f %f %f\n",p->vertex[i].val[0], p->vertex[i].val[1], p->vertex[i].val[2], p->vertex[i].val[3]);
+            fprintf(fp, "%.3f %.3f %.3f %.3f\n",p->vertex[i].val[0], p->vertex[i].val[1], p->vertex[i].val[2], p->vertex[i].val[3]);
         }
     }
 }
