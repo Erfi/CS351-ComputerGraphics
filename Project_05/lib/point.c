@@ -16,8 +16,8 @@ void point_set2D(Point *p, double x, double y){
 /*set the first two values of the vector to x and y. Set the third value to 0 and the fourth value to 1 .*/
     p->val[0]=x;
     p->val[1]=y;
-    p->val[2]=0;
-    p->val[3]=1;
+    p->val[2]=0.0;
+    p->val[3]=1.0;
 }
 
 void point_set3D(Point *p, double x, double y, double z){
