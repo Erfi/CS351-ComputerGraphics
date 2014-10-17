@@ -326,6 +326,10 @@ void image_setColor(Image* src, int r, int c, Color clr){
 		printf("ERROR: image_setColor >> src or src->data is NULL");
 		exit(-1);
 	}
+	if (r<0 || r>src->rows-1 || c<0 || c>src->cols-1)
+	{
+		return;
+	}
 	src->data[r][c].rgb[0] = clr.rgb[0];
 	src->data[r][c].rgb[1] = clr.rgb[1];
 	src->data[r][c].rgb[2] = clr.rgb[2];

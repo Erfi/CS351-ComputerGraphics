@@ -97,7 +97,8 @@ void line_draw(Line *l, Image *src, Color c){
     Point p;
     for(;;){
         point_set2D(&p,x0,y0);
-        point_draw(&p,src,c);
+        image_setColor(src,  p.val[0], p.val[1], c);
+        // point_draw(&p,src,c);
         if (x0==x1 && y0==y1) break;
         e2 = err;
         if (e2 >-dx) { err -= dy; x0 += sx; }

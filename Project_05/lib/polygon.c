@@ -438,6 +438,8 @@ void polygon_copy(Polygon *to, Polygon *from){
         {
           to->vertex[i] = from->vertex[i];
         }
+        to->numVertex = from->numVertex;
+        to->zBuffer = from->zBuffer;
     }
 }
 
@@ -603,6 +605,17 @@ float Aux_implicit_line(Point p1, Point p2, float x,float y){
 	x += 0.5;
 	y += 0.5;
 	return (y0-y1)*x + (x1-x0)*y + x0*y1 - x1*y0;
+}
+
+/*
+    normalizes the vectors of the polygon
+*/
+void polygon_normalize(Polygon *p){
+    int i;
+    for(i=0;i<p->numVertex;i++){
+        p->vertex[i].val[0]/=p->vertex[i].val[3];
+        p->vertex[i].val[1]/=p->vertex[i].val[3];
+    }
 }
 
 

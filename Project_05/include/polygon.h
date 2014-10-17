@@ -30,6 +30,7 @@ void polygon_drawFill(Polygon *p, Image *src, Color c);
 void polygon_drawFillBitmap(Polygon *p, Image *src, Image *bitmap );
 void polygon_drawFillB(Polygon *p, Image *src, Color c);
 void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1, Color c2,Color c3 );
+void polygon_normalize(Polygon *p);
 float Aux_implicit_line(Point p1, Point p2, float x,float y);
 int compare (const void * a, const void * b);
 

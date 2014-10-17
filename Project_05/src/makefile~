@@ -26,16 +26,16 @@ LIBS = -lm -limageIO
 LFLAGS = -L$(LIBDIR)
 
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h polyline.h list.h polygon.h matrix.h
+_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h polyline.h list.h polygon.h matrix.h view.h
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = imagetest mandeltest testbench test4b testbitmap polygonStress hexagon task6_1 test5a
+EXECUTABLES = imagetest mandeltest testbench test4b testbitmap polygonStress hexagon task6_1 test5a test5d test5b
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o test4a.o testbitmap.o polygonStress.o hexagon.o task6_1.o test5a.o
+_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o test4a.o testbitmap.o polygonStress.o hexagon.o task6_1.o test5a.o test5d.o test5b.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -88,6 +88,12 @@ task6_1: $(ODIR)/task6_1.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 test5a: $(ODIR)/test5a.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+test5d: $(ODIR)/test5d.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+test5b: $(ODIR)/test5b.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean

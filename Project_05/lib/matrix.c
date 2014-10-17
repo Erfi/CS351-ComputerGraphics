@@ -24,7 +24,7 @@ void vector_set(Vector *v, double x, double y, double z){
 //Print out the Vector to stream fp in a pretty form
 void vector_print(Vector *v, FILE *fp){
 	if(NULL != v && NULL != fp){
-		fprintf(fp, " ( %.3f %.3f %.3f %.3f\n )",v->val[0], v->val[1], v->val[2], v->val[3]);
+		fprintf(fp, " ( %.3f %.3f %.3f %.3f )\n",v->val[0], v->val[1], v->val[2], v->val[3]);
 	}
 }
 
@@ -69,7 +69,7 @@ void vector_cross(Vector *a, Vector *b, Vector *c){
 	if(NULL != a && NULL != b && NULL != c){
 		c->val[0]= (a->val[1]*b->val[2])-(a->val[2]*b->val[1]);
 		c->val[1]= (a->val[2]*b->val[0])-(a->val[0]*b->val[2]);
-		c->val[2]= (a->val[0]*b->val[1])-(a->val[1]*b->val[2]);
+		c->val[2]= (a->val[0]*b->val[1])-(a->val[1]*b->val[0]);
 	}
 }
 
@@ -110,6 +110,7 @@ void matrix_identity(Matrix *mat){
 			}
 		}
 	}
+	
 }
 
 //Return the element of the matrix at row r, column c.
@@ -322,18 +323,20 @@ void matrix_translate2D(Matrix *mat, double tx, double ty){
 // will attempt to optimize later
 void matrix_shear2D(Matrix *mat, double shx, double shy){
 	if(NULL != mat){
-		// int i;
-		// for(i=0; i<4; i++){
-		// 	mat->m[0][i] = mat->m[0][i] + (shx * mat->m[1][i]);
-		// 	mat->m[1][i] = mat->m[1][i] + (shy * mat->m[0][i]);
-		// }
-		Matrix shear;
-		matrix_identity(&shear);
-		shear.m[0][1]=shx;
-		shear.m[1][0]=shy;
-		matrix_multiply(&shear,mat,mat);
+		double temp1, temp2;
+		int i;
+		for(i=0; i<4; i++){
+			temp1 = mat->m[0][i] + (shx * mat->m[1][i]);
+			temp2 = mat->m[1][i] + (shy * mat->m[0][i]);
+			mat->m[0][i] = temp1;
+			mat->m[1][i] = temp2;
+		}
+		// Matrix shear;
+		// matrix_identity(&shear);
+		// shear.m[0][1]=shx;
+		// shear.m[1][0]=shy;
+		// matrix_multiply(&shear,mat,mat);
 	}
-
 }
 
 // – Premultiply the matrix by a translation matrix parameterized by tx, ty, and tz.
