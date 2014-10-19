@@ -135,12 +135,12 @@ int main(int argc, char *argv[]) {
 
   // use a temprary polygon to transform stuff
   polygon_init( &tpoly );
-  matrix_translate(&vtm, 0.0,-300.0,0.0);
+  matrix_translate(&vtm, 0.0 ,100.0 ,0.0);
   printf("Drawing Polygons\n");
   cubeDraw( vtm,  tpoly,  side,  src, color);
  
 
-  matrix_translate(&vtm, 0,300,0.0);
+  matrix_translate(&vtm, 50.0 ,0.0 ,0.0);
   cubeDraw( vtm,  tpoly,  side,  src, color);
   
   printf("Writing image\n");
