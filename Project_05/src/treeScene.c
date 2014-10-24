@@ -95,10 +95,10 @@ int main(int argc, char *argv[]) {
   	printf("Drawing the trees\n");
   	int i,j;
   	double x= -5;
-  	for (j=0; j<10; j++){
+  	for (j=0; j<50; j++){
   		src = image_create( rows, cols );
   		point_set3D( &(view.vrp), x, 5, 3);
-  		vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2]+j/2.0);
+  		vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2]+j/10.0);
   		matrix_setView3D( &vtm, &view );
 
 	  	for(i=0;i<4;i++) {
@@ -109,14 +109,14 @@ int main(int argc, char *argv[]) {
 	    	polygon_drawFill( &tempTree, src, color[i]);
 	    	//polygon_print( &tempTree, stdout );
 	  	}
-	  	x++;
+	  	x+=0.1;
 	  	sprintf(filename, "tree_%04d.ppm", j);
 	  	//write the image
   		image_write(src, filename);
   		//free resources
   		image_free(src);
   	}
-  	system("convert -delay 20 tree_*.ppm ../images/tree.gif");
+  	system("convert -delay 10 tree_*.ppm ../images/tree.gif");
 	system("rm -f tree_*");
 }
 
