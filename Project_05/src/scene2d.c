@@ -158,6 +158,10 @@ matrix_xformPoint(&vtm,&tempWheels[1],&tempWheels[1]);
     matrix_print( &vtm, stdout );
   }
 
+  printf("Making the .gif....");
+  system("convert -delay 10 frame-*.ppm ../images/scene2d.gif");
+  system("rm -f frame-*");
+
   // cleanup
   image_free( src );
 
