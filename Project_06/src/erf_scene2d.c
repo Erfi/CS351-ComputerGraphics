@@ -40,6 +40,20 @@ int main(int argc, char* argv[]){
 
 	src = image_create( rows, cols );
 
+	//setting the points
+	point_set2D(&p[0], 0, 5);//head center
+
+	//setting the circle
+	R_head = 10;
+	circle_set(&head, p[0], R_head);
+	//setting the line using points
+	// line_set(Line *l, Point ta, Point tb);
+	// line_set(Line *l, Point ta, Point tb);
+	// line_set(Line *l, Point ta, Point tb);
+	// line_set(Line *l, Point ta, Point tb);
+	// line_set(Line *l, Point ta, Point tb);
+
+	
 
 
 
