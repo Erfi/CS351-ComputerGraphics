@@ -184,7 +184,14 @@ void line_drawDash(Line *l, Image *src, Color c){
 }
 
 
+//normalizes Line l by the h coords
+void line_normalize(Line* l){
+    l->a.val[0] = l->a.val[0]/l->a.val[3];
+    l->a.val[1] = l->a.val[1]/l->a.val[3];
 
+    l->b.val[0] = l->b.val[0]/l->b.val[3];
+    l->b.val[1] = l->b.val[1]/l->b.val[3];
+}
 
 
 

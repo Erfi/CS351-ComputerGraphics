@@ -13,6 +13,7 @@ File: module.h
 #include "polygon.h"
 #include "color.h"
 #include "matrix.h"
+#include "drawState.h"
 
 typedef enum { // example of an enumerated type
 	ObjNone,
@@ -38,7 +39,7 @@ typedef union {
 	Matrix matrix;
 	Color color;
 	float coeff;
-	void *module;
+	void *module;	
 } Object;
 
 typedef struct {
@@ -54,10 +55,10 @@ typedef struct {
 
 
 //functions
-Element *element_create();
-Element *element_init(ObjectType type, void *obj);
+Element* element_create(void);
+Element* element_init(ObjectType type, void *obj);
 void element_delete(Element *e);
-Module *module_create();
+Module* module_create(void);
 void module_clear(Module *md);
 void module_delete(Module *md);
 void module_insert(Module *md, Element *e);
@@ -71,7 +72,7 @@ void module_translate2D(Module *md, double tx, double ty);
 void module_scale2D(Module *md, double sx, double sy);
 void module_rotateZ(Module *md, double cth, double sth);
 void module_shear2D(Module *md, double shx, double shy);
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Lighting *lighting, Image *src);
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Lighting *lighting,*/ Image *src);
 //3D functions
 void module_translate(Module *md, double tx, double ty, double tz);
 void module_scale(Module *md, double sx, double sy, double sz);

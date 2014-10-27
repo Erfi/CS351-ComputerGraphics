@@ -26,5 +26,6 @@ void point_copy(Point *to, Point *from);
 void point_draw(Point *p, Image *src, Color c);
 void point_drawf(Point *p, Image *src, FPixel c);
 void point_print(Point *p, FILE *fp);
+void point_normalize(Point *p);
 
 #endif /* defined(__POINT_H__) */

@@ -154,6 +154,14 @@ void polyline_draw(Polyline *p, Image *src, Color colr){
     }
 }
 
+void polyline_normalize(Polyline *p){
+    int i;
+    for(i=0;i<p->numVertex;i++){
+        p->vertex[i].val[0]/=p->vertex[i].val[3];
+        p->vertex[i].val[1]/=p->vertex[i].val[3];
+    }
+}
+
 
 
 

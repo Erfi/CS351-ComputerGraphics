@@ -28,4 +28,5 @@ void polyline_zBuffer(Polyline *p, int flag);
 void polyline_copy(Polyline *to, Polyline *from);
 void polyline_print(Polyline *p, FILE *fp);
 void polyline_draw(Polyline *p, Image *src, Color colr);
+void polyline_normalize(Polyline *p);
 #endif

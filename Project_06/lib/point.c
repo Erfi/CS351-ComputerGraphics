@@ -80,3 +80,9 @@ void point_print(Point *p, FILE *fp){
         fprintf(fp, "\n");
     }
 }
+
+//normalizes the point p by the h coords.
+void point_normalize(Point *p){
+    p->val[0] = p->val[0]/ p->val[3];
+    p->val[1] = p->val[1]/ p->val[3];
+}
