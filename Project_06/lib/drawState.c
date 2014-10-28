@@ -13,6 +13,7 @@
 
 
 DrawState *drawstate_create( void ){ //–create a new DrawState structure and initialize the fields.
+	// printf("drawstate\n");
 	DrawState *state = malloc(sizeof(DrawState));
 	state->surfaceCoeff = 0;
 	state->zBufferFlag = 1;

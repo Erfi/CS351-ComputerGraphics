@@ -301,6 +301,10 @@ Sets the value of pixel (r, c) band b to val.
 */
 void image_setc(Image* src, int r, int c, int b, float val){
 	if((NULL != src) || (NULL != src->data)){
+		if (r<0 || r>src->rows-1 || c<0 || c>src->cols-1)
+		{
+			return;
+		}
 		switch(b){
 			case 0:
 				src->data[r][c].rgb[0] = val;
