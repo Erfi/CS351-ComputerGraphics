@@ -26,16 +26,16 @@ LIBS = -lm -limageIO
 LFLAGS = -L$(LIBDIR)
 
 # put all of the relevant include files here
-_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h polyline.h list.h polygon.h matrix.h view.h module.h drawState.h
+_DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h polyline.h list.h polygon.h matrix.h view.h module.h drawState.h 
 
 # convert them to point to the right place
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = imagetest mandeltest testbench test4b testbitmap polygonStress hexagon task6_1 test5a test5d test5b test5c proj5_ext1 treeScene scene2d erf_scene2d test6a
+EXECUTABLES = imagetest mandeltest testbench test4b testbitmap polygonStress hexagon task6_1 test5a test5d test5b test5c proj5_ext1 treeScene scene2d erf_scene2d test6a cube
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o test4a.o testbitmap.o polygonStress.o hexagon.o task6_1.o test5a.o test5d.o test5b.o test5c.o proj5_ext1.o treeScene.o scene2d.o erf_scene2d.o test6a.o
+_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o test4a.o testbitmap.o polygonStress.o hexagon.o task6_1.o test5a.o test5d.o test5b.o test5c.o proj5_ext1.o treeScene.o scene2d.o erf_scene2d.o test6a.o cube.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -114,6 +114,8 @@ erf_scene2d: $(ODIR)/erf_scene2d.o
 test6a: $(ODIR)/test6a.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
+cube: $(ODIR)/cube.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
 

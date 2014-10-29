@@ -15,6 +15,9 @@
 DrawState *drawstate_create( void ){ //–create a new DrawState structure and initialize the fields.
 	// printf("drawstate\n");
 	DrawState *state = malloc(sizeof(DrawState));
+	Color white;
+	Color_set(&white, 1.0,1.0,1.0);
+	state->color = white;
 	state->surfaceCoeff = 0;
 	state->zBufferFlag = 1;
 	return state;

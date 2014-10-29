@@ -118,9 +118,7 @@ void module_clear(Module *md){
 			default:
 				// printf("this is working");
 				break;
-		// }
 		}
-		iterator->type = ObjNone;
 	}
 }
 
@@ -135,13 +133,9 @@ void module_delete(Module *md){
 			case ObjPolygon:
 				polygon_free(&(iterator->obj.polygon));
 				break;
-			case ObjModule:
-				free(&(iterator->obj));
-				break;
 			default:
 				break;
 		}
-		iterator->type = ObjNone;
 	}
 	free(md);
 }
@@ -355,8 +349,8 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 				matrix_xformPoint(GTM,&tempPoint,&tempPoint);
 				matrix_xformPoint(VTM,&tempPoint,&tempPoint);
 				point_normalize(&tempPoint);
-				// printf("src (rows, cols): (%d, %d)\n",src->rows, src->cols);
-				// point_print(&tempPoint, stdout);
+				printf("src (rows, cols): (%d, %d)\n",src->rows, src->cols);
+				point_print(&tempPoint, stdout);
 				point_draw(&tempPoint,src,ds->color);
 				break;
 	 		case ObjLine:
@@ -406,14 +400,14 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 				printf("objModule\n");
 				matrix_multiply(GTM, &LTM, &tempGTM);
 				tempDraw = *ds;
-				printf("VTM\n");
-				matrix_print(VTM, stdout);
-				printf("tempGTM\n");
-				matrix_print(&tempGTM, stdout);
-				printf("addr iterator->obj.module\n");
-				printf("%p\n",iterator->obj.module);
-				printf("addr tempDraw\n");
-				printf("%p\n",&tempDraw);
+				// printf("VTM\n");
+				// matrix_print(VTM, stdout);
+				// printf("tempGTM\n");
+				// matrix_print(&tempGTM, stdout);
+				// printf("addr iterator->obj.module\n");
+				// printf("%p\n",iterator->obj.module);
+				// printf("addr tempDraw\n");
+				// printf("%p\n",&tempDraw);
 				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /* light, */ src); 
 				break;
 			default:
@@ -426,23 +420,191 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 // //3D functions
 
 // // Matrix operand to add a 3D translation to the Module.
-// void module_translate(Module *md, double tx, double ty, double tz);
+void module_translate(Module *md, double tx, double ty, double tz){
+	if(NULL != md){
+		Matrix mat;
+		matrix_identity(&mat);
+		matrix_translate(&mat, tx, ty, tz);
+		Element* e = element_init(ObjMatrix, &mat);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}
+		else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
 // // Matrix operand to add a 3D scale to the Module.
-// void module_scale(Module *md, double sx, double sy, double sz);
+void module_scale(Module *md, double sx, double sy, double sz){
+	if(NULL != md){
+		Matrix mat;
+		matrix_identity(&mat);
+		matrix_scale(&mat, sx, sy, sz);
+		Element* e = element_init(ObjMatrix, &mat);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}
+		else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
 // // Matrix operand to add a rotation about the X-axis to the Module.
-// void module_rotateX(Module *md, double cth, double sth);
+void module_rotateX(Module *md, double cth, double sth){
+	if(NULL != md){
+		Matrix mat;
+		matrix_identity(&mat);
+		matrix_rotateX(&mat, cth, sth);
+		Element* e = element_init(ObjMatrix, &mat);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
 // // Matrix operand to add a rotation about the Y-axis to the Module.
-// void module_rotateY(Module *md, double cth, double sth);
+void module_rotateY(Module *md, double cth, double sth){
+	if(NULL != md){
+		Matrix mat;
+		matrix_identity(&mat);
+		matrix_rotateY(&mat, cth, sth);
+		Element* e = element_init(ObjMatrix, &mat);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
 // //Matrix operand to add a rotation that orients to the orthonormal axes ~u, ~v, w~
-// void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
+void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w){
+	if((NULL != md) && (NULL != u) && (NULL != v) && (NULL != w)){
+		Matrix mat;
+		matrix_identity(&mat);
+		matrix_rotateXYZ(&mat, u,v,w);
+		Element* e = element_init(ObjMatrix, &mat);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
 // //Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines.
 // //If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
-// void module_cube(Module *md, int solid);
+void module_cube(Module *md, int solid){
+	if(NULL != md){
+		Point p[8];
+		point_set3D( &p[0], -1, -1, -1 );
+  		point_set3D( &p[1],  1, -1, -1 );
+  		point_set3D( &p[2],  1,  1, -1 );
+		point_set3D( &p[3], -1,  1, -1 );
+		point_set3D( &p[4], -1, -1,  1 );
+		point_set3D( &p[5],  1, -1,  1 );
+		point_set3D( &p[6],  1,  1,  1 );
+		point_set3D( &p[7], -1,  1,  1 );
+		if(solid == 0){//use lines
+			Line l[12];
+			line_set(&l[0], p[0], p[1]);
+			line_set(&l[1], p[1], p[2]);
+			line_set(&l[2], p[2], p[3]);
+			line_set(&l[3], p[3], p[0]);
+			line_set(&l[4], p[0], p[4]);
+			line_set(&l[5], p[4], p[7]);
+			line_set(&l[6], p[7], p[3]);
+			line_set(&l[7], p[5], p[1]);
+			line_set(&l[8], p[2], p[6]);
+			line_set(&l[9], p[6], p[7]);
+			line_set(&l[10], p[6], p[5]);
+			line_set(&l[11], p[4], p[5]);
+			int i;
+			for (i = 0; i < 12; i++)
+			{
+				module_line(md,&l[i]);
+			}			
+		}else{//use polygons
+			Polygon pol[6];
+			int i;
+			Point temp[4];
+			for (i = 0; i < 6; i++)
+			{
+				polygon_init(&pol[i]);
+			}
+			point_copy(&temp[0],&p[0]);
+			point_copy(&temp[1],&p[1]);
+			point_copy(&temp[2],&p[2]);
+			point_copy(&temp[3],&p[3]);
+
+			polygon_set(&pol[0],4,&temp[0]);
+
+			point_copy(&temp[0],&p[1]);
+			point_copy(&temp[1],&p[2]);
+			point_copy(&temp[2],&p[6]);
+			point_copy(&temp[3],&p[5]);
+
+			polygon_set(&pol[1],4,&temp[0]);
+
+
+			point_copy(&temp[0],&p[5]);
+			point_copy(&temp[1],&p[6]);
+			point_copy(&temp[2],&p[7]);
+			point_copy(&temp[3],&p[4]);
+
+			polygon_set(&pol[2],4,&temp[0]);
+
+
+			point_copy(&temp[0],&p[4]);
+			point_copy(&temp[1],&p[0]);
+			point_copy(&temp[2],&p[3]);
+			point_copy(&temp[3],&p[7]);
+
+			polygon_set(&pol[3],4,&temp[0]);
+
+
+			point_copy(&temp[0],&p[4]);
+			point_copy(&temp[1],&p[5]);
+			point_copy(&temp[2],&p[1]);
+			point_copy(&temp[3],&p[0]);
+
+			polygon_set(&pol[4],4,&temp[0]);
+
+
+			point_copy(&temp[0],&p[7]);
+			point_copy(&temp[1],&p[6]);
+			point_copy(&temp[2],&p[2]);
+			point_copy(&temp[3],&p[3]);
+
+			polygon_set(&pol[5],4,&temp[0]);
+
+			for (i = 0; i < 6; i++)
+			{
+				module_polygon(md,&pol[i]);
+			}	
+		}
+	}
+
+}
 
 
 // //shading/color module functions

@@ -168,15 +168,15 @@ int main(int argc, char *argv[]) {
   
 	// draw stars into the scene
   module_identity(scene);
-  for(i=0;i<30;i++) {
-    point_set2D( &(p[0]), drand48()*2 - 1, drand48()*1 - 0.5 );
+  for(i=0;i<300;i++) {
+    // point_set2D( &(p[0]), drand48()*2-1, drand48()*1 - .5 );
+        point_set2D( &(p[0]), -0.001*i,-0.001*i );
     module_point( scene, &(p[0]) );
   }
 
 
 	// // create the image and draw the module
   src = image_create( view.screeny, view.screenx );
-  image_fillrgb(src, 1.0, 1.0, 1.0);
   ds = drawstate_create(); // default color is white
 
   module_draw( scene, &vtm, &gtm, ds, src );
@@ -185,17 +185,17 @@ int main(int argc, char *argv[]) {
   image_write( src, "xwings.ppm" );
 
 	// // free modules
- //  module_delete( scene );
- //  module_delete( formation );
- //  module_delete( xwing );
- //  module_delete( body );
- //  module_delete( wing );
+  module_delete( scene );
+  module_delete( formation );
+  module_delete( xwing );
+  module_delete( body );
+  module_delete( wing );
 
 	// // free drawstate
- //  free( ds );
+  free( ds );
 
-	// // free image
- //  image_free( src );
+	// free image
+  image_free( src );
 
   return(0);
 }

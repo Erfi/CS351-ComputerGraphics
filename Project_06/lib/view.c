@@ -63,6 +63,8 @@ void matrix_setView3D(Matrix *vtm, View3D *view){
 		matrix_identity(&project);
 		project.m[3][3]=0;
 		project.m[3][2]=1/dPrime;
+		printf("projection:\n");
+		matrix_print(&project, stdout);
 		matrix_multiply(&project,vtm,vtm);
 		printf("After perspective:\n");
  		matrix_print(vtm, stdout);
