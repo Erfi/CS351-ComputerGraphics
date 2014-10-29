@@ -21,10 +21,7 @@ File: module.c
 //Allocate and return an initialized but empty Element.
 Element *element_create(){
 	Element *e = malloc(sizeof(Element));
-	// e->type = ObjNone;
-	// e->obj = NULL;
 	e->next = NULL;
-
 	return e;
 }
 
@@ -42,8 +39,6 @@ Element *element_init(ObjectType type, void *obj){
 			break;
 		case ObjPoint:
 			point_copy(&e->obj.point,(Point *)obj);
-			printf("init\n");
-			point_print(&e->obj.point, stdout);
 			break;
 		case ObjPolyline:
 			polyline_init(&e->obj.polyline);
@@ -69,7 +64,7 @@ Element *element_init(ObjectType type, void *obj){
 		case ObjLight:
 			break;
 		case ObjModule:
-			e->obj.module = (Module*)obj;
+			e->obj.module = (Module *) obj;
 			break;
 		default:
 			e->type = ObjNone;
@@ -98,7 +93,7 @@ void element_delete(Element *e){
 
 //Allocate an empty module
 Module* module_create(void){
-	Module* mod = malloc(sizeof(Module));
+	Module* mod = (Module *)malloc(sizeof(Module));
 	mod->head = NULL;
 	mod->tail = NULL;
 	return mod;
@@ -158,25 +153,25 @@ void module_insert(Module *md, Element *e){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
 // Adds a pointer to the Module sub to the tail of the module’s list.
-void module_module(Module *md, Module *sub){
+void module_module(Module* md, Module* sub){
 	if(NULL != md && NULL != sub){
 		Element* e = element_init(ObjModule, sub);
 		if (md->head == NULL)
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
@@ -188,10 +183,10 @@ void module_point(Module *md, Point *p){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
@@ -204,10 +199,10 @@ void module_line(Module *md, Line *p){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{	
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}	
 }
 
@@ -219,10 +214,10 @@ void module_polyline(Module *md, Polyline *p){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{	
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
@@ -234,17 +229,25 @@ void module_polygon(Module *md, Polygon *p){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
 // Object that sets the current transform to the identity, placed at the tail of the module’s list.
 void module_identity(Module *md){
-	if(NULL != md){
-		matrix_identity(&md->tail->obj.matrix);
+	Element* e  = element_create();
+	e->type = ObjIdentity;
+	if (md->head == NULL)
+	{
+		md->head = e;
+		md->tail = e;
+	}
+	else{
+		md->tail->next = e;
+		md->tail = e;
 	}
 }
 
@@ -259,10 +262,11 @@ void module_translate2D(Module *md, double tx, double ty){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
 		}
-		md->tail->next = e;
-		md->tail = e;
+		else{
+			md->tail->next = e;
+			md->tail = e;
+		}
 	}
 }
 
@@ -272,17 +276,16 @@ void module_scale2D(Module *md, double sx, double sy){
 		Matrix mat;
 		matrix_identity(&mat);
 		matrix_scale2D(&mat, sx, sy);
-		printf("scale sx %f  sy %f \n",sx,sy);
-				matrix_print(&mat, stdout);
 		Element* e = element_init(ObjMatrix, &mat);
 		if (md->head == NULL)
 		{
 			md->head = e;
 			md->tail = e;
-			return;
 		}
-		md->tail->next = e;
-		md->tail = e;
+		else{
+			md->tail->next = e;
+			md->tail = e;
+		}
 	}
 }
 
@@ -297,10 +300,10 @@ void module_rotateZ(Module *md, double cth, double sth){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
@@ -315,17 +318,16 @@ void module_shear2D(Module *md, double shx, double shy){
 		{
 			md->head = e;
 			md->tail = e;
-			return;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
 		}
-		md->tail->next = e;
-		md->tail = e;
 	}
 }
 
 //Draw the module into the image using the given view transformation matrix [VTM], Lighting and
 //DrawState by traversing the list of Elements. (For now, Lighting can be an empty structure.)
 void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src){
-	// printf("moduleDAWPIOJAPIDJ");
 	Matrix LTM;
 	Matrix tempGTM;
 	DrawState tempDraw;
@@ -338,108 +340,65 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 	matrix_identity(&LTM);
 	polygon_init(&tempPolygon);
 	polyline_init(&tempPolyline);
-	printf("LTM _ begining\n");
-	matrix_print(&LTM, stdout);
+	// printf("LTM _ begining\n");
+	// matrix_print(&LTM, stdout);
 
-		printf("GTM _ begining\n");
-	matrix_print(GTM, stdout);
-
-	printf("VTM \n");
-	matrix_print(VTM, stdout);
-
-
-
-	for(iterator = (md->head); iterator != NULL; iterator = (Element*)iterator->next){
-
-		//printf("enumprint: %d\n", iterator-> type);
-		// printf("temp val: %d\n", tempPoint.val[0]);
-		// printf("iterator val: %d\n", iterator->obj.point.val[0]);
-
-		// if (iterator-> type == ObjMatrix)
-		// {
-		// 	printf("true!");
-		// }
-
+	for(iterator = md->head; iterator != NULL; iterator = (Element*)iterator->next){
 		switch(iterator->type){
 			case ObjColor:
 				ds->color = iterator->obj.color ;
 				break;
 			case ObjPoint:
-				printf("before\n");
-				point_print(&iterator->obj.point,stdout);
+				printf("objPoint\n");
 				point_copy(&tempPoint,&iterator->obj.point);
 				matrix_xformPoint(&LTM,&tempPoint,&tempPoint);
-				// printf("LTM _ onjPoint\n");
-				// matrix_print(&LTM, stdout);
-				// printf("after\n");
-				// point_print(&tempPoint,stdout);
 				matrix_xformPoint(GTM,&tempPoint,&tempPoint);
 				matrix_xformPoint(VTM,&tempPoint,&tempPoint);
-				printf("after VTM\n");
-				point_print(&iterator->obj.point,stdout);
 				point_normalize(&tempPoint);
-				// printf("VTM point \n");
-				// matrix_print(VTM, stdout);
-
-				// point_draw(&tempPoint,src,ds->color);
+				// printf("src (rows, cols): (%d, %d)\n",src->rows, src->cols);
+				// point_print(&tempPoint, stdout);
+				point_draw(&tempPoint,src,ds->color);
 				break;
 	 		case ObjLine:
-				// printf("objline\n");
+				printf("objline\n");
 				line_copy(&tempLine,&iterator->obj.line);
 				matrix_xformLine(&LTM,&tempLine);
 				matrix_xformLine(GTM,&tempLine);
 				matrix_xformLine(VTM,&tempLine);
 				line_normalize(&tempLine);
-					// printf("VTM line \n");
-					// matrix_print(VTM, stdout);
-				// line_draw(&tempLine,src,ds->color);
+				line_draw(&tempLine,src,ds->color);
 				break;
 			case ObjPolyline:
-				// printf("objPolyline\n");
+				printf("objPolyline\n");
 				polyline_copy(&tempPolyline,&iterator->obj.polyline);
 				matrix_xformPolyline(&LTM,&tempPolyline);
 				matrix_xformPolyline(GTM,&tempPolyline);
 				matrix_xformPolyline(VTM,&tempPolyline);
 				polyline_normalize(&tempPolyline);
-				// printf("VTM polyline\n");
-				// matrix_print(VTM, stdout);
-				// polyline_draw(&tempPolyline,src,ds->color);
+				polyline_draw(&tempPolyline,src,ds->color);
 				break;
 			case ObjPolygon:
-				// printf("objPolygon\n");
+				printf("objPolygon\n");
 				polygon_copy(&tempPolygon,&iterator->obj.polygon);
 				matrix_xformPolygon(&LTM,&tempPolygon);
 				matrix_xformPolygon(GTM,&tempPolygon);
 				matrix_xformPolygon(VTM,&tempPolygon);
 				polygon_normalize(&tempPolygon);
-				// printf("VTM polygon\n");
-				// matrix_print(VTM, stdout);
 				if (ds->shade == ShadeFrame)
 				{
-					// polygon_draw(&tempPolygon,src,ds->color);
+					polygon_draw(&tempPolygon,src,ds->color);
 				}
 				else if(ds->shade == ShadeConstant ){
-					// polygon_drawFill(&tempPolygon,src,ds->color);
+					polygon_drawFill(&tempPolygon,src,ds->color);
 				}
 				break;
 			case ObjMatrix:
-				// printf("LTM _ objMatrix before\n");
-				// matrix_print(&LTM, stdout);
+				printf("objMatrix\n");
 				matrix_multiply(&(iterator->obj.matrix), &LTM, &LTM);
-				// 	printf("VTM matrix\n");
-				// matrix_print(VTM, stdout);
-				// printf("iterator->obj.matrix\n");
-				// matrix_print(&iterator->obj.matrix, stdout);
-				// printf("LTM _ objMatrix after\n");
-				// matrix_print(&LTM, stdout);
 				break;
 			case ObjIdentity:
-				// printf("objIdentity\n");
+				printf("objIdentity\n");
 				matrix_identity(&LTM);
-				// printf("VTM identify\n");
-				// matrix_print(VTM, stdout);
-				// printf("LTM _ objIdentity\n");
-				// matrix_print(&LTM, stdout);
 				break;
 			case ObjLight:
 				break;
@@ -447,9 +406,15 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 				printf("objModule\n");
 				matrix_multiply(GTM, &LTM, &tempGTM);
 				tempDraw = *ds;
-				// printf("VTM module\n");
-				// matrix_print(VTM, stdout);
-				// module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /* light, */ src); 
+				printf("VTM\n");
+				matrix_print(VTM, stdout);
+				printf("tempGTM\n");
+				matrix_print(&tempGTM, stdout);
+				printf("addr iterator->obj.module\n");
+				printf("%p\n",iterator->obj.module);
+				printf("addr tempDraw\n");
+				printf("%p\n",&tempDraw);
+				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /* light, */ src); 
 				break;
 			default:
 				break;

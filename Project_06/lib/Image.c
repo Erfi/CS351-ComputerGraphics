@@ -353,6 +353,10 @@ Sets the depth value of pixel (r, c) to val.
 */
 void image_setz(Image* src, int r, int c, float val){
 	if((NULL != src)&&(NULL != src->data)){
+		if (r<0 || r>src->rows-1 || c<0 || c>src->cols-1)
+		{
+			return;
+		}
 		src->data[r][c].z = val;
 	}
 }

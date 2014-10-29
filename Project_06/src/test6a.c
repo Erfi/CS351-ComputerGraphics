@@ -176,20 +176,13 @@ int main(int argc, char *argv[]) {
 
 	// // create the image and draw the module
   src = image_create( view.screeny, view.screenx );
+  image_fillrgb(src, 1.0, 1.0, 1.0);
   ds = drawstate_create(); // default color is white
-  // printf("pointer to ds surface coeff: %p\n", ds->surfaceCoeff);
-  printf("Scene->head->next: %p\n", scene->head->next);
-  printf("Scene->tail: %p\n", scene->tail);
-  matrix_print(&vtm, stdout);
-  matrix_print(&gtm, stdout);
-  // printf("vtm: %p\n", vtm);
-  // printf("gtm: %p\n", gtm);
-  printf("src (rows, cols): (%d, %d)\n", src->rows, src->cols);
 
   module_draw( scene, &vtm, &gtm, ds, src );
 
-	// // write out the image
- //  image_write( src, "xwings.ppm" );
+	// write out the image
+  image_write( src, "xwings.ppm" );
 
 	// // free modules
  //  module_delete( scene );
