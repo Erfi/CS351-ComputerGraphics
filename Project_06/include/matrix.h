@@ -50,6 +50,9 @@ void matrix_rotateXYZ(Matrix *m, Vector *u, Vector *v, Vector *w);
 void matrix_shearZ(Matrix *m, double shx, double shy);
 void matrix_perspective(Matrix *m, double d);
 
+//polygon surface normal
+void polygon_normal(Polygon* p, Vector* c);
+
 
 
 

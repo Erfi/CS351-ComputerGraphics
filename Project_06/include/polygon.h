@@ -34,4 +34,5 @@ void polygon_normalize(Polygon *p);
 float Aux_implicit_line(Point p1, Point p2, float x,float y);
 int compare (const void * a, const void * b);
 
+
 #endif

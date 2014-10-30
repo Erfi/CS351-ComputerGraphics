@@ -54,10 +54,6 @@ int main(int argc, char *argv[]) {
   Matrix vtm;
   Matrix gtm;
   Module *scene;
-   Point vrp;
-  Vector xaxis;
-  Point p[8];
-  Line l;
   DrawState *ds;
   Image *src;
 
@@ -67,7 +63,7 @@ int main(int argc, char *argv[]) {
   matrix_identity( &gtm );
 
   // setup vtm
-  point_set3D( &view.vrp, 3, 2, -2);
+  point_set3D( &view.vrp, -3, -2, -2);
   //view2D_set( &view, &vrp, 2, &xaxis, 640, 360 );
   // view.vrp = vrp;
   vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
@@ -81,51 +77,23 @@ int main(int argc, char *argv[]) {
   view.b = 4; // back clip plane
   matrix_setView3D( &vtm, &view );
 
-
-
-  //     point_set( &(view.vrp), 3, 2, -2 );
-  // }
-  // vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
-
-  // vector_set( &(view.vup), 0, 1, 0 );
-  // view.d = 1;  // focal length
-  // view.du = 2;
-  // view.dv = view.du * (float)rows / cols;
-  // view.f = 0; // front clip plane
-  // view.b = 4; // back clip plane
-  // view.screenx = cols;
-  // view.screeny = rows;
-
-
-
-
-
-  // create a body
-
   // make a scene
   scene = module_create();
   module_cube( scene, 1 );
-  
-	// draw stars into the scene
-
 
 	// // create the image and draw the module
   src = image_create( view.screeny, view.screenx );
   ds = drawstate_create(); // default color is white
+  ds->shade = ShadeConstant;
 
-  module_draw( scene, &vtm, &gtm, ds, src );
+  module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
 
 	// write out the image
   image_write( src, "cube.ppm" );
 
 	// // free modules
   module_delete( scene );
- //  module_delete( formation );
- //  module_delete( xwing );
- //  module_delete( body );
- //  module_delete( wing );
-
-	// // free drawstate
+	// free drawstate
   free( ds );
 
 	// // free image

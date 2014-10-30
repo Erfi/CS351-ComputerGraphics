@@ -81,4 +81,19 @@ void matrix_setView3D(Matrix *vtm, View3D *view){
 }
 
 
+/*
+Tells you if a surface of a polygon is visible or not for drawing.
+returns 1 if visible, 0 otherwise
+*/
+int is_surface_visible(Vector* vpn, Vector* surfaceNormal){
+	double result = vector_dot(vpn, surfaceNormal);
+	if( result > 0){
+		return 1; //visible
+	}
+	else{
+		return 0; // not visible
+	}
+}
+
+
 

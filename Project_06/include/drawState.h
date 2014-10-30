@@ -32,4 +32,8 @@ void drawstate_setBody( DrawState *s, Color c );
 void drawstate_setSurface( DrawState *s, Color c );
 void drawstate_setSurfaceCoeff( DrawState *s, float f );
 void drawstate_copy( DrawState *to, DrawState *from );
+
+
+
+
 #endif

@@ -7,6 +7,7 @@ file: polygon.h
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "matrix.h"
 #include "list.h"
 #include "polygon.h"
 #include "line.h"
@@ -401,7 +402,7 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
 	if (p->vertex!=NULL) {
         free(p->vertex);
     }
-        p->vertex=malloc(sizeof(Point)*numV);
+    p->vertex=malloc(sizeof(Point)*numV);
     for (int i = 0; i < numV; i++)
     {
         point_copy(&(p->vertex[i]),&vlist[i]);
@@ -617,6 +618,8 @@ void polygon_normalize(Polygon *p){
         p->vertex[i].val[1]/=p->vertex[i].val[3];
     }
 }
+
+
 
 
 

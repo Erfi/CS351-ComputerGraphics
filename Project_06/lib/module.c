@@ -14,6 +14,7 @@ File: module.c
 #include "circle.h"
 #include "color.h"
 #include "Image.h"
+#include "view.h"
 
 
 
@@ -93,7 +94,7 @@ void element_delete(Element *e){
 
 //Allocate an empty module
 Module* module_create(void){
-	Module* mod = (Module *)malloc(sizeof(Module));
+	Module* mod = malloc(sizeof(Module));
 	mod->head = NULL;
 	mod->tail = NULL;
 	return mod;
@@ -105,18 +106,17 @@ void module_clear(Module *md){
 	for(iterator = (md->head); iterator != NULL; iterator = (Element*)iterator->next){
 		switch (iterator->type){
 			case ObjPolyline:
-				polyline_free(&(iterator->obj.polyline));
+				polyline_clear(&(iterator->obj.polyline));
 				// printf("this is working");
 				break;
 			case ObjPolygon:
-				polygon_free(&(iterator->obj.polygon));
+				polygon_clear(&(iterator->obj.polygon));
 				// printf("this is working");
 				break;
 			case ObjModule:
-				free(&(iterator->obj.module));
-				break;
+				module_clear((Module *) &iterator->obj);
+				break; 
 			default:
-				// printf("this is working");
 				break;
 		}
 	}
@@ -128,15 +128,20 @@ void module_delete(Module *md){
 	for(iterator = (md->head); iterator != NULL; iterator = (Element*)iterator->next){
 		switch (iterator->type){
 			case ObjPolyline:
-				polyline_free(&(iterator->obj.polyline));
+				polyline_clear(&(iterator->obj.polyline));
 				break;
 			case ObjPolygon:
-				polygon_free(&(iterator->obj.polygon));
+				polygon_clear(&(iterator->obj.polygon));
 				break;
+			case ObjModule:
+				module_delete((Module *) &iterator->obj);
+				break; 
 			default:
 				break;
 		}
 	}
+	md->head = NULL;
+	md->tail = NULL;
 	free(md);
 }
 
@@ -321,7 +326,7 @@ void module_shear2D(Module *md, double shx, double shy){
 
 //Draw the module into the image using the given view transformation matrix [VTM], Lighting and
 //DrawState by traversing the list of Elements. (For now, Lighting can be an empty structure.)
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src){
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vpn,  Image *src){
 	Matrix LTM;
 	Matrix tempGTM;
 	DrawState tempDraw;
@@ -383,7 +388,11 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 					polygon_draw(&tempPolygon,src,ds->color);
 				}
 				else if(ds->shade == ShadeConstant ){
-					polygon_drawFill(&tempPolygon,src,ds->color);
+					Vector c;
+					polygon_normal(&tempPolygon, &c);
+					if(is_surface_visible(vpn, &c)){
+						polygon_drawFill(&tempPolygon,src,ds->color);
+					}
 				}
 				break;
 			case ObjMatrix:
@@ -408,7 +417,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Image *src
 				// printf("%p\n",iterator->obj.module);
 				// printf("addr tempDraw\n");
 				// printf("%p\n",&tempDraw);
-				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /* light, */ src); 
+				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, vpn,/* light, */ src); 
 				break;
 			default:
 				break;
@@ -551,48 +560,48 @@ void module_cube(Module *md, int solid){
 			{
 				polygon_init(&pol[i]);
 			}
-			point_copy(&temp[0],&p[0]);
-			point_copy(&temp[1],&p[1]);
+			point_copy(&temp[0],&p[7]);
+			point_copy(&temp[1],&p[6]);
 			point_copy(&temp[2],&p[2]);
 			point_copy(&temp[3],&p[3]);
 
 			polygon_set(&pol[0],4,&temp[0]);
 
-			point_copy(&temp[0],&p[1]);
-			point_copy(&temp[1],&p[2]);
-			point_copy(&temp[2],&p[6]);
-			point_copy(&temp[3],&p[5]);
+			point_copy(&temp[0],&p[6]);
+			point_copy(&temp[1],&p[5]);
+			point_copy(&temp[2],&p[1]);
+			point_copy(&temp[3],&p[2]);
 
 			polygon_set(&pol[1],4,&temp[0]);
 
 
-			point_copy(&temp[0],&p[5]);
-			point_copy(&temp[1],&p[6]);
-			point_copy(&temp[2],&p[7]);
-			point_copy(&temp[3],&p[4]);
+			point_copy(&temp[0],&p[4]);
+			point_copy(&temp[1],&p[0]);
+			point_copy(&temp[2],&p[1]);
+			point_copy(&temp[3],&p[5]);
 
 			polygon_set(&pol[2],4,&temp[0]);
 
 
-			point_copy(&temp[0],&p[4]);
-			point_copy(&temp[1],&p[0]);
-			point_copy(&temp[2],&p[3]);
-			point_copy(&temp[3],&p[7]);
+			point_copy(&temp[0],&p[7]);
+			point_copy(&temp[1],&p[3]);
+			point_copy(&temp[2],&p[0]);
+			point_copy(&temp[3],&p[4]);
 
 			polygon_set(&pol[3],4,&temp[0]);
 
 
 			point_copy(&temp[0],&p[4]);
 			point_copy(&temp[1],&p[5]);
-			point_copy(&temp[2],&p[1]);
-			point_copy(&temp[3],&p[0]);
+			point_copy(&temp[2],&p[6]);
+			point_copy(&temp[3],&p[7]);
 
 			polygon_set(&pol[4],4,&temp[0]);
 
 
-			point_copy(&temp[0],&p[7]);
-			point_copy(&temp[1],&p[6]);
-			point_copy(&temp[2],&p[2]);
+			point_copy(&temp[0],&p[2]);
+			point_copy(&temp[1],&p[1]);
+			point_copy(&temp[2],&p[0]);
 			point_copy(&temp[3],&p[3]);
 
 			polygon_set(&pol[5],4,&temp[0]);

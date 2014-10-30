@@ -433,6 +433,21 @@ void matrix_perspective(Matrix *mat, double d){
 }
 
 
+/*
+    Calculates the  polygons srface normal vector. 
+    puts the new vector in c.
+*/
+void polygon_normal(Polygon* p, Vector* c){
+    if((NULL != p) && (NULL != p->vertex)){
+        Vector a, b; 
+        vector_set(&a, (p->vertex[1].val[0] - p->vertex[0].val[0]), (p->vertex[1].val[1] - p->vertex[0].val[1]), (p->vertex[1].val[2] - p->vertex[0].val[2]));
+        vector_set(&b, (p->vertex[2].val[0] - p->vertex[0].val[0]), (p->vertex[2].val[1] - p->vertex[0].val[1]), (p->vertex[2].val[2] - p->vertex[0].val[2]));
+        vector_cross(&a, &b, c);
+    }
+}
+
+
+
 
 
 
