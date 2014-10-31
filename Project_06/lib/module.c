@@ -682,8 +682,8 @@ void module_circle( Module *mod, int sides ) {
     z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
 
     point_copy( &pt[0], &xCenter );
-    point_set3D( &pt[1], x1, 1.0, z1 );
-    point_set3D( &pt[2], x2, 1.0, z2 );
+    point_set3D( &pt[1], x1, 0.0, z1 );
+    point_set3D( &pt[2], x2, 0.0, z2 );
 
     polygon_set( &p, 3, pt );
     module_polygon( mod, &p );
@@ -750,8 +750,8 @@ void module_ellipse(Module* mod, double a, double b, int sides){
 	z2 = b * sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
 
 	point_copy( &pt[0], &xCenter );
-	point_set3D( &pt[1], x1, 1.0, z1 );
-	point_set3D( &pt[2], x2, 1.0, z2 );
+	point_set3D( &pt[1], x1, 0.0, z1 );
+	point_set3D( &pt[2], x2, 0.0, z2 );
 
 	polygon_set( &p, 3, pt );
 	module_polygon( mod, &p );

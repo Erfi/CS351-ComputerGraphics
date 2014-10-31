@@ -8,6 +8,7 @@ file: view.h
 
 #include "matrix.h"
 #include "point.h"
+#include "Polygon.h"
 
 typedef struct{
 	Point vrp;
@@ -35,6 +36,8 @@ void matrix_setView2D(Matrix *vtm, View2D *view);
 void matrix_setView3D(Matrix *vtm, View3D *view);
 
 int is_surface_visible(Vector* vpn, Vector* surfaceNormal);
+
+void view_rotate_circle(Polygon* poly_vrp, Point* center, int sides, double scale, double thetax, double thetay, double thetaz);
 
 
 #endif

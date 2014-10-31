@@ -145,6 +145,9 @@ int main(int argc, char *argv[]) {
   Color Red =  { { 1.0, 0.2, 0.1 } };
   float bodyWidth = 4.0;
   char filename[100];
+  Polygon view_poly_vrp;
+  Point view_center;
+  int view_numSides;
 
   // set up the view
   point_set3D( &(view.vrp), 0.1, 5, 0 );
@@ -171,8 +174,9 @@ int main(int argc, char *argv[]) {
   //module_cylinder( engine, 10 );
   //module_cube(engine,1);
   // module_circle(engine, 50);
-  module_ellipse(engine, 1, 2, 50);
-  // module_circleFrame(engine, 25);
+  //module_scale(engine, 0.5, 0.5,0.5);
+  //module_ellipse(engine, 1, 2, 50);
+  module_circleFrame(engine, 25);
 
   // // // laser
   // laser = module_create();
@@ -307,37 +311,39 @@ int main(int argc, char *argv[]) {
 
   // create the image and drawstate
   
-  ds = drawstate_create();
-  ds->shade = ShadeFrame;
-  // draw into the scene
-  src = image_create( 360, 640 );
-  module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
-  //  write out the scene
-  image_write( src, "frame.ppm" );
-  // free the image
-  image_free( src );
+  // ds = drawstate_create();
+  // ds->shade = ShadeFrame;
+  // // draw into the scene
+  // src = image_create( 360, 640 );
+  // module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
+  // //  write out the scene
+  // image_write( src, "frame.ppm" );
+  // // free the image
+  // image_free( src );
 
   //for animation
-  
-  // int k;
-  // int m = -5;
-  // for(k=0; k<10; k++){
-  //   point_set3D( &(view.vrp), 0.1, m, 5 );
-  //   vector_set( &(view.vpn), --view.vrp.val[0], -view.vrp.val[1],-view.vrp.val[2]);
-  //   matrix_setView3D( &vtm, &view );
+  view_numSides = 50;
+  point_set3D(&view_center, 0.0,0.0,0.0);
+  view_rotate_circle(&view_poly_vrp, &view_center, view_numSides, 4.0, 0.0, 0.0, 90);
+  printf("Printing view_poly_vrp\n");
+  polygon_print(&view_poly_vrp, stdout);
+  int k;
+  for(k=0; k<view_poly_vrp.numVertex; k++){
+    point_set3D( &(view.vrp), view_poly_vrp.vertex[k].val[0], view_poly_vrp.vertex[k].val[1], view_poly_vrp.vertex[k].val[2] );
+    vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1],-view.vrp.val[2]);
+    matrix_setView3D( &vtm, &view );
 
 
-  //   src = image_create( 360, 640 );
-  //   module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
-  //   //  write out the scene
-  //   sprintf(filename, "frame_%.3d.ppm",k);
-  //   image_write( src, filename );
-  //   // free the image
-  //   image_free( src );
-  //   m+=1;
-  // }
-  // system("convert -delay 10 ./frame_*.ppm ../images/cubeFrame.gif");
-  // system("rm -f ./frame_*");
+    src = image_create( 360, 640 );
+    module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
+    //  write out the scene
+    sprintf(filename, "frame_%.3d.ppm",k);
+    image_write( src, filename );
+    // free the image
+    image_free( src );
+  }
+  system("convert -delay 20 ./frame_*.ppm ../images/cubeFrame.gif");
+  system("rm -f ./frame_*");
 
 	// free the polygon data
   //polygon_clear( &p );

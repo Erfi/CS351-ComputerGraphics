@@ -8,6 +8,7 @@ file: view.c
 #include <math.h>
 #include "matrix.h"
 #include "view.h"
+#include "polygon.h"
 
 
 void matrix_setView2D(Matrix *vtm, View2D *view){
@@ -94,6 +95,63 @@ int is_surface_visible(Vector* vpn, Vector* surfaceNormal){
 		return 0; // not visible
 	}
 }
+
+
+void view_rotate_circle(Polygon* poly_vrp, Point* center, int sides, double scale, double thetax, double thetay, double thetaz){
+	if(NULL != poly_vrp){
+		//make a unit circle of "sides" number fo sides and store the points in the poly_vrp
+		int i;
+		double x, z;
+		polygon_init(poly_vrp);
+		Point p[sides];
+		Matrix LTM;
+		matrix_identity(&LTM);
+		matrix_translate(&LTM, center->val[0], center->val[1], center->val[2]);
+		matrix_rotateX(&LTM, cos(thetax*M_PI/180), sin(thetax*M_PI/180));
+		matrix_rotateY(&LTM, cos(thetay*M_PI/180), sin(thetay*M_PI/180));
+		matrix_rotateZ(&LTM, cos(thetaz*M_PI/180), sin(thetaz*M_PI/180));
+		matrix_scale(&LTM, scale, scale, scale);
+		for(i=0; i<sides; i++){
+			x = cos( i * M_PI * 2.0 / sides );
+    		z = sin( i * M_PI * 2.0 / sides );
+
+    		point_set3D(&p[i], x, 0.1, z);
+		}
+		polygon_set(poly_vrp, sides, &p[0]);
+		matrix_xformPolygon(&LTM, poly_vrp);
+	}
+}
+
+
+// void module_circle( Module *mod, int sides ) {
+//   Polygon p;
+//   Point xCenter;
+//   double x1, x2, z1, z2;
+//   int i;
+
+//   polygon_init( &p );
+//   point_set3D( &xCenter, 0, 0.0, 0.0 );
+
+//   // make a fan for the top and bottom sides
+//   // and quadrilaterals for the sides
+//   for(i=0;i<sides;i++) {
+//     Point pt[3];
+
+//     x1 = cos( i * M_PI * 2.0 / sides );
+//     z1 = sin( i * M_PI * 2.0 / sides );
+//     x2 = cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+//     z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+//     point_copy( &pt[0], &xCenter );
+//     point_set3D( &pt[1], x1, 1.0, z1 );
+//     point_set3D( &pt[2], x2, 1.0, z2 );
+
+//     polygon_set( &p, 3, pt );
+//     module_polygon( mod, &p );
+//   }
+//   polygon_clear( &p );
+// }
+
 
 
 
