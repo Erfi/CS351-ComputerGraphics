@@ -5,6 +5,7 @@ File: module.c
 */
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "module.h"
 #include "drawState.h"
 #include "line.h"
@@ -390,7 +391,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vp
 				else if(ds->shade == ShadeConstant ){
 					Vector c;
 					polygon_normal(&tempPolygon, &c);
-					if(is_surface_visible(vpn, &c)){
+					if(/*is_surface_visible(vpn, &c)*/1){
 						polygon_drawFill(&tempPolygon,src,ds->color);
 					}
 				}
@@ -520,6 +521,32 @@ void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w){
 	}
 }
 
+
+
+
+// //shading/color module functions
+
+// // Adds the foreground color value to the tail of the module’s list.
+void module_color(Module *md, Color *c){
+	if((NULL != md) && (NULL != c)){
+		Element* e = element_init(ObjColor, c);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
+
+
+
+
+
+//shapes 
+
 // //Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines.
 // //If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
 void module_cube(Module *md, int solid){
@@ -615,10 +642,107 @@ void module_cube(Module *md, int solid){
 
 }
 
+//draws a unit circle center at x=0, z=0, flat on x-z plane using "sides" number of lines.
+//it uses lines so it CANNOT be filled.
+void module_circleFrame( Module *mod, int sides ) {
+  Line l;
+  Point xCenter;
+  double x1, x2, z1, z2;
+  int i;
+  point_set3D( &xCenter, 0, 0.0, 0.0 );
 
-// //shading/color module functions
+  // make a fan for the top and bottom sides
+  // and quadrilaterals for the sides
+  for(i=0;i<sides;i++) {
+    Point pt[2];
 
-// // Adds the foreground color value to the tail of the module’s list.
-// void module_color(Module *md, Color *c);
+    x1 = cos( i * M_PI * 2.0 / sides );
+    z1 = sin( i * M_PI * 2.0 / sides );
+    x2 = cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+    z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+    point_set3D( &pt[0], x1, 0.0, z1 );
+    point_set3D( &pt[1], x2, 0.0, z2 );
+    line_set(&l, pt[0], pt[1]);
+    module_line(mod, &l);
+  }
+}
+
+//draws a unit circle center at x=0, z=0, flat on x-z plane using "sides" number of polygons.
+//It uses polygons so it can be filled
+void module_circle( Module *mod, int sides ) {
+  Polygon p;
+  Point xCenter;
+  double x1, x2, z1, z2;
+  int i;
+
+  polygon_init( &p );
+  point_set3D( &xCenter, 0, 0.0, 0.0 );
+
+  // make a fan for the top and bottom sides
+  // and quadrilaterals for the sides
+  for(i=0;i<sides;i++) {
+    Point pt[3];
+
+    x1 = cos( i * M_PI * 2.0 / sides );
+    z1 = sin( i * M_PI * 2.0 / sides );
+    x2 = cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+    z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+    point_copy( &pt[0], &xCenter );
+    point_set3D( &pt[1], x1, 1.0, z1 );
+    point_set3D( &pt[2], x2, 1.0, z2 );
+
+    polygon_set( &p, 3, pt );
+    module_polygon( mod, &p );
+  }
+  polygon_clear( &p );
+}
+
+void module_cylinder( Module *mod, int sides ) {
+  Polygon p;
+  Point xtop, xbot;
+  double x1, x2, z1, z2;
+  int i;
+
+  polygon_init( &p );
+  point_set3D( &xtop, 0, 1.0, 0.0 );
+  point_set3D( &xbot, 0, 0.0, 0.0 );
+
+  // make a fan for the top and bottom sides
+  // and quadrilaterals for the sides
+  for(i=0;i<sides;i++) {
+    Point pt[4];
+
+    x1 = cos( i * M_PI * 2.0 / sides );
+    z1 = sin( i * M_PI * 2.0 / sides );
+    x2 = cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+    z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+    point_copy( &pt[0], &xtop );
+    point_set3D( &pt[1], x1, 1.0, z1 );
+    point_set3D( &pt[2], x2, 1.0, z2 );
+
+    polygon_set( &p, 3, pt );
+    module_polygon( mod, &p );
+
+    point_copy( &pt[0], &xbot );
+    point_set3D( &pt[1], x1, 0.0, z1 );
+    point_set3D( &pt[2], x2, 0.0, z2 );
+
+    polygon_set( &p, 3, pt );
+    module_polygon( mod, &p );
+
+    point_set3D( &pt[0], x1, 0.0, z1 );
+    point_set3D( &pt[1], x2, 0.0, z2 );
+    point_set3D( &pt[2], x2, 1.0, z2 );
+    point_set3D( &pt[3], x1, 1.0, z1 );
+    
+    polygon_set( &p, 4, pt );
+    module_polygon( mod, &p );
+  }
+
+  polygon_clear( &p );
+}
 
 
