@@ -13,7 +13,6 @@ file: polygon.h
 typedef struct{
 	int numVertex;
 	Point *vertex;
-	Vector normal;
 	int zBuffer;
 }Polygon;
 

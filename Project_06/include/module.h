@@ -86,7 +86,10 @@ void module_color(Module *md, Color *c);
 //shapes
 void module_circleFrame( Module *mod, int sides );//using lines -> cannot be filled
 void module_circle( Module *mod, int sides ); // using polygons -> can be filled
+void module_ellipseFrame(Module* mod, double a, double b, int sides);
+void module_ellipse(Module* mod, double a, double b, int sides);
 void module_cylinder(Module* mod, int sides);
+
 
 
 

@@ -144,12 +144,13 @@ int main(int argc, char *argv[]) {
   Color Flame = { { 1.0, 0.7, 0.2 } };
   Color Red =  { { 1.0, 0.2, 0.1 } };
   float bodyWidth = 4.0;
+  char filename[100];
 
   // set up the view
-  point_set3D( &(view.vrp), 0.1, 5, 5 );
-  vector_set( &(view.vpn), -0.1, -5,-5 );
+  point_set3D( &(view.vrp), 0.1, 5, 0 );
+  vector_set( &(view.vpn), -0.1, -5,0 );
   vector_set( &(view.vup), 0, 1, 0 );
-  view.d = 2;
+  view.d = 1;
   view.du = 1.6;
   view.dv = 0.9;
   view.f = 1;
@@ -167,8 +168,11 @@ int main(int argc, char *argv[]) {
   //cylinder( engine, 10 );
   //module_scale( engine, .8, .8, 1 );
   module_color( engine, &Flame );
-  module_cylinder( engine, 10 );
-  //module_circle(engine, 50);
+  //module_cylinder( engine, 10 );
+  //module_cube(engine,1);
+  // module_circle(engine, 50);
+  module_ellipse(engine, 1, 2, 50);
+  // module_circleFrame(engine, 25);
 
   // // // laser
   // laser = module_create();
@@ -300,18 +304,43 @@ int main(int argc, char *argv[]) {
   // module_module( scene, body );
   module_module(scene, engine);
 
+
   // create the image and drawstate
-  src = image_create( 360, 640 );
+  
   ds = drawstate_create();
   ds->shade = ShadeFrame;
   // draw into the scene
+  src = image_create( 360, 640 );
   module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
+  //  write out the scene
+  image_write( src, "frame.ppm" );
+  // free the image
+  image_free( src );
 
-	// write out the scene
-  image_write( src, "wings.ppm" );
+  //for animation
+  
+  // int k;
+  // int m = -5;
+  // for(k=0; k<10; k++){
+  //   point_set3D( &(view.vrp), 0.1, m, 5 );
+  //   vector_set( &(view.vpn), --view.vrp.val[0], -view.vrp.val[1],-view.vrp.val[2]);
+  //   matrix_setView3D( &vtm, &view );
+
+
+  //   src = image_create( 360, 640 );
+  //   module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
+  //   //  write out the scene
+  //   sprintf(filename, "frame_%.3d.ppm",k);
+  //   image_write( src, filename );
+  //   // free the image
+  //   image_free( src );
+  //   m+=1;
+  // }
+  // system("convert -delay 10 ./frame_*.ppm ../images/cubeFrame.gif");
+  // system("rm -f ./frame_*");
 
 	// free the polygon data
-  polygon_clear( &p );
+  //polygon_clear( &p );
 
 	// free the modules
   module_clear( scene );
@@ -324,8 +353,7 @@ int main(int argc, char *argv[]) {
 	// free the drawstate
 	free(ds);
 
-	// free the image
-  image_free( src );
+	
 
   return(0);
 }

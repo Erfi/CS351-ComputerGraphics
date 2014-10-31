@@ -108,15 +108,10 @@ void module_clear(Module *md){
 		switch (iterator->type){
 			case ObjPolyline:
 				polyline_clear(&(iterator->obj.polyline));
-				// printf("this is working");
 				break;
 			case ObjPolygon:
 				polygon_clear(&(iterator->obj.polygon));
-				// printf("this is working");
 				break;
-			case ObjModule:
-				module_clear((Module *) &iterator->obj);
-				break; 
 			default:
 				break;
 		}
@@ -134,9 +129,6 @@ void module_delete(Module *md){
 			case ObjPolygon:
 				polygon_clear(&(iterator->obj.polygon));
 				break;
-			case ObjModule:
-				module_delete((Module *) &iterator->obj);
-				break; 
 			default:
 				break;
 		}
@@ -391,7 +383,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vp
 				else if(ds->shade == ShadeConstant ){
 					Vector c;
 					polygon_normal(&tempPolygon, &c);
-					if(/*is_surface_visible(vpn, &c)*/1){
+					if(is_surface_visible(vpn, &c)){
 						polygon_drawFill(&tempPolygon,src,ds->color);
 					}
 				}
@@ -699,6 +691,74 @@ void module_circle( Module *mod, int sides ) {
   polygon_clear( &p );
 }
 
+/*
+Draws the frame of an ellipse using lines. it CANNOT be filled.
+Parameters:
+	mod : module to add the ellipse in.
+	a, b: radiux of x and z axix respetively.
+	sides: number of lines to use when drawing the polygon.
+*/
+void module_ellipseFrame(Module* mod, double a, double b, int sides){
+	Line l;
+	Point xCenter;
+	double x1, x2, z1, z2;
+	int i;
+	point_set3D( &xCenter, 0, 0.0, 0.0 );
+
+	// make a fan for the top and bottom sides
+	// and quadrilaterals for the sides
+	for(i=0;i<sides;i++) {
+	Point pt[2];
+
+	x1 = a * cos( i * M_PI * 2.0 / sides );
+	z1 = b * sin( i * M_PI * 2.0 / sides );
+	x2 = a * cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+	z2 = b * sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+	point_set3D( &pt[0], x1, 0.0, z1 );
+	point_set3D( &pt[1], x2, 0.0, z2 );
+	line_set(&l, pt[0], pt[1]);
+	module_line(mod, &l);
+  }
+
+}
+
+/*
+Draws the frame of an ellipse using polygons. it CAN be filled.
+Parameters:
+	mod : module to add the ellipse in.
+	a, b: radiux of x and z axix respetively.
+	sides: number of polygons (triangles) to use when drawing the polygon.
+*/
+void module_ellipse(Module* mod, double a, double b, int sides){
+	Polygon p;
+	Point xCenter;
+	double x1, x2, z1, z2;
+	int i;
+
+	polygon_init( &p );
+	point_set3D( &xCenter, 0, 0.0, 0.0 );
+
+	// make a fan for the top and bottom sides
+	// and quadrilaterals for the sides
+	for(i=0;i<sides;i++) {
+	Point pt[3];
+
+	x1 = a * cos( i * M_PI * 2.0 / sides );
+	z1 = b * sin( i * M_PI * 2.0 / sides );
+	x2 = a * cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+	z2 = b * sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+	point_copy( &pt[0], &xCenter );
+	point_set3D( &pt[1], x1, 1.0, z1 );
+	point_set3D( &pt[2], x2, 1.0, z2 );
+
+	polygon_set( &p, 3, pt );
+	module_polygon( mod, &p );
+	}
+	polygon_clear( &p );
+}
+
 void module_cylinder( Module *mod, int sides ) {
   Polygon p;
   Point xtop, xbot;
@@ -744,5 +804,7 @@ void module_cylinder( Module *mod, int sides ) {
 
   polygon_clear( &p );
 }
+
+
 
 
