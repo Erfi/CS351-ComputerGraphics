@@ -319,7 +319,7 @@ void module_shear2D(Module *md, double shx, double shy){
 
 //Draw the module into the image using the given view transformation matrix [VTM], Lighting and
 //DrawState by traversing the list of Elements. (For now, Lighting can be an empty structure.)
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vpn,  Image *src){
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn*/  Image *src){
 	Matrix LTM;
 	Matrix tempGTM;
 	DrawState tempDraw;
@@ -381,11 +381,11 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vp
 					polygon_draw(&tempPolygon,src,ds->color);
 				}
 				else if(ds->shade == ShadeConstant ){
-					Vector c;
-					polygon_normal(&tempPolygon, &c);
-					if(is_surface_visible(vpn, &c)){
+					//Vector c;
+					//polygon_normal(&tempPolygon, &c);
+					//if(is_surface_visible(vpn, &c)){
 						polygon_drawFill(&tempPolygon,src,ds->color);
-					}
+					//}
 				}
 				break;
 			case ObjMatrix:
@@ -402,15 +402,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vp
 				printf("objModule\n");
 				matrix_multiply(GTM, &LTM, &tempGTM);
 				tempDraw = *ds;
-				// printf("VTM\n");
-				// matrix_print(VTM, stdout);
-				// printf("tempGTM\n");
-				// matrix_print(&tempGTM, stdout);
-				// printf("addr iterator->obj.module\n");
-				// printf("%p\n",iterator->obj.module);
-				// printf("addr tempDraw\n");
-				// printf("%p\n",&tempDraw);
-				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, vpn,/* light, */ src); 
+				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /*vpn, light, */ src); 
 				break;
 			default:
 				break;

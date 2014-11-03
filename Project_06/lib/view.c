@@ -123,35 +123,6 @@ void view_rotate_circle(Polygon* poly_vrp, Point* center, int sides, double scal
 }
 
 
-// void module_circle( Module *mod, int sides ) {
-//   Polygon p;
-//   Point xCenter;
-//   double x1, x2, z1, z2;
-//   int i;
-
-//   polygon_init( &p );
-//   point_set3D( &xCenter, 0, 0.0, 0.0 );
-
-//   // make a fan for the top and bottom sides
-//   // and quadrilaterals for the sides
-//   for(i=0;i<sides;i++) {
-//     Point pt[3];
-
-//     x1 = cos( i * M_PI * 2.0 / sides );
-//     z1 = sin( i * M_PI * 2.0 / sides );
-//     x2 = cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
-//     z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
-
-//     point_copy( &pt[0], &xCenter );
-//     point_set3D( &pt[1], x1, 1.0, z1 );
-//     point_set3D( &pt[2], x2, 1.0, z2 );
-
-//     polygon_set( &p, 3, pt );
-//     module_polygon( mod, &p );
-//   }
-//   polygon_clear( &p );
-// }
-
 
 
 

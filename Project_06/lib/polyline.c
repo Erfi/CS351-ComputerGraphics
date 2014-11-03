@@ -124,6 +124,8 @@ void polyline_copy(Polyline *to, Polyline *from){
         {
           to->vertex[i] = from->vertex[i];
         }
+        to->numVertex = from->numVertex;
+        to->zBuffer = from->zBuffer;
     }
 }
 
