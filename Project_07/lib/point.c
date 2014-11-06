@@ -53,8 +53,8 @@ void point_draw(Point *p, Image *src, Color c){
         printf("ERROR: point_draw >> pointer parameter is NULL\n");
         exit(-1);
     }
-    int x=(int)p->val[0];
-    int y=(int)p->val[1];
+    int x=(int)p->val[1];
+    int y=(int)p->val[0];
     image_setc(src, x, y, 0, c.rgb[0]);
     image_setc(src, x, y, 1, c.rgb[1]);
     image_setc(src, x, y, 2, c.rgb[2]);
@@ -68,8 +68,8 @@ void point_drawf(Point *p, Image *src, FPixel c){
         printf("ERROR: point_drawf >> pointer parameter is NULL\n");
         exit(-1);
     }
-    double x=p->val[0];
-    double y=p->val[1];
+    double x=p->val[1];
+    double y=p->val[0];
     image_setf(src, x, y, c);
     image_setz(src, x, y, p->val[2]);
 }

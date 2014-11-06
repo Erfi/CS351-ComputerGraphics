@@ -228,6 +228,27 @@ void module_polygon(Module *md, Polygon *p){
 	}
 }
 
+/*
+use the de Casteljau algorithm to subdivide the Bezier curve divisions times, then add the lines
+connecting the control points to the module. For example, if divisions is 1, the four original Bezier
+curve control points will be used to generate eight control points and two new Bezier curves. Then
+the algorithm will add six lines to the module, three for each of the smaller Bezier curves.
+*/
+void module_bezierCurve(Module *m, BezierCurve *b, int divisions){
+
+}
+
+/*
+use the de Casteljau algorithm to subdivide the Bezier surface divisions times, then draw either the
+lines connecting the control points, if solid is 0, or draw triangles using the four corner control points.
+For example, if divisions is 1, the 16 original Bezier curve control points will be used to generate 64
+control points and four new Bezier surfaces, 1 level of subdivision, and then the algorithm will draw
+lines or triangles to connect adjacent control points.
+*/
+void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid){
+
+}
+
 // Object that sets the current transform to the identity, placed at the tail of the module’s list.
 void module_identity(Module *md){
 	Element* e  = element_create();
