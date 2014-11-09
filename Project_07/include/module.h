@@ -14,6 +14,7 @@ File: module.h
 #include "color.h"
 #include "matrix.h"
 #include "drawState.h"
+#include "bezier.h"
 
 typedef enum { // example of an enumerated type
 	ObjNone,
@@ -91,6 +92,8 @@ void module_circle( Module *mod, int sides ); // using polygons -> can be filled
 void module_ellipseFrame(Module* mod, double a, double b, int sides);
 void module_ellipse(Module* mod, double a, double b, int sides);
 void module_cylinder(Module* mod, int sides);
+void de_Casteljau_point(Point *p, Point* row);
+
 
 
 

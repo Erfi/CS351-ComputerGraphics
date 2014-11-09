@@ -335,7 +335,7 @@ int main(int argc, char *argv[]) {
 
 
     src = image_create( 360, 640 );
-    module_draw( scene, &vtm, &gtm, ds, &view.vpn, src );
+    module_draw( scene, &vtm, &gtm, ds, /*&view.vpn* ,*/ src );
     //  write out the scene
     sprintf(filename, "frame_%.3d.ppm",k);
     image_write( src, filename );

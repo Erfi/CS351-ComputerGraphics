@@ -16,6 +16,7 @@ File: module.c
 #include "color.h"
 #include "Image.h"
 #include "view.h"
+#include "bezier.h"
 
 
 
@@ -235,8 +236,24 @@ curve control points will be used to generate eight control points and two new B
 the algorithm will add six lines to the module, three for each of the smaller Bezier curves.
 */
 void module_bezierCurve(Module *m, BezierCurve *b, int divisions){
+	if(divisions == 0){
+		Line l[3];
+		int i;
+		for(i=0; i<3; i++){
+			line_set(&l[i], b->ctrl[i], b->ctrl[i+1]);
+			module_line(m, &l[i]);
+		}
+	}else{
+		BezierCurve curve1;
+		BezierCurve curve2;
+		de_Casteljau_module(b, &curve1, &curve2);
 
-}
+		module_bezierCurve(m, &curve1, divisions-1);
+		module_bezierCurve(m, &curve2, divisions-1);
+	}
+}	
+
+
 
 /*
 use the de Casteljau algorithm to subdivide the Bezier surface divisions times, then draw either the
@@ -246,7 +263,147 @@ control points and four new Bezier surfaces, 1 level of subdivision, and then th
 lines or triangles to connect adjacent control points.
 */
 void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid){
+	if(solid == 0){//framewire
+		if(divisions == 0){//addlines to module
+			Line l[3];
+			int i,j;
 
+			for(i=0; i<4; i++){ // draw horizontal
+				for(j=0; j<3; j++){
+					line_set(&l[j], b->ctrl[i][j], b->ctrl[i][j+1]);
+					module_line(m, &l[j]);
+				}
+			}
+
+			for(j=0; j<4; j++){ // draw vertical
+				for(i=0; i<3; i++){
+					line_set(&l[i], b->ctrl[i][j], b->ctrl[i+1][j]);
+					module_line(m, &l[i]);
+				}
+			}
+		}else{ //subdevide lines
+			//Lets break the points into horizintal and vertical and use the de_Casteljau_surface algo.
+			//for each row of 4 points we will recieve a row of 7 points
+			BezierSurface surface[4];// 4 funal surfaces of 16 points
+			int i, j;
+			Point rows[4][7]; //for rows of 7 points (will be filles with the result of DC algo. on the original rows of b)
+			Point final[7][7]; // will contain 49 points that are then given to the 4 sub surfaces.
+			Point tempRow[4]; //temporary row for passing points between the original b, and the rows.
+			
+			for(i=0; i<4; i++){ // horizontal
+				for(j=0; j<4; j++){
+					point_copy(&tempRow[j], &b->ctrl[i][j]);
+				}
+				de_Casteljau_point(&tempRow[0] ,&rows[i][0]);
+			}
+
+			
+
+			for(i=0; i<7; i++){ // vertical
+				for(j=0; j<4; j++){
+					point_copy(&tempRow[j], &rows[j][i]);
+				}
+				de_Casteljau_point(&tempRow[0], &final[i][0]);
+			}
+
+			
+			for(i=0; i<4; i++){//top left surface[0]
+				for(j=0; j<4; j++){
+					point_copy(&surface[0].ctrl[i][j], &final[i][j]);
+				}
+			}
+
+			for(i=3; i<7; i++){//top right surface[1]
+				for(j=0; j<4; j++){
+					point_copy(&surface[1].ctrl[i-3][j], &final[i][j]);
+				}
+			}
+
+			for(i=0; i<4; i++){//bottom left surface[2]
+				for(j=3; j<7; j++){
+					point_copy(&surface[2].ctrl[i][j-3], &final[i][j]);
+				}
+			}
+
+			for(i=3; i<7; i++){//lower right surface[0]
+				for(j=3; j<7; j++){
+					point_copy(&surface[3].ctrl[i-3][j-3], &final[i][j]);
+				}
+			}
+
+			// for(i=0; i<7; i++){
+			// 	for(j=0; j<7; j++){
+			// 		if(i%2==0 && j%2 == 0){//original points
+			// 			point_copy(&p[i][j], &b->ctrl[i/2][j/2]);
+			// 		}
+			// 		else if(i%2==0){//original row
+			// 			average(&b->ctrl[i/2][(j-1)/2],&b->ctrl[i/2][(j+1)/2],&p[i][j]); 
+			// 		}else if(j%2==0){//original col
+			// 			average(&b->ctrl[(i-1)/2][j/2],&b->ctrl[(i+1)/2][j/2],&p[i][j]);
+			// 		}else{//new point in the middle
+			// 			Point temp[2];
+			// 			average(&b->ctrl[(i-1)/2][(j-1)/2],&b->ctrl[(i+1)/2][(j+1)/2],&temp[0]);
+			// 			average(&b->ctrl[(i-1)/2][(j+1)/2],&b->ctrl[(i+1)/2][(j-1)/2],&temp[1]);
+			// 			average(&temp[0],&temp[1],&p[i][j]);
+			// 		}
+			// 	}
+			// }//by this time you have all your 49 points (7*7)
+
+			// for(i=0; i<4; i++){//top left surface[0]
+			// 	for(j=0; j<4; j++){
+			// 		point_copy(&surface[0].ctrl[i][j], &p[i][j]);
+			// 	}
+			// }
+
+			// for(i=0; i<4; i++){//top right surface[1]
+			// 	for(j=3; j<7; j++){
+			// 		point_copy(&surface[1].ctrl[i][j-3], &p[i][j]);
+			// 	}
+			// }
+
+			// for(i=3; i<7; i++){//lower left surface[2]
+			// 	for(j=0; j<4; j++){
+			// 		point_copy(&surface[2].ctrl[i-3][j], &p[i][j]);
+			// 	}
+			// }
+
+			// for(i=3; i<7; i++){//lower right surface[0]
+			// 	for(j=3; j<7; j++){
+			// 		point_copy(&surface[3].ctrl[i-3][j-3], &p[i][j]);
+			// 	}
+			// }
+
+			module_bezierSurface(m, &surface[0], divisions-1, solid);
+			module_bezierSurface(m, &surface[1], divisions-1, solid);
+			module_bezierSurface(m, &surface[2], divisions-1, solid);
+			module_bezierSurface(m, &surface[3], divisions-1, solid);
+		}
+	}else{//drawusing triangles
+
+	}
+}
+
+//This function takes 4 points run the D.C. algo. on them
+//then spits out 7 points which are basically the points for the 
+//two subcurves. 
+void de_Casteljau_point(Point *p, Point* row){
+	Point temp[6];
+	average(&p[0],&p[1],&temp[0]);
+	average(&p[1],&p[2],&temp[1]);
+	average(&p[2],&p[3],&temp[2]);
+
+	average(&temp[0],&temp[1],&temp[3]);
+	average(&temp[1],&temp[2],&temp[4]);
+
+	average(&temp[3],&temp[4], &temp[5]); //point on the curve
+
+	point_copy(&row[0], &p[0]);
+	point_copy(&row[1], &temp[0]);	
+	point_copy(&row[2], &temp[3]);
+	point_copy(&row[3], &temp[5]);
+	point_copy(&row[4], &temp[4]);
+	point_copy(&row[5], &temp[2]);
+	point_copy(&row[6], &p[3]);
 }
 
 // Object that sets the current transform to the identity, placed at the tail of the module’s list.
