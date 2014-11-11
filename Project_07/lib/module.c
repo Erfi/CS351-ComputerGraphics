@@ -297,8 +297,6 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 				de_Casteljau_point(&tempRow[0] ,&rows[i][0]);
 			}
 
-			
-
 			for(i=0; i<7; i++){ // vertical
 				for(j=0; j<4; j++){
 					point_copy(&tempRow[j], &rows[j][i]);
@@ -306,10 +304,9 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 				de_Casteljau_point(&tempRow[0], &final[i][0]);
 			}
 
-			
 			for(i=0; i<4; i++){//top left surface[0]
 				for(j=0; j<4; j++){
-					point_copy(&surface[0].ctrl[i][j], &final[i][j]);
+					point_copy(&surface[0].ctrl[i][j], &final[i][j]); 
 				}
 			}
 
@@ -331,54 +328,91 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 				}
 			}
 
-			// for(i=0; i<7; i++){
-			// 	for(j=0; j<7; j++){
-			// 		if(i%2==0 && j%2 == 0){//original points
-			// 			point_copy(&p[i][j], &b->ctrl[i/2][j/2]);
-			// 		}
-			// 		else if(i%2==0){//original row
-			// 			average(&b->ctrl[i/2][(j-1)/2],&b->ctrl[i/2][(j+1)/2],&p[i][j]); 
-			// 		}else if(j%2==0){//original col
-			// 			average(&b->ctrl[(i-1)/2][j/2],&b->ctrl[(i+1)/2][j/2],&p[i][j]);
-			// 		}else{//new point in the middle
-			// 			Point temp[2];
-			// 			average(&b->ctrl[(i-1)/2][(j-1)/2],&b->ctrl[(i+1)/2][(j+1)/2],&temp[0]);
-			// 			average(&b->ctrl[(i-1)/2][(j+1)/2],&b->ctrl[(i+1)/2][(j-1)/2],&temp[1]);
-			// 			average(&temp[0],&temp[1],&p[i][j]);
-			// 		}
-			// 	}
-			// }//by this time you have all your 49 points (7*7)
-
-			// for(i=0; i<4; i++){//top left surface[0]
-			// 	for(j=0; j<4; j++){
-			// 		point_copy(&surface[0].ctrl[i][j], &p[i][j]);
-			// 	}
-			// }
-
-			// for(i=0; i<4; i++){//top right surface[1]
-			// 	for(j=3; j<7; j++){
-			// 		point_copy(&surface[1].ctrl[i][j-3], &p[i][j]);
-			// 	}
-			// }
-
-			// for(i=3; i<7; i++){//lower left surface[2]
-			// 	for(j=0; j<4; j++){
-			// 		point_copy(&surface[2].ctrl[i-3][j], &p[i][j]);
-			// 	}
-			// }
-
-			// for(i=3; i<7; i++){//lower right surface[0]
-			// 	for(j=3; j<7; j++){
-			// 		point_copy(&surface[3].ctrl[i-3][j-3], &p[i][j]);
-			// 	}
-			// }
-
 			module_bezierSurface(m, &surface[0], divisions-1, solid);
 			module_bezierSurface(m, &surface[1], divisions-1, solid);
 			module_bezierSurface(m, &surface[2], divisions-1, solid);
 			module_bezierSurface(m, &surface[3], divisions-1, solid);
 		}
 	}else{//drawusing triangles
+		if(divisions == 0){//addlines to module
+			Polygon poly[2];
+			Point ptemp1[3];
+			Point ptemp2[3];
+			int i,j;
+
+			for(i=0; i<3; i++){ // draw horizontal
+				for(j=0; j<3; j++){
+					polygon_init(&poly[0]);
+					polygon_init(&poly[1]);
+
+					point_copy(&ptemp1[0], &b->ctrl[i][j]);//top left corner
+					point_copy(&ptemp1[1], &b->ctrl[i][j+1]);//top right corner
+					point_copy(&ptemp1[2], &b->ctrl[i+1][j]);//bottom left corner
+
+					point_copy(&ptemp2[0], &b->ctrl[i][j+1]);//top right corner
+					point_copy(&ptemp2[1], &b->ctrl[i+1][j+1]);//bottom right corner
+					point_copy(&ptemp2[2], &b->ctrl[i+1][j]);//bottom left corner
+
+					polygon_set(&poly[0], 3, ptemp1);
+					polygon_set(&poly[1], 3, ptemp2);
+
+					module_polygon(m, &poly[0]);
+					module_polygon(m, &poly[1]);
+				}
+			}
+
+		}else{ //subdevide lines
+			//Lets break the points into horizintal and vertical and use the de_Casteljau_surface algo.
+			//for each row of 4 points we will recieve a row of 7 points
+			BezierSurface surface[4];// 4 funal surfaces of 16 points
+			int i, j;
+			Point rows[4][7]; //for rows of 7 points (will be filles with the result of DC algo. on the original rows of b)
+			Point final[7][7]; // will contain 49 points that are then given to the 4 sub surfaces.
+			Point tempRow[4]; //temporary row for passing points between the original b, and the rows.
+			
+			for(i=0; i<4; i++){ // horizontal
+				for(j=0; j<4; j++){
+					point_copy(&tempRow[j], &b->ctrl[i][j]);
+				}
+				de_Casteljau_point(&tempRow[0] ,&rows[i][0]);
+			}
+
+			for(i=0; i<7; i++){ // vertical
+				for(j=0; j<4; j++){
+					point_copy(&tempRow[j], &rows[j][i]);
+				}
+				de_Casteljau_point(&tempRow[0], &final[i][0]);
+			}
+
+			for(i=0; i<4; i++){//top left surface[0]
+				for(j=0; j<4; j++){
+					point_copy(&surface[0].ctrl[i][j], &final[i][j]); 
+				}
+			}
+
+			for(i=3; i<7; i++){//top right surface[1]
+				for(j=0; j<4; j++){
+					point_copy(&surface[1].ctrl[i-3][j], &final[i][j]);
+				}
+			}
+
+			for(i=0; i<4; i++){//bottom left surface[2]
+				for(j=3; j<7; j++){
+					point_copy(&surface[2].ctrl[i][j-3], &final[i][j]);
+				}
+			}
+
+			for(i=3; i<7; i++){//lower right surface[0]
+				for(j=3; j<7; j++){
+					point_copy(&surface[3].ctrl[i-3][j-3], &final[i][j]);
+				}
+			}
+
+			module_bezierSurface(m, &surface[0], divisions-1, solid);
+			module_bezierSurface(m, &surface[1], divisions-1, solid);
+			module_bezierSurface(m, &surface[2], divisions-1, solid);
+			module_bezierSurface(m, &surface[3], divisions-1, solid);
+		}
 
 	}
 }
@@ -497,7 +531,7 @@ void module_shear2D(Module *md, double shx, double shy){
 
 //Draw the module into the image using the given view transformation matrix [VTM], Lighting and
 //DrawState by traversing the list of Elements. (For now, Lighting can be an empty structure.)
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn*/  Image *src){
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vpn,  Image *src){
 	Matrix LTM;
 	Matrix tempGTM;
 	DrawState tempDraw;
@@ -559,11 +593,11 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 					polygon_draw(&tempPolygon,src,ds->color);
 				}
 				else if(ds->shade == ShadeConstant ){
-					//Vector c;
-					//polygon_normal(&tempPolygon, &c);
-					//if(is_surface_visible(vpn, &c)){
+					Vector c;
+					polygon_normal(&tempPolygon, &c);
+					if(!is_surface_visible(vpn, &c)){
 						polygon_drawFill(&tempPolygon,src,ds->color);
-					//}
+					}
 				}
 				break;
 			case ObjMatrix:
@@ -580,7 +614,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				printf("objModule\n");
 				matrix_multiply(GTM, &LTM, &tempGTM);
 				tempDraw = *ds;
-				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /*vpn, light, */ src); 
+				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, vpn,/* light, */ src); 
 				break;
 			default:
 				break;

@@ -75,7 +75,7 @@ void module_translate2D(Module *md, double tx, double ty);
 void module_scale2D(Module *md, double sx, double sy);
 void module_rotateZ(Module *md, double cth, double sth);
 void module_shear2D(Module *md, double shx, double shy);
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn*//*Lighting *lighting,*/ Image *src);
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, Vector* vpn,/*Lighting *lighting,*/ Image *src);
 //3D functions
 void module_translate(Module *md, double tx, double ty, double tz);
 void module_scale(Module *md, double sx, double sy, double sz);
