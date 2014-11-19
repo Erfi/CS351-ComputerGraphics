@@ -152,14 +152,29 @@ for(i=0; i<20; i++){
 
 //scene
     scene = module_create();
-    module_translate(scene, 20, 0,0);
+    module_translate(scene, 6, 0,-6);
     module_module(scene, castle);
     module_identity(scene);
+
+    module_rotateY(scene, cos(60*M_PI/180), sin(60*M_PI/180));
     module_module(scene, pyramid_tower);
+
+    module_identity(scene);
+
+    module_translate(scene, 6, 0,-6);
+    module_rotateY(scene, cos(120*M_PI/180), sin(120*M_PI/180));
+    module_module(scene, castle);
+
+    module_rotateY(scene, cos(120*M_PI/180), sin(120*M_PI/180));
+    module_module(scene, castle);
+
+
+
+
 
   //animation
   point_set3D(&viewCenter, 0, 0.5, 0);
-  view_rotate_circle(&poly_vrp, &viewCenter, 50, 30, 0, 0, 0);
+  view_rotate_circle(&poly_vrp, &viewCenter, 50, 40, 20, 0, 0);
   for(k=0; k<50; k++){
     point_set3D( &(view.vrp), poly_vrp.vertex[k].val[0], poly_vrp.vertex[k].val[1], poly_vrp.vertex[k].val[2]);
     vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
