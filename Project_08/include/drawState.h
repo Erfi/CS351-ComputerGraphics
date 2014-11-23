@@ -9,8 +9,10 @@
 
 typedef enum{
 	ShadeFrame,  //- draw only the borders of objects, including polygons.
-	ShadeConstant, //- draw objects using the current foreground color, fill polygons. ShadeDepth - draw objects using their depth value.
-	ShadeFlat   //- draw objects using shading calculations, but each polygon is a constant value. ShadeGouraud - draw objects using Gouraud shading.
+	ShadeConstant, //- draw objects using the current foreground color, fill polygons. 
+	ShadeDepth, //- draw objects using their depth value.
+	// ShadeFlat,   //- draw objects using shading calculations, but each polygon is a constant value. 
+	// ShadeGouraud //- draw objects using Gouraud shading.
 }ShadeMethod;
 
 

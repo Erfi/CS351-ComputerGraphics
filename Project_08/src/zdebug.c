@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 
   ray2 = module_create();
   module_color(ray2, &Red);
-  for(i=0; i< 6; i++){
+  for(i=0; i< 5; i++){
   point_set3D(&point2[0], -1+0.01*i, 1, 4);
   point_set3D(&point2[1], 1+0.01*i, -1, 4);
   line_set(&l, point2[0], point2[1]);

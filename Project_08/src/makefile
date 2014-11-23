@@ -32,10 +32,10 @@ _DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h pol
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = imagetest mandeltest testbench test4b testbitmap polygonStress hexagon task6_1 test5a test5d test5b test5c proj5_ext1 treeScene scene2d test6a cube test6b task5_4 test7a test7b test7c teapot task6_3 zdebug
+EXECUTABLES = imagetest mandeltest testbench test4b testbitmap polygonStress hexagon task6_1 test5a test5d test5b test5c proj5_ext1 treeScene scene2d test6a cube test6b task5_4 test7a test7b test7c teapot task6_3 zdebug test8a cubism
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o test4a.o testbitmap.o polygonStress.o hexagon.o task6_1.o test5a.o test5d.o test5b.o test5c.o proj5_ext1.o treeScene.o scene2d.o test6a.o cube.o test6b.o task5_4.o test7a.o test7b.o test7c.o teapot.o task6_3.o zdebug.o
+_OBJ = imagetest.o mandeltest.o testbench.o test3a.o test3c.o 3Dmodel.o test4b.o test4a.o testbitmap.o polygonStress.o hexagon.o task6_1.o test5a.o test5d.o test5b.o test5c.o proj5_ext1.o treeScene.o scene2d.o test6a.o cube.o test6b.o task5_4.o test7a.o test7b.o test7c.o teapot.o task6_3.o zdebug.o test8a.o cubism.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -138,6 +138,11 @@ task6_3: $(ODIR)/task6_3.o
 zdebug: $(ODIR)/zdebug.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
+test8a: $(ODIR)/test8a.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+
+cubism: $(ODIR)/cubism.o
+	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean
 

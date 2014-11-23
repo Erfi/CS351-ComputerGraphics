@@ -14,6 +14,7 @@ file: polygon.h
 #include "point.h"
 #include "Image.h"
 #include "color.h"
+#include "drawState.h"
 
 /****************************************
 Start Scanline Fill
@@ -68,7 +69,7 @@ static int compXIntersect( const void *a, const void *b ) {
     Eventually, the points will be 3D and we'll add color and texture
     coordinates.
  */
-static Edge *makeEdgeRec( Point start, Point end, Image *src)
+static Edge *makeEdgeRec( Point start, Point end, DrawState* ds, Image *src)
 {
     Edge *edge;
     //float dscan = end.val[1] - start.val[1]; //y1 - y0
@@ -83,18 +84,22 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src)
     edge->yStart = (int)(edge->y0 + 0.5);
     edge->yEnd = (int)(edge->y1 + 0.5)-1; 
     edge->dxPerScan = (edge->x1 - edge->x0)/(edge->y1 - edge->y0);
-    edge->dzPerScan = (1/edge->z1 - 1/edge->z0)/(edge->y1 - edge->y0);
+    if(ds->shade == ShadeDepth){
+        edge->dzPerScan = (1/edge->z1 - 1/edge->z0)/(edge->y1 - edge->y0);
+    }else{
+        edge->dzPerScan = 0;
+    }
 
 
     //Correctly initializing xIntersect
     edge->xIntersect = edge->x0 + abs((edge->y0 - edge->yStart )) * edge->dxPerScan;
-    egde->zIntersect = 1/edge->z0 + abs((edge->y0 - edge->yStart )) * edge->dzPerScan;
+    edge->zIntersect = 1/edge->z0 + abs((edge->y0 - edge->yStart )) * edge->dzPerScan;
 
     //Clipping if the edge starts off the image or goes off image
     if(edge->y0 < 0){ //if edge starts below row 0
         printf("edge starts above the image");
         edge->xIntersect += -edge->y0 * edge->dxPerScan;
-        edge->zIntersect += -edge->y0 * edge->dxPerScan;
+        edge->zIntersect += -edge->y0 * edge->dzPerScan;
         edge->y0 = 0;
     }
     if(edge->yEnd > src->rows-1){ //if the edge starts inside the image but continues outside
@@ -118,7 +123,7 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src)
     Returns a list of all the edges in the polygon in sorted order by
     smallest row.
 */
-static LinkedList *setupEdgeList( Polygon *p, Image *src) {
+static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
     LinkedList *edges = NULL;
     Point v1, v2;
     int i;
@@ -140,9 +145,9 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src) {
 
             // if the first coordinate is smaller (top edge)
             if( v1.val[1] < v2.val[1] )
-                edge = makeEdgeRec( v1, v2, src );
+                edge = makeEdgeRec( v1, v2, ds ,src );
             else
-                edge = makeEdgeRec( v2, v1, src );
+                edge = makeEdgeRec( v2, v1, ds, src );
 
             // insert the edge into the list of edges if it's not null
             if( edge )
@@ -165,7 +170,7 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src) {
     Draw one scanline of a polygon given the scanline, the active edges,
     a DrawState, the image, and some Lights (for Phong shading only).
  */
-static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
+static void fillScan( int scan, LinkedList *active, DrawState* ds, Image *src) {
   Edge *p1, *p2;
   float curZ;
   float dzPerColumn;
@@ -201,15 +206,22 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
       int colEnd = (int)(p2->xIntersect+1);
       int row = scan;
 
-      curZ = 1/p1->zIntersect;
-      dzPerColumn = (1/p2->zIntersect - 1/p1->zIntersect) / (colEnd - colStart);
+      curZ = p1->zIntersect;
+      dzPerColumn = (p2->zIntersect - p1->zIntersect) / (colEnd - colStart);
 
       for (i=colStart; i< colEnd; i++){
         if(src->data[row][i].z < curZ){
-            image_setColor(src, row, i, c);
+            if(ds->shade == ShadeConstant){
+                image_setColor(src, row, i, ds->color);
+            }else if(ds->shade == ShadeDepth){
+                Color c;
+                float z = 1/curZ;
+                Color_set(&c,(1-z)*ds->color.rgb[0], (1-z)*ds->color.rgb[1], (1-z)*ds->color.rgb[2]);
+                image_setColor(src, row, i, c);
+            }
             src->data[row][i].z = curZ;
         }
-        curZ =+ dzPerColumn;
+        curZ += dzPerColumn;
       }
 
         // move ahead to the next pair of edges
@@ -289,7 +301,7 @@ static void fillScanBitmap( int scan, LinkedList *active, Image *src,Image *bitm
 /* 
      Process the edge list, assumes the edges list has at least one entry
 */
-static int processEdgeList( LinkedList *edges, Image *src, Image *bitmap ,Color c ) {
+static int processEdgeList( LinkedList *edges, DrawState* ds, Image *src, Image *bitmap) {
     LinkedList *active = NULL;
     LinkedList *tmplist = NULL;
     LinkedList *transfer = NULL;
@@ -318,7 +330,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Image *bitmap ,Color 
 //
 ////        checks to see if a bitmap has been added, defaults to regular scan if not
         if (bitmap == NULL) {
-            fillScan( scan, active, src, c);
+            fillScan( scan, active, ds, src);
         }
 //
 ////        if so, bitmap scan
@@ -335,6 +347,7 @@ static int processEdgeList( LinkedList *edges, Image *src, Image *bitmap ,Color 
 
                 // update the edge information with the dPerScan values
                 tedge->xIntersect += tedge->dxPerScan;
+                tedge->zIntersect += tedge->dzPerScan;
 
                 // adjust in the case of partial overlap
                 if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
@@ -476,30 +489,30 @@ void polygon_print(Polygon *p, FILE *fp){
 }
 
 // draw the outline of the polygon using color c.
-void polygon_draw(Polygon *p, Image *src, Color colr){
+void polygon_draw(Polygon *p, DrawState* ds, Image *src){
 	Line l;
     int i;
     for (i=0; i< p->numVertex-1; i++){
         line_set2D(&l,p->vertex[i].val[0], p->vertex[i].val[1], p->vertex[i+1].val[0], p->vertex[i+1].val[1]);
-        line_draw(&l, src, colr);
+        line_draw(&l, src, ds->color);
     }
     line_set2D(&l, p->vertex[i].val[0], p->vertex[i].val[1], p->vertex[0].val[0], p->vertex[0].val[1]);
-    line_draw(&l, src, colr);
+    line_draw(&l, src, ds->color);
 }
 
 /*
     Draws a filled polygon of the specified color into the image src.
  */
-void polygon_drawFill(Polygon *p, Image *src, Color c ) {
+void polygon_drawFill(Polygon *p, DrawState* ds, Image *src ) {
     LinkedList *edges = NULL;
 
     // set up the edge list
-    edges = setupEdgeList( p, src );
+    edges = setupEdgeList( p, ds, src );
     if( !edges )
         return;
     
     // process the edge list (should be able to take an arbitrary edge list)
-    processEdgeList( edges, src, NULL, c);
+    processEdgeList( edges, ds, src, NULL);
 
     // clean up
     ll_delete( edges, (void (*)(const void *))free );
@@ -511,18 +524,17 @@ void polygon_drawFill(Polygon *p, Image *src, Color c ) {
 /*
  Draws a filled polygon of the specified color into the image src, allows for bitmap texture insert
  */
-void polygon_drawFillBitmap(Polygon *p, Image *src, Image *bitmap ) {
+void polygon_drawFillBitmap(Polygon *p, DrawState* ds, Image *src, Image *bitmap ) {
     LinkedList *edges = NULL;
     
 //    passing unitialized pointer, will not be used
-    Color c;
     
     // set up the edge list
-    edges = setupEdgeList( p, src );
+    edges = setupEdgeList( p, ds, src );
     if( !edges )
         return;
     // process the edge list (should be able to take an arbitrary edge list)
-    processEdgeList( edges, src, bitmap,c);
+    processEdgeList( edges, ds, src, bitmap);
     
     // clean up
     ll_delete( edges, (void (*)(const void *))free );
@@ -540,7 +552,7 @@ int compare (const void * a, const void * b)
 
 //draw the filled polygon using color c with the
 //Barycentric coordinates algorithm.
-void polygon_drawFillB(Polygon *p, Image *src, Color c){
+void polygon_drawFillB(Polygon *p, DrawState* ds, Image *src){
 	const float epsilon = 0.00001;
 	float alpha, beta, gamma;
 	float xlist[3] = {p->vertex[0].val[0], p->vertex[1].val[0], p->vertex[2].val[0]};
@@ -562,7 +574,7 @@ void polygon_drawFillB(Polygon *p, Image *src, Color c){
 				continue;
 			}
 			else{
-				image_setColor(src,i,j,c);
+				image_setColor(src,i,j,ds->color);
 			}
 		}
 	}

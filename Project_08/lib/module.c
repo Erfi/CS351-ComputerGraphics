@@ -569,7 +569,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformLine(&LTM,&tempLine);
 				matrix_xformLine(GTM,&tempLine);
 				matrix_xformLine(VTM,&tempLine);
-				
+
 				line_normalize(&tempLine);
 				line_draw(&tempLine,src,ds->color);
 				break;
@@ -591,13 +591,13 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				polygon_normalize(&tempPolygon);
 				if (ds->shade == ShadeFrame)
 				{
-					polygon_draw(&tempPolygon,src,ds->color);
+					polygon_draw(&tempPolygon, ds, src);
 				}
-				else if(ds->shade == ShadeConstant ){
+				else{
 				//	Vector c;
 				//	polygon_normal(&tempPolygon, &c);
 				//	if(!is_surface_visible(vpn, &c)){
-						polygon_drawFill(&tempPolygon,src,ds->color);
+				polygon_drawFill(&tempPolygon, ds,src);
 				//	}
 				}
 				break;
