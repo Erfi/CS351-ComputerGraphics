@@ -31,6 +31,7 @@ void line_drawDash(Line *l, Image *src, Color c);
 Line Liang_Barsky(Line *l, Image *src);
 float min(float a, float b);
 float max(float a, float b);
+void line_print(Line* l, FILE *fp);
 
 #endif
 

@@ -49,36 +49,60 @@ void line_copy(Line *to, Line *from){
 
 
 void line_draw(Line *l, Image *src, Color c){
-/*draw the line into src using color c.*/
+    /*NOTE TO BRUCE:
+    1) where to use z0 = new.a.val[0] VS z0 = l.a.val[0] same for z1
+    2) front and back plane clipping is not happening in our current algorithm. problem?
+    3) we are getting a segfault in zdebug.c for 6 iterations vs 5 iteratons (special case?)
+    */
     if (l == NULL || src == NULL) {
         printf("ERROR: line_draw >> pointer parameter is NULL\n");
         exit(-1);
     }
 
+    printf("line before clipping:\n");
+    line_print(l, stdout);
 
     Line new = Liang_Barsky(l,src);
+
+    printf("line after clipping:\n");
+    line_print(&new, stdout);
+
     if (new.a.val[0]==-1)
     {
        return;
     }
 
     if(new.zBuffer != 0){
-        //Calculate the delta-1/z value for the direction in which the line will be drawn. 
-        //(1/z1 - 1/z0)/dx for lines in the 1st and 4th octants, (1/z1 - 1/z0)/dy for lines in the 2nd and 3rd octants.
-        // Using 1/z instead of z accounts for perspective projection effects.
-
-
-
         int y0 = new.a.val[0];
         int x0 = new.a.val[1];
-        int z0 = new.a.val[2];
+        float z0 = new.a.val[2];//in world coord
         int y1 = new.b.val[0];
         int x1 = new.b.val[1];
-        int z1 = new.b.val[2];
+        float z1 = new.b.val[2];//in world coord
+
+        float zSlope = 0.0;
+        float zIntersect;
 
         int dx = abs(x1-x0);
         int dy = abs(y1-y0);
-        int dz;
+        
+
+        if(z0 != 0 && z1 != 0){
+            if(dx > dy){//if line is in 1st and 4th octant.
+                zSlope = (abs(1/z1 - 1/z0))/dx;
+            }else if(dx < dy){//if line is in 2nd and 3rd octant.
+                zSlope = (abs(1/z1 - 1/z0))/dy;
+            }else{ // boundary
+                zSlope = (abs(1/z1 - 1/z0))/dx;
+            }
+        }
+
+        if(z0 != 0){
+            zIntersect = 1/z0;
+        }else{
+            zIntersect = 1;
+        }
+
         int sx, sy, err, e2;
         if(x0<x1){
             sx = 1;
@@ -91,35 +115,66 @@ void line_draw(Line *l, Image *src, Color c){
             sy = -1;
         }
 
-        if(dx>dy){//if line is in 1st and 4th quad.
-            dz = (1/z1 - 1/z0)/dx;
-        }else if(dx<dy){//if line is in 2nd and 3rd quad.
-            dz = (1/z1 - 1/z0)/dy;
-        }else{
-            dz = (1/z1 - 1/z0)/dx;
-        }
-        
-
-        //Calculate the initial 1/z-value for the line.
-        //If the line is being clipped to the image, adjust the initial 1/z-value accordingly. 
-        //(Adjusting the initial 1/z value is a similar process to adjusting the xIntersect in makeEdgeRec if an edge starts above the screen.)
-
 
         if(dx>dy){
             err = dx/2;
         }else{
             err = -dy/2;
         }
+
+        Point p;
+        for(;;){
+            printf("x0: %d   x1: %d    sx: %d\n", x0, x1, sx);
+            if(zIntersect > src->data[x0][y0].z){
+                point_set2D(&p,x0,y0);
+                src->data[x0][y0].z = zIntersect;
+                image_setColor(src,  p.val[0], p.val[1], c);
+            }
+            zIntersect += zIntersect * zSlope;
+            
+            
+            if (x0==x1 && y0==y1) break;
+            e2 = err;
+            if (e2 > -dx) { err -= dy; x0 += sx; }
+            if (e2 < dy) { err += dx; y0 += sy; }
+        }  
+    }else if(new.zBuffer == 0){//when not using a zBuffer algorithm
+        int y0 = new.a.val[0];
+        int x0 = new.a.val[1];
+        int y1 = new.b.val[0];
+        int x1 = new.b.val[1];
+
+        int dx = abs(x1-x0);
+        int dy = abs(y1-y0);
+        int sx, sy, err, e2;
+        if(x0<x1){
+            sx = 1;
+        }else{
+            sx = -1;
+        }
+        if(y0<y1){
+            sy = 1;
+        }else{
+            sy = -1;
+        }
+
+        if(dx>dy){
+            err = dx/2;
+        }else{
+            err = -dy/2;
+        }
+
         Point p;
         for(;;){
             point_set2D(&p,x0,y0);
             image_setColor(src,  p.val[0], p.val[1], c);
+            
             if (x0==x1 && y0==y1) break;
             e2 = err;
             if (e2 >-dx) { err -= dy; x0 += sx; }
             if (e2 < dy) { err += dx; y0 += sy; }
-        }  
-    } 
+        } 
+    }
 }
 
 /*
@@ -221,7 +276,7 @@ Line  Liang_Barsky(Line *l, Image *src){
 
     Point origin, end,p0,pf,nullP;
     point_set2D(&origin,0,0); 
-    point_set2D(&end,(float)src->cols-1,(float)src->rows-1); 
+    point_set2D(&end,(float)src->cols-1.0,(float)src->rows-1.0); 
     point_set2D(&nullP,-1,-1);
     
     // loop 0
@@ -376,6 +431,13 @@ float min(float a, float b){
     else{
         return b;
     }
+}
+
+void line_print(Line* l, FILE *fp){
+    fprintf(fp,"line: point a:\n");
+    point_print(&l->a, fp);
+    fprintf(fp, "line: point b:\n");
+    point_print(&l->b, fp);
 }
 
 

@@ -19,10 +19,11 @@ file: polygon.h
 Start Scanline Fill
 *****************************************/
 typedef struct tEdge {
-    float x0, y0;                   /* start point for the edge */
-    float x1, y1;                   /* end point for the edge */
+    float x0, y0, z0;                   /* start point for the edge */
+    float x1, y1, z1;                   /* end point for the edge */
     int yStart, yEnd;               /* start row and end row */
-    float xIntersect, dxPerScan;    /* where the edge intersects the current scanline and how it changes */
+    float xIntersect, dxPerScan;
+    float zIntersect, dzPerScan;    /* where the edge intersects the current scanline and how it changes */
     /* we'll add more here later */
     struct tEdge *next;
 } Edge;
@@ -75,22 +76,28 @@ static Edge *makeEdgeRec( Point start, Point end, Image *src)
     edge = (Edge*)malloc(sizeof(Edge));
     edge->x0 = start.val[0];
     edge->y0 = start.val[1];
+    edge->z0 = start.val[2];
     edge->x1 = end.val[0];
     edge->y1 = end.val[1];
+    edge->z1 = end.val[2];
     edge->yStart = (int)(edge->y0 + 0.5);
     edge->yEnd = (int)(edge->y1 + 0.5)-1; 
     edge->dxPerScan = (edge->x1 - edge->x0)/(edge->y1 - edge->y0);
+    edge->dzPerScan = (1/edge->z1 - 1/edge->z0)/(edge->y1 - edge->y0);
+
 
     //Correctly initializing xIntersect
     edge->xIntersect = edge->x0 + abs((edge->y0 - edge->yStart )) * edge->dxPerScan;
+    egde->zIntersect = 1/edge->z0 + abs((edge->y0 - edge->yStart )) * edge->dzPerScan;
 
     //Clipping if the edge starts off the image or goes off image
     if(edge->y0 < 0){ //if edge starts below row 0
         printf("edge starts above the image");
         edge->xIntersect += -edge->y0 * edge->dxPerScan;
+        edge->zIntersect += -edge->y0 * edge->dxPerScan;
         edge->y0 = 0;
     }
-    if(edge->yEnd > src->rows-1){ // if the edge starts inside the image but continues outside
+    if(edge->yEnd > src->rows-1){ //if the edge starts inside the image but continues outside
         edge->yEnd = src->rows-1;
     }
 
@@ -160,6 +167,8 @@ static LinkedList *setupEdgeList( Polygon *p, Image *src) {
  */
 static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
   Edge *p1, *p2;
+  float curZ;
+  float dzPerColumn;
   int i;
 
     // loop over the list
@@ -171,6 +180,7 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
           printf("bad bad bad (your edges are not coming in pairs)\n");
           break;
       }
+      
 
         // if the xIntersect values are the same, don't draw anything.
         // Just go to the next pair.
@@ -186,11 +196,20 @@ static void fillScan( int scan, LinkedList *active, Image *src, Color c ) {
       if(p2->xIntersect > src->cols){ // if ends drawing beyound the right side of the image
         p2->xIntersect = src->cols;
       }
+
       int colStart = (int)(p1->xIntersect);
       int colEnd = (int)(p2->xIntersect+1);
       int row = scan;
+
+      curZ = 1/p1->zIntersect;
+      dzPerColumn = (1/p2->zIntersect - 1/p1->zIntersect) / (colEnd - colStart);
+
       for (i=colStart; i< colEnd; i++){
-        image_setColor(src, row, i, c);
+        if(src->data[row][i].z < curZ){
+            image_setColor(src, row, i, c);
+            src->data[row][i].z = curZ;
+        }
+        curZ =+ dzPerColumn;
       }
 
         // move ahead to the next pair of edges

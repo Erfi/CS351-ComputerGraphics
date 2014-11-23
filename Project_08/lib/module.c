@@ -569,6 +569,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformLine(&LTM,&tempLine);
 				matrix_xformLine(GTM,&tempLine);
 				matrix_xformLine(VTM,&tempLine);
+				
 				line_normalize(&tempLine);
 				line_draw(&tempLine,src,ds->color);
 				break;
@@ -588,17 +589,17 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformPolygon(GTM,&tempPolygon);
 				matrix_xformPolygon(VTM,&tempPolygon);
 				polygon_normalize(&tempPolygon);
-				//if (ds->shade == ShadeFrame)
-				//{
+				if (ds->shade == ShadeFrame)
+				{
 					polygon_draw(&tempPolygon,src,ds->color);
-				//}
-				//else if(ds->shade == ShadeConstant ){
+				}
+				else if(ds->shade == ShadeConstant ){
 				//	Vector c;
 				//	polygon_normal(&tempPolygon, &c);
 				//	if(!is_surface_visible(vpn, &c)){
-				//		polygon_drawFill(&tempPolygon,src,ds->color);
+						polygon_drawFill(&tempPolygon,src,ds->color);
 				//	}
-				//}
+				}
 				break;
 			case ObjMatrix:
 				printf("objMatrix\n");

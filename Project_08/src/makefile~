@@ -136,7 +136,7 @@ task6_3: $(ODIR)/task6_3.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 zdebug: $(ODIR)/zdebug.o
-	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
+        $(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 
 .PHONY: clean
