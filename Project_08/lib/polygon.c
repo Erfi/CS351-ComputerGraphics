@@ -95,26 +95,33 @@ static Edge *makeEdgeRec( Point start, Point end, DrawState* ds, Image *src)
     edge->xIntersect = edge->x0 + abs((edge->y0 - edge->yStart )) * edge->dxPerScan;
     edge->zIntersect = 1/edge->z0 + abs((edge->y0 - edge->yStart )) * edge->dzPerScan;
 
+    // if(edge->zIntersect >1){
+        // edge->zIntersect = 1/edge->zIntersect;
+    // }
+    // printf("zIntersect %f", edge->zIntersect);
+
     //Clipping if the edge starts off the image or goes off image
     if(edge->y0 < 0){ //if edge starts below row 0
-        printf("edge starts above the image");
+        printf("edge starts above the image \n");
         edge->xIntersect += -edge->y0 * edge->dxPerScan;
         edge->zIntersect += -edge->y0 * edge->dzPerScan;
         edge->y0 = 0;
+        edge->yStart = 0;
     }
     if(edge->yEnd > src->rows-1){ //if the edge starts inside the image but continues outside
         edge->yEnd = src->rows-1;
     }
 
 
-    // if(edge->xIntersect<edge->x1 && edge->dxPerScan<0){
-    //     edge->xIntersect = edge->x1; 
-    // }
-    // if(edge->xIntersect>edge->x1 && edge->dxPerScan>0){
-    //     edge->xIntersect = edge->x1; 
-    // }
+    if(edge->xIntersect<edge->x1 && edge->dxPerScan<0){
+        edge->xIntersect = edge->x1; 
+    }
+    if(edge->xIntersect>edge->x1 && edge->dxPerScan>0){
+        edge->xIntersect = edge->x1; 
+    }
 
     edge->next = NULL;
+
     return( edge );
 }
 
@@ -208,17 +215,22 @@ static void fillScan( int scan, LinkedList *active, DrawState* ds, Image *src) {
 
       curZ = p1->zIntersect;
       dzPerColumn = (p2->zIntersect - p1->zIntersect) / (colEnd - colStart);
+      // printf("polygon fillScan called \n");
+      for (i = colStart; i< colEnd; i++){
+        // printf(" curZ %f  \n", curZ );
 
-      for (i=colStart; i< colEnd; i++){
-        if(src->data[row][i].z < curZ){
+        if((curZ - src->data[row][i].z) > 0.01){
+
             if(ds->shade == ShadeConstant){
                 image_setColor(src, row, i, ds->color);
             }else if(ds->shade == ShadeDepth){
                 Color c;
                 float z = 1/curZ;
                 Color_set(&c,(1-z)*ds->color.rgb[0], (1-z)*ds->color.rgb[1], (1-z)*ds->color.rgb[2]);
+                // printf("rows %d     cols %d    \n", row,i);
                 image_setColor(src, row, i, c);
             }
+            // printf("rows %d     cols %d    \n", row,i);
             src->data[row][i].z = curZ;
         }
         curZ += dzPerColumn;
@@ -315,7 +327,7 @@ static int processEdgeList( LinkedList *edges, DrawState* ds, Image *src, Image 
 //    // get a pointer to the first item on the list and reset the current pointer
     current = ll_head( edges );
     // start at the first scanline and go until the active list is empty
-    for(scan = current->yStart;scan < src->rows;scan++ ) {
+    for(scan = current->yStart ;scan < src->rows;scan++ ) {
 
         // grab all edges starting on this row
         while( current != NULL && current->yStart == scan ) {
@@ -330,6 +342,7 @@ static int processEdgeList( LinkedList *edges, DrawState* ds, Image *src, Image 
 //
 ////        checks to see if a bitmap has been added, defaults to regular scan if not
         if (bitmap == NULL) {
+            // printf("polygon process called \n");
             fillScan( scan, active, ds, src);
         }
 //
@@ -348,7 +361,7 @@ static int processEdgeList( LinkedList *edges, DrawState* ds, Image *src, Image 
                 // update the edge information with the dPerScan values
                 tedge->xIntersect += tedge->dxPerScan;
                 tedge->zIntersect += tedge->dzPerScan;
-
+                // printf("polygon process called \n");
                 // adjust in the case of partial overlap
                 if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
                     a = (tedge->xIntersect - tedge->x1) / tedge->dxPerScan;
@@ -510,7 +523,7 @@ void polygon_drawFill(Polygon *p, DrawState* ds, Image *src ) {
     edges = setupEdgeList( p, ds, src );
     if( !edges )
         return;
-    
+    // printf("polygon drawfill called \n");
     // process the edge list (should be able to take an arbitrary edge list)
     processEdgeList( edges, ds, src, NULL);
 

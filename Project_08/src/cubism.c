@@ -99,6 +99,7 @@ int main(int argc, char *argv[]) {
 
     // initialize LTM
     module_identity(scene);
+    module_scale(scene,0.5,0.5,0.5);
 
     // rotate by some random angles
     angle = drand48() * 2*M_PI;
