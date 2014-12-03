@@ -3,7 +3,8 @@ Erfan & Ryan
 File: light.h
 Date: 2 December 2014
 */
-
+#ifndef __LIGHT_H__
+#define __LIGHT_H__
 #include "point.h"
 #include "matrix.h"
 #include "color.h"
@@ -42,4 +43,7 @@ Lighting *lighting_create( void );
 void lighting_init( Lighting *l );
 void lighting_add( Lighting *l, LightType type, Color *c, Vector *dir, Point *pos, float cutoff, float sharpness );
 void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, Color *Cs, float s, int oneSided, Color *c );
+
+
+#endif
 

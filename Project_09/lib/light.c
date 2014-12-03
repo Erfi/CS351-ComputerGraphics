@@ -88,20 +88,27 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 			r +=l->light[i].color.rgb[0] * Cb->rgb[0];
 			g +=l->light[i].color.rgb[1] * Cb->rgb[1];
 			b +=l->light[i].color.rgb[2] * Cb->rgb[2];
+			// printf("r %f,g %f,b %f,",r,g,b);
 		}else if(l->light[i].type == LightPoint){
+			Vector L;
+			vector_set(&L,l->light[i].position.val[0] -p->val[0],l->light[i].position.val[1] -p->val[1],l->light[i].position.val[2] -p->val[2]);
+
 			vector_normalize(N);
 			vector_normalize(V);
-			vector_normalize(&l->light[i].direction);
-			float dot1 = vector_dot(&l->light[i].direction,N);
-			Vector temp = vector_add(&l->light[i].direction,V);
+			vector_normalize(&L);
+			float dot1 = vector_dot(&L,N);
+			Vector temp = vector_add(&L,V);
 			vector_set(&H, temp.val[0]/2, temp.val[1]/2, temp.val[2]/2);
 			float dot2 = vector_dot(&H,N);
+
+			// printf("dot1 %f",dot1);
+			// printf("dot2 %f",dot2);
 
 			r += Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s);
 			g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s);
 			b += Cb->rgb[2]*l->light[i].color.rgb[2]*dot1 + l->light[i].color.rgb[2]*Cs->rgb[2]*pow(dot2,s);
 
-
+			// printf("r %f,g %f,b %f,",r,g,b);
 		}else if(l->light[i].type == LightSpot){
 			// float alpha = vector_dot(&l->light[i].direction,)
 
@@ -110,25 +117,25 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 		}
 	}
 // clipping color channels
-		// if(r>1){
-		// 	r=1;
-		// }
-		// if(g>1){
-		// 	g=1;
-		// }
-		// if(b>1){
-		// 	b=1;
+		if(r>1){
+			r=1;
+		}
+		if(g>1){
+			g=1;
+		}
+		if(b>1){
+			b=1;
 		
-		// }
-		// if(r<0){
-		// 	r=0;
-		// }
-		// if(g<0){
-		// 	g=0;
-		// }
-		// if(b<0){
-		// 	b=0;
-		// }
+		}
+		if(r<0){
+			r=0;
+		}
+		if(g<0){
+			g=0;
+		}
+		if(b<0){
+			b=0;
+		}
 
 	Color_set(c,r,g,b);
 }
