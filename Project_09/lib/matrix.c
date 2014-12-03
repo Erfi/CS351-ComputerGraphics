@@ -64,6 +64,16 @@ double vector_dot(Vector *a, Vector *b){
 	exit(-1);
 }
 
+Vector vector_add(Vector *a, Vector *b){
+	if(NULL != a && NULL != b){
+		Vector sum;
+		vector_set(&sum,a->val[0]+b->val[0],a->val[1] + b->val[1], a->val[2] + a->val[2]);
+		return sum;
+	}
+	printf("ERROR: vector_add >> v is NULL");
+	exit(-1);
+}
+
 //Calculates the the cross product (vector product) of ~a and ~b and puts the result in ~c.
 void vector_cross(Vector *a, Vector *b, Vector *c){
 	if(NULL != a && NULL != b && NULL != c){

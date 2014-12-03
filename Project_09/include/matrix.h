@@ -28,6 +28,7 @@ void vector_cross(Vector *a, Vector *b, Vector *c);
 void matrix_print(Matrix *m, FILE *fp);
 void matrix_clear(Matrix *m);
 void matrix_identity(Matrix *m);
+Vector vector_add(Vector *a, Vector *b);
 double matrix_get(Matrix *m, int r, int c);
 void matrix_set(Matrix *m, int r, int c, double v);
 void matrix_copy(Matrix *dest, Matrix *src);

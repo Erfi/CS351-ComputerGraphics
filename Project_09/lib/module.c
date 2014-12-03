@@ -117,6 +117,8 @@ void module_clear(Module *md){
 				break;
 		}
 	}
+	md->head = NULL;
+	md->tail = NULL;
 }
 
 // Free all of the memory associated with a module, including the memory pointed to by md
@@ -581,6 +583,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformPolyline(VTM,&tempPolyline);
 				polyline_normalize(&tempPolyline);
 				polyline_draw(&tempPolyline,src,ds->color);
+				polyline_clear(&tempPolyline);
 				break;
 			case ObjPolygon:
 				printf("objPolygon\n");
@@ -600,6 +603,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				polygon_drawFill(&tempPolygon, ds,src);
 				//	}
 				}
+				polygon_clear(&tempPolygon);
 				break;
 			case ObjMatrix:
 				printf("objMatrix\n");

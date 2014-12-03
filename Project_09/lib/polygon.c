@@ -29,6 +29,11 @@ typedef struct tEdge {
     struct tEdge *next;
 } Edge;
 
+typedef struct{
+    Polygon* poly;
+    float zVal;
+}A_bufferInfo;
+
 
 
 /*
@@ -219,7 +224,7 @@ static void fillScan( int scan, LinkedList *active, DrawState* ds, Image *src) {
       for (i = colStart; i< colEnd; i++){
         // printf(" curZ %f  \n", curZ );
 
-        if((curZ - src->data[row][i].z) > 0.01){
+        if((curZ - src->data[row][i].z) > 0.01){//using 0.01 as the epsilon
 
             if(ds->shade == ShadeConstant){
                 image_setColor(src, row, i, ds->color);
@@ -227,12 +232,11 @@ static void fillScan( int scan, LinkedList *active, DrawState* ds, Image *src) {
                 Color c;
                 float z = 1/curZ;
                 Color_set(&c,(1-z)*ds->color.rgb[0], (1-z)*ds->color.rgb[1], (1-z)*ds->color.rgb[2]);
-                // printf("rows %d     cols %d    \n", row,i);
                 image_setColor(src, row, i, c);
             }
-            // printf("rows %d     cols %d    \n", row,i);
             src->data[row][i].z = curZ;
         }
+        
         curZ += dzPerColumn;
       }
 

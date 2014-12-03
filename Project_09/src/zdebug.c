@@ -74,9 +74,9 @@ int main(int argc, char *argv[]) {
 //ray
   ray = module_create();
   module_color(ray, &Blue);
-  for(i=0; i< 10; i++){
-  point_set3D(&point2[0], -1+0.01*i, -10, -10);
-  point_set3D(&point2[1], 1+0.01*i, 1, -10);
+  for(i=0; i< 5; i++){
+  point_set3D(&point2[0], -1+0.01*i, -1, 1);
+  point_set3D(&point2[1], 1+0.01*i, 1, 1);
   line_set(&l, point2[0], point2[1]);
   module_line(ray, &l);
  }
@@ -86,8 +86,8 @@ int main(int argc, char *argv[]) {
   ray2 = module_create();
   module_color(ray2, &Red);
   for(i=0; i< 5; i++){
-  point_set3D(&point2[0], -1+0.01*i, 1, 4);
-  point_set3D(&point2[1], 1+0.01*i, -1, 4);
+  point_set3D(&point2[0], -1+0.01*i, 1, -1);
+  point_set3D(&point2[1], 1+0.01*i, -1, -1);
   line_set(&l, point2[0], point2[1]);
   // line_zBuffer(&l, 0);
   module_line(ray2, &l);
@@ -109,7 +109,7 @@ for(i=0; i< 36; i++){
 	//scene
     scene = module_create();
     module_rotateZ(scene, cos(i*10 * M_PI/180), sin(i*10 * M_PI/180));
-    // module_module(scene, ray);
+    module_module(scene, ray);
     module_module(scene, ray2);
 	// create the image and drawstate
 	src = image_create( 360, 640 );
