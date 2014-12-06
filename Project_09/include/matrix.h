@@ -16,19 +16,10 @@ typedef struct {
 	double m[4][4];
 } Matrix;
 
-typedef Point Vector;
 
-void vector_set(Vector *v, double x, double y, double z);
-void vector_print(Vector *v, FILE *fp);
-void vector_copy(Vector *dest, Vector *src);
-double vector_length(Vector *v);
-void vector_normalize(Vector *v);
-double vector_dot(Vector *a, Vector *b);
-void vector_cross(Vector *a, Vector *b, Vector *c);
 void matrix_print(Matrix *m, FILE *fp);
 void matrix_clear(Matrix *m);
 void matrix_identity(Matrix *m);
-Vector vector_add(Vector *a, Vector *b);
 double matrix_get(Matrix *m, int r, int c);
 void matrix_set(Matrix *m, int r, int c, double v);
 void matrix_copy(Matrix *dest, Matrix *src);

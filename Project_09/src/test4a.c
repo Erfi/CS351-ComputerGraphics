@@ -10,6 +10,7 @@
 #include "list.h"
 #include "polygon.h"
 #include "Image.h"
+#include "drawstate.h"
 
 /*
   Program to test polygon functionality
@@ -19,6 +20,7 @@ int main(int argc, char *argv[]) {
   const int rows = 300;
   const int cols = 400;
   Polygon *p;
+  DrawState* ds;
   Color Red;
   Color Orange;
   Color White;
@@ -26,6 +28,9 @@ int main(int argc, char *argv[]) {
   Point pt[100];
   int i;
   
+
+  ds = drawstate_create();
+  ds->shade = ShadeConstant;
   srand(42);
 
   Color_set(&Red, 0.9, 0.2, 0.1 );
@@ -45,7 +50,7 @@ int main(int argc, char *argv[]) {
   p = polygon_createp(4, pt);
 
   printf("drawing a square\n");
-  //polygon_drawFill(p, src, Blue);
+  polygon_drawFill(p, ds,src);
 
   // something more interesting
   for(i=0;i<50;i++) {
@@ -57,7 +62,7 @@ int main(int argc, char *argv[]) {
   polygon_set(p, 50, pt);
 
   printf("drawing first big polygon\n");
-  polygon_drawFill(p, src, Red);
+  polygon_drawFill(p, ds, src);
 
   for(i=0;i<50;i++) {
     float dr = rand() % 15;
@@ -68,7 +73,7 @@ int main(int argc, char *argv[]) {
   polygon_set(p, 50, pt);
 
   printf("drawing second big polygon\n");
-  //polygon_drawFill(p, src, Orange);
+   polygon_drawFill(p, ds,src);
 
   for(i=0;i<50;i++) {
     float dr = rand() % 10;
@@ -79,7 +84,7 @@ int main(int argc, char *argv[]) {
   polygon_set(p, 50, pt);
 
   printf("drawing third big polygon\n");
-  //polygon_drawFill(p, src, White);
+   polygon_drawFill(p, ds,src);
 
   printf("writing output\n");
   image_write(src, "test4a.ppm");

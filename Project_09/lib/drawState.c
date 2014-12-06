@@ -18,8 +18,12 @@ DrawState *drawstate_create( void ){ //–create a new DrawState structure and i
 	Color white;
 	Color_set(&white, 1.0,1.0,1.0);
 	state->color = white;
+	state->flatColor = white;
+	state->body = white;
+	state->surface = white;
 	state->surfaceCoeff = 0;
 	state->zBufferFlag = 1;
+	state->alpha = 1; //opaque
 	return state;
 }
 
@@ -28,6 +32,7 @@ void drawstate_setColor( DrawState *s, Color c ){ //– set the color field to c
 		s->color = c;
 	}
 }
+
 
 void drawstate_setBody( DrawState *s, Color c ){ //– set the body field to c.
 	if(s != NULL){
@@ -44,6 +49,15 @@ void drawstate_setSurface( DrawState *s, Color c ){ //– set the surface field 
 void drawstate_setSurfaceCoeff( DrawState *s, float f ){ //– set the surfaceCoeff field to f.
 	if(s != NULL){
 		s->surfaceCoeff = f;
+	}
+}
+
+void drawstate_setAlpha( DrawState *s, float f ){ //– set the alpha field to f.
+	if(s != NULL){
+		if(f < 0 || f > 1){
+			printf("drawstate_setAlpha >> Alpha level out of range!\n");
+		}
+		s->alpha = f;
 	}
 }
 

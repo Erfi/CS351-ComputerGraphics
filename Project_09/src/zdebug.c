@@ -30,7 +30,8 @@ int main(int argc, char *argv[]) {
   Module* wall;
   Module* ray;
   Module* ray2;
-  Module *scene;
+  Module *scene1;
+  Module* scene2;
   Polygon p;
   Line l;
   Point point[4];
@@ -43,12 +44,14 @@ int main(int argc, char *argv[]) {
   Color Red =  { { 1.0, 0.2, 0.1 } };
   Color Grey =  { { 0.745, 0.745, 0.745} };
   Color Blue = {{0.117647, 0.564706, 1}};
+  // Color Grey = {{1, 1, 1}};
 
 
   // set up the view
-  point_set3D( &(view.vrp), 0.5, 0.5, 4 );
+  point_set3D( &(view.vrp), 4, 4, 4 );
   vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
   vector_set( &(view.vup), 0, 1, 0 );
+
   view.d = 1;
   view.du = 1.6;
   view.dv = 0.9;
@@ -61,15 +64,15 @@ int main(int argc, char *argv[]) {
   matrix_identity( &gtm );
 
   // //wall
-  // wall = module_create();
-  // module_color(wall, &Red);
-  // polygon_init(&p);
-  // point_set3D(&point[0], 1,1,0);
-  // point_set3D(&point[1], 1,0,0);
-  // point_set3D(&point[2], 0,0,0);
-  // point_set3D(&point[3], 0,1,0);
-  // polygon_set(&p, 4, &point[0]);
-  // module_polygon(wall, &p);
+  wall = module_create();
+  module_color(wall, &Red);
+  polygon_init(&p);
+  point_set3D(&point[0], 1,1,2);
+  point_set3D(&point[1], 1,0,2);
+  point_set3D(&point[2], 0,0,2);
+  point_set3D(&point[3], 0,1,2);
+  polygon_set(&p, 4, &point[0]);
+  module_polygon(wall, &p);
 
 //ray
   ray = module_create();
@@ -96,33 +99,45 @@ int main(int argc, char *argv[]) {
 
 
 //scene
-    scene = module_create();
+    // scene = module_create();
     // module_module(scene, wall);
-    module_module(scene, ray);
-    module_module(scene, ray2);
+    // module_module(scene, ray);
+    // module_module(scene, ray2);
+    // module_module(scene, wall);
     
+
+
 
     
 
 for(i=0; i< 36; i++){
 
 	//scene
-    scene = module_create();
-    module_rotateZ(scene, cos(i*10 * M_PI/180), sin(i*10 * M_PI/180));
-    module_module(scene, ray);
-    module_module(scene, ray2);
+    scene1 = module_create();
+    scene2 = module_create();
+    module_rotateZ(scene1, cos(i*10 * M_PI/180), sin(i*10 * M_PI/180));
+    module_scale( scene1, 3, 1, 2 );
+    module_color( scene1, &Blue );
+    module_cube( scene1, 1);
+
+
+    module_scale(scene2, 0.5, 0.5, 0.5);
+    module_cylinder(scene2, 30);
 	// create the image and drawstate
 	src = image_create( 360, 640 );
 	ds = drawstate_create();
-	ds->shade = ShadeConstant;
+  drawstate_setAlpha(ds, 1);
+	ds->shade = ShadeDepth;
 
 	// draw into the scene
-	module_draw( scene, &vtm, &gtm, ds, src );
+  // module_draw( scene1, &vtm, &gtm, ds, src );
+  drawstate_setAlpha(ds, 1 );
+	module_draw( scene1, &vtm, &gtm, ds, src );
 
 	// write out the scene
 	sprintf(filename, "frame_%.2d.ppm", i);
 	image_write( src, filename );
-	module_delete( scene);
+	module_delete( scene1);
 
 }
 	 

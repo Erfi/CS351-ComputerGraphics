@@ -10,12 +10,22 @@ file: polygon.h
 #include "Image.h"
 #include "color.h"
 #include "drawState.h"
+#include "light.h"
 
 typedef struct{
 	int numVertex;
-	Point *vertex;
 	int zBuffer;
+	int oneSided;
+	Point *vertex;
+	Color *color;
+	Vector *normal;
 }Polygon;
+
+typedef struct{
+	Color c;
+	float alpha;
+}Alphainfo;
+
 
 Polygon *polygon_create(void);
 Polygon *polygon_createp(int numV, Point *vlist);
@@ -32,6 +42,12 @@ void polygon_drawFillBitmap(Polygon *p, DrawState* ds, Image *src, Image *bitmap
 void polygon_drawFillB(Polygon *p, DrawState* ds, Image *src);
 void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1, Color c2,Color c3 );
 void polygon_normalize(Polygon *p);
+void polygon_setSided(Polygon *p, int oneSided);
+void polygon_setColors(Polygon *p, int numV, Color *clist);
+void polygon_setNormals(Polygon *p, int numV, Vector *nlist);
+void polygon_setAll(Polygon *p, int numV, Point *vlist, Color *clist, Vector *nlist, int zBuffer, int oneSided);
+void polygon_drawShade(Polygon *p, Image *src, DrawState *ds, Lighting *light);
+void polygon_shade(Polygon *p, Lighting *lighting, DrawState *ds);
 float Aux_implicit_line(Point p1, Point p2, float x,float y);
 int compare (const void * a, const void * b);
 

@@ -5,8 +5,9 @@ Date: 2 December 2014
 */
 #ifndef __LIGHT_H__
 #define __LIGHT_H__
+
+
 #include "point.h"
-#include "matrix.h"
 #include "color.h"
 
 #define MAX_LIGHTS 64

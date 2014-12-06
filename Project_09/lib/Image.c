@@ -378,6 +378,7 @@ void image_reset(Image* src){
 				src->data[i][j].rgb[2] = 0.0;
 				src->data[i][j].a = 1.0;
 				src->data[i][j].z = 1.0;
+				src->data[i][j].list = NULL;
 			}
 		}
 	}

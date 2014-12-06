@@ -27,10 +27,12 @@ int main(int argc, char *argv[]) {
   Matrix VTM;
   Matrix GTM;
   Module *cube;
+  Module* cylinder;
   int rows = 360;
   int cols = 640;
 
   Color Grey = {{1, 1, 1}};
+  Color Blue = {{0.117647, 0.564706, 1}};
 
   DrawState *ds;
   View3D view;
@@ -46,7 +48,7 @@ int main(int argc, char *argv[]) {
   point_set3D(&(view.vrp), 5, 5, -7.0);
   vector_set(&(view.vpn), -5, -5, 7);
   vector_set(&(view.vup), 0.0, 1.0, 0.0);
-  view.d = 2.0;
+  view.d = 1.0;
   view.du = 1.6;
   view.dv = .9;
   view.f = 0.0;
@@ -62,15 +64,26 @@ int main(int argc, char *argv[]) {
   // make a simple cube module
   cube = module_create();
   module_scale( cube, 3, 1, 2 );
-  module_color( cube, &Grey );
+  module_color( cube, &Blue );
   module_cube( cube, 1);
+
+  cylinder = module_create();
+  module_scale(cylinder, 1,3,1);
+  module_translate(cylinder, 0, -1, 0);
+  module_color(cylinder, &Grey);
+  module_cylinder(cylinder, 20);
 
 
   ds = drawstate_create();
   ds->shade = ShadeDepth;
 
   matrix_identity(&GTM);
+  drawstate_setAlpha(ds, 1);
+  module_draw(cylinder,&VTM, &GTM, ds, /*NULL,*/ src);
+  drawstate_setAlpha(ds, 0.8);
   module_draw(cube, &VTM, &GTM, ds, /*NULL,*/ src);
+  
+
 
   // write out the image
   image_write(src, "test8a.ppm");

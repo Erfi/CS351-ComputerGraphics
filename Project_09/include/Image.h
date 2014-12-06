@@ -7,11 +7,13 @@ Date: Mon 15 Sep 2014
 #define __IMAGE_H__
 
 #include "color.h"
+#include "list.h"
 
 typedef struct {
 	float rgb[3];
 	float a;
 	float z;
+	LinkedList* list;
 } FPixel;
 
 typedef struct {

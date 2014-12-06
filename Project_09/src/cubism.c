@@ -121,6 +121,7 @@ int main(int argc, char *argv[]) {
 
   ds = drawstate_create();
   ds->shade = ShadeDepth;
+  drawstate_setAlpha(ds, 0.8);
 
   for(i=0;i<36;i++) {
     char buffer[256];
