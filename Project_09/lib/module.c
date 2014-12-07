@@ -589,11 +589,11 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 			case ObjPolygon:
 				printf("objPolygon\n");
 				polygon_copy(&tempPolygon,&iterator->obj.polygon);
-				printf("1\n");
+				// printf("1\n");
 				matrix_xformPolygon(&LTM,&tempPolygon);
-				printf("2\n");
+				// printf("2\n");
 				matrix_xformPolygon(GTM,&tempPolygon);
-				printf("3\n");
+				// printf("3\n");
 				if(ds->shade == ShadeGouraud){
 					printf("poly> g > before\n");
 					polygon_shade(&tempPolygon,lighting, ds);
@@ -807,96 +807,171 @@ void module_surfaceCoeff(Module *md, float* f){
 
 // //Adds a unit cube, axis-aligned and centered on zero to the Module. If solid is zero, add only lines.
 // //If solid is non-zero, use polygons. Make sure each polygon has surface normals defined for it.
-void module_cube(Module *md, int solid){
-	if(NULL != md){
-		Point p[8];
-		point_set3D( &p[0], -1, -1, -1 );
-  		point_set3D( &p[1],  1, -1, -1 );
-  		point_set3D( &p[2],  1,  1, -1 );
-		point_set3D( &p[3], -1,  1, -1 );
-		point_set3D( &p[4], -1, -1,  1 );
-		point_set3D( &p[5],  1, -1,  1 );
-		point_set3D( &p[6],  1,  1,  1 );
-		point_set3D( &p[7], -1,  1,  1 );
-		if(solid == 0){//use lines
-			Line l[12];
-			line_set(&l[0], p[0], p[1]);
-			line_set(&l[1], p[1], p[2]);
-			line_set(&l[2], p[2], p[3]);
-			line_set(&l[3], p[3], p[0]);
-			line_set(&l[4], p[0], p[4]);
-			line_set(&l[5], p[4], p[7]);
-			line_set(&l[6], p[7], p[3]);
-			line_set(&l[7], p[5], p[1]);
-			line_set(&l[8], p[2], p[6]);
-			line_set(&l[9], p[6], p[7]);
-			line_set(&l[10], p[6], p[5]);
-			line_set(&l[11], p[4], p[5]);
-			int i;
-			for (i = 0; i < 12; i++)
-			{
-				module_line(md,&l[i]);
-			}			
-		}else{//use polygons
-			Polygon pol[6];
-			int i;
-			Point temp[4];
-			for (i = 0; i < 6; i++)
-			{
-				polygon_init(&pol[i]);
-			}
-			point_copy(&temp[0],&p[7]);
-			point_copy(&temp[1],&p[6]);
-			point_copy(&temp[2],&p[2]);
-			point_copy(&temp[3],&p[3]);
+// void module_cube(Module *md, int solid){
+// 	if(NULL != md){
+// 		Point p[8];
+// 		point_set3D( &p[0], -1, -1, -1 );
+//   		point_set3D( &p[1],  1, -1, -1 );
+//   		point_set3D( &p[2],  1,  1, -1 );
+// 		point_set3D( &p[3], -1,  1, -1 );
+// 		point_set3D( &p[4], -1, -1,  1 );
+// 		point_set3D( &p[5],  1, -1,  1 );
+// 		point_set3D( &p[6],  1,  1,  1 );
+// 		point_set3D( &p[7], -1,  1,  1 );
+// 		if(solid == 0){//use lines
+// 			Line l[12];
+// 			line_set(&l[0], p[0], p[1]);
+// 			line_set(&l[1], p[1], p[2]);
+// 			line_set(&l[2], p[2], p[3]);
+// 			line_set(&l[3], p[3], p[0]);
+// 			line_set(&l[4], p[0], p[4]);
+// 			line_set(&l[5], p[4], p[7]);
+// 			line_set(&l[6], p[7], p[3]);
+// 			line_set(&l[7], p[5], p[1]);
+// 			line_set(&l[8], p[2], p[6]);
+// 			line_set(&l[9], p[6], p[7]);
+// 			line_set(&l[10], p[6], p[5]);
+// 			line_set(&l[11], p[4], p[5]);
+// 			int i;
+// 			for (i = 0; i < 12; i++)
+// 			{
+// 				module_line(md,&l[i]);
+// 			}			
+// 		}else{//use polygons
+// 			Polygon pol[6];
+// 			int i;
+// 			Point temp[4];
+// 			for (i = 0; i < 6; i++)
+// 			{
+// 				polygon_init(&pol[i]);
+// 			}
+// 			point_copy(&temp[0],&p[7]);
+// 			point_copy(&temp[1],&p[6]);
+// 			point_copy(&temp[2],&p[2]);
+// 			point_copy(&temp[3],&p[3]);
 
-			polygon_set(&pol[0],4,&temp[0]);
+// 			polygon_set(&pol[0],4,&temp[0]);
 
-			point_copy(&temp[0],&p[6]);
-			point_copy(&temp[1],&p[5]);
-			point_copy(&temp[2],&p[1]);
-			point_copy(&temp[3],&p[2]);
+// 			point_copy(&temp[0],&p[6]);
+// 			point_copy(&temp[1],&p[5]);
+// 			point_copy(&temp[2],&p[1]);
+// 			point_copy(&temp[3],&p[2]);
 
-			polygon_set(&pol[1],4,&temp[0]);
-
-
-			point_copy(&temp[0],&p[4]);
-			point_copy(&temp[1],&p[0]);
-			point_copy(&temp[2],&p[1]);
-			point_copy(&temp[3],&p[5]);
-
-			polygon_set(&pol[2],4,&temp[0]);
+// 			polygon_set(&pol[1],4,&temp[0]);
 
 
-			point_copy(&temp[0],&p[7]);
-			point_copy(&temp[1],&p[3]);
-			point_copy(&temp[2],&p[0]);
-			point_copy(&temp[3],&p[4]);
+// 			point_copy(&temp[0],&p[4]);
+// 			point_copy(&temp[1],&p[0]);
+// 			point_copy(&temp[2],&p[1]);
+// 			point_copy(&temp[3],&p[5]);
 
-			polygon_set(&pol[3],4,&temp[0]);
-
-
-			point_copy(&temp[0],&p[4]);
-			point_copy(&temp[1],&p[5]);
-			point_copy(&temp[2],&p[6]);
-			point_copy(&temp[3],&p[7]);
-
-			polygon_set(&pol[4],4,&temp[0]);
+// 			polygon_set(&pol[2],4,&temp[0]);
 
 
-			point_copy(&temp[0],&p[2]);
-			point_copy(&temp[1],&p[1]);
-			point_copy(&temp[2],&p[0]);
-			point_copy(&temp[3],&p[3]);
+// 			point_copy(&temp[0],&p[7]);
+// 			point_copy(&temp[1],&p[3]);
+// 			point_copy(&temp[2],&p[0]);
+// 			point_copy(&temp[3],&p[4]);
 
-			polygon_set(&pol[5],4,&temp[0]);
+// 			polygon_set(&pol[3],4,&temp[0]);
 
-			for (i = 0; i < 6; i++)
-			{
-				module_polygon(md,&pol[i]);
-			}	
-		}
-	}
+
+// 			point_copy(&temp[0],&p[4]);
+// 			point_copy(&temp[1],&p[5]);
+// 			point_copy(&temp[2],&p[6]);
+// 			point_copy(&temp[3],&p[7]);
+
+// 			polygon_set(&pol[4],4,&temp[0]);
+
+
+// 			point_copy(&temp[0],&p[2]);
+// 			point_copy(&temp[1],&p[1]);
+// 			point_copy(&temp[2],&p[0]);
+// 			point_copy(&temp[3],&p[3]);
+
+// 			polygon_set(&pol[5],4,&temp[0]);
+
+// 			for (i = 0; i < 6; i++)
+// 			{
+// 				module_polygon(md,&pol[i]);
+// 			}	
+// 		}
+// 	}
+
+// }
+
+void module_cube( Module *mod ) {
+  Point pt[4];
+  Polygon p;
+  Vector n[4];
+  int i;
+
+  polygon_init( &p );
+  point_set3D( &pt[0], -1, -1, -1 );
+  point_set3D( &pt[1], -1, -1,  1 );
+  point_set3D( &pt[2], -1,  1,  1 );
+  point_set3D( &pt[3], -1,  1, -1 );
+  polygon_set( &p, 4, pt );
+  for(i=0;i<4;i++)
+	  vector_set( &(n[i]), -1, 0, 0 );
+  polygon_setNormals( &p, 4, n );
+  polygon_setSided(&p,1);
+  module_polygon( mod, &p );
+
+  point_set3D( &pt[0], 1, -1, -1 );
+  point_set3D( &pt[1], 1, -1,  1 );
+  point_set3D( &pt[2], 1,  1,  1 );
+  point_set3D( &pt[3], 1,  1, -1 );
+  polygon_set( &p, 4, pt );
+  for(i=0;i<4;i++)
+	  vector_set( &(n[i]), 1, 0, 0 );
+  polygon_setNormals( &p, 4, n );
+  polygon_setSided(&p,1);
+  module_polygon( mod, &p );
+
+  point_set3D( &pt[0], -1, -1, -1 );
+  point_set3D( &pt[1], -1, -1,  1 );
+  point_set3D( &pt[2],  1, -1,  1 );
+  point_set3D( &pt[3],  1, -1, -1 );
+  polygon_set( &p, 4, pt );
+  for(i=0;i<4;i++)
+	  vector_set( &(n[i]), 0, -1, 0 );
+  polygon_setNormals( &p, 4, n );
+  polygon_setSided(&p,1);
+  module_polygon( mod, &p );
+
+  point_set3D( &pt[0], -1, 1, -1 );
+  point_set3D( &pt[1], -1, 1,  1 );
+  point_set3D( &pt[2],  1, 1,  1 );
+  point_set3D( &pt[3],  1, 1, -1 );
+  polygon_set( &p, 4, pt );
+  for(i=0;i<4;i++)
+	  vector_set( &(n[i]), 0, 1, 0 );
+  polygon_setNormals( &p, 4, n );
+  polygon_setSided(&p,1);
+  module_polygon( mod, &p );
+
+  point_set3D( &pt[0], -1, -1, -1 );
+  point_set3D( &pt[1], -1,  1, -1 );
+  point_set3D( &pt[2],  1,  1, -1 );
+  point_set3D( &pt[3],  1, -1, -1 );
+  polygon_set( &p, 4, pt );
+  for(i=0;i<4;i++)
+	  vector_set( &(n[i]), 0, 0, -1 );
+  polygon_setNormals( &p, 4, n );
+  polygon_setSided(&p,1);
+  module_polygon( mod, &p );
+
+  point_set3D( &pt[0], -1, -1, 1 );
+  point_set3D( &pt[1], -1,  1, 1 );
+  point_set3D( &pt[2],  1,  1, 1 );
+  point_set3D( &pt[3],  1, -1, 1 );
+  polygon_set( &p, 4, pt );
+  for(i=0;i<4;i++)
+	  vector_set( &(n[i]), 0, 0, 1 );
+  polygon_setNormals( &p, 4, n );
+  polygon_setSided(&p,1);
+  module_polygon( mod, &p );
 
 }
 

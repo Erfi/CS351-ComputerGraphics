@@ -83,6 +83,8 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 	float g = 0;
 	float b = 0;
 	Vector H;
+	vector_normalize(N);
+	vector_normalize(V);
 	for(i=0; i<l->nLights; i++){
 		if(l->light[i].type == LightAmbient){
 			r +=l->light[i].color.rgb[0] * Cb->rgb[0];
@@ -93,13 +95,31 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 			Vector L;
 			vector_set(&L,l->light[i].position.val[0] -p->val[0],l->light[i].position.val[1] -p->val[1],l->light[i].position.val[2] -p->val[2]);
 
-			vector_normalize(N);
-			vector_normalize(V);
 			vector_normalize(&L);
 			float dot1 = vector_dot(&L,N);
+			if(dot1<0 && oneSided == 1){
+				printf("light not on\n");
+				continue;
+			}
+
+			float sigma = vector_dot(V,N);
+
+			if((sigma>0 && dot1 < 0) || (sigma<0 && dot1 > 0)){
+				printf("light and view on different sides of shape\n");
+				continue;
+
+			}
+
+
+
 			Vector temp = vector_add(&L,V);
 			vector_set(&H, temp.val[0]/2, temp.val[1]/2, temp.val[2]/2);
 			float dot2 = vector_dot(&H,N);
+
+			if(dot1<0){
+				dot1= -dot1;
+				dot2 = -dot2;
+			}
 
 			// printf("dot1 %f",dot1);
 			// printf("dot2 %f",dot2);
@@ -108,7 +128,7 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 			g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s);
 			b += Cb->rgb[2]*l->light[i].color.rgb[2]*dot1 + l->light[i].color.rgb[2]*Cs->rgb[2]*pow(dot2,s);
 
-			printf("r %f,g %f,b %f,",r,g,b);
+			// printf("r %f,g %f,b %f, \n ",r,g,b);
 		}else if(l->light[i].type == LightSpot){
 			// float alpha = vector_dot(&l->light[i].direction,)
 
@@ -136,7 +156,7 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 		if(b<0){
 			b=0;
 		}
-
+		printf("r %f,g %f,b %f, FINAL \n ",r,g,b);
 	Color_set(c,r,g,b);
 }
 

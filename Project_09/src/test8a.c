@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
   cube = module_create();
   module_scale( cube, 3, 1, 2 );
   module_color( cube, &Blue );
-  module_cube( cube, 1);
+  module_cube( cube);
 
   cylinder = module_create();
   module_scale(cylinder, 1,3,1);
@@ -79,9 +79,9 @@ int main(int argc, char *argv[]) {
 
   matrix_identity(&GTM);
   drawstate_setAlpha(ds, 1);
-  module_draw(cylinder,&VTM, &GTM, ds, /*NULL,*/ src);
+  module_draw(cylinder,&VTM, &GTM, ds, NULL, src);
   drawstate_setAlpha(ds, 0.8);
-  module_draw(cube, &VTM, &GTM, ds, /*NULL,*/ src);
+  module_draw(cube, &VTM, &GTM, ds, NULL, src);
   
 
 

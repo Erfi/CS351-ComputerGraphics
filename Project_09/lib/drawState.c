@@ -21,7 +21,7 @@ DrawState *drawstate_create( void ){ //–create a new DrawState structure and i
 	state->flatColor = white;
 	state->body = white;
 	state->surface = white;
-	state->surfaceCoeff = 0;
+	state->surfaceCoeff = 1;
 	state->zBufferFlag = 1;
 	state->alpha = 1; //opaque
 	return state;

@@ -69,13 +69,14 @@ int main(int argc, char *argv[]) {
   // make a simple cube module
   cube = module_create();
   module_scale( cube, 3, 1, 2 );
+  module_scale(cube, 0.5, 0.5, 0.5);
 
   // this would color the cube in ShadeConstant mode
   module_color( cube, &Grey );
 
   // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
   // these colors should be the body colors
-  module_cube( cube, 1);
+  module_cube( cube);
 
   // manually add a light source to the Lighting structure
   // put it in the same place as the eye in world space
@@ -86,7 +87,7 @@ int main(int argc, char *argv[]) {
   ds = drawstate_create();
   point_copy(&(ds->viewer), &(view.vrp));
 	ds->shade = ShadeGouraud;
-	//	ds->shade = ShadeFlat;
+		// ds->shade = ShadeDepth;
 
   matrix_identity(&GTM);
   module_draw(cube, &VTM, &GTM, ds, light, src);

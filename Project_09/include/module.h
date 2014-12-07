@@ -83,7 +83,6 @@ void module_scale(Module *md, double sx, double sy, double sz);
 void module_rotateX(Module *md, double cth, double sth);
 void module_rotateY(Module *md, double cth, double sth);
 void module_rotateXYZ(Module *md, Vector *u, Vector *v, Vector *w);
-void module_cube(Module *md, int solid);
 
 //shading/color module functions
 void module_color(Module *md, Color *c);
@@ -92,6 +91,7 @@ void module_bodyColor(Module *md, Color *c);
 void module_surfaceCoeff(Module *md, float* f);
 
 //shapes
+void module_cube(Module *md/*, int solid*/);
 void module_circleFrame( Module *mod, int sides );//using lines -> cannot be filled
 void module_circle( Module *mod, int sides ); // using polygons -> can be filled
 void module_ellipseFrame(Module* mod, double a, double b, int sides);
