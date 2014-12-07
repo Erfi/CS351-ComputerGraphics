@@ -106,6 +106,8 @@ static Edge *makeEdgeRec( Point start, Point end, Color c1, Color c2, DrawState*
         edge->dcPerScan[2] = 0;
     }
 
+    printf("z0 %f\n", edge->z0);
+
 
 
     
@@ -117,6 +119,9 @@ static Edge *makeEdgeRec( Point start, Point end, Color c1, Color c2, DrawState*
     edge->cIntersect.rgb[0] = c1.rgb[0]/start.val[2];
     edge->cIntersect.rgb[1] = c1.rgb[1]/start.val[2];
     edge->cIntersect.rgb[2] = c1.rgb[2]/start.val[2];
+
+    printf("intersects r g b  %f  %f   %f \n", edge->cIntersect.rgb[0],edge->cIntersect.rgb[1],edge->cIntersect.rgb[2]);
+     printf("color  %f \n", c1.rgb[0]);
 
     // if(edge->zIntersect >1){
         // edge->zIntersect = 1/edge->zIntersect;
@@ -295,12 +300,13 @@ static void fillScan(Polygon* p, int scan, LinkedList *active, DrawState* ds, Im
                 curC.rgb[1]+= dcPerColumn[1];
                 curC.rgb[2]+= dcPerColumn[2];
 
-                curC.rgb[0]= curC.rgb[0]/curZ;
-                curC.rgb[1]= curC.rgb[1]/curZ;
-                curC.rgb[2]= curC.rgb[2]/curZ;
+                // curC.rgb[0]= curC.rgb[0]*curZ;
+                // curC.rgb[1]= curC.rgb[1]*curZ;
+                // curC.rgb[2]= curC.rgb[2]*curZ;
 
 
-
+                // printf("r, g, b == %f , %f, %f\n",  curC.rgb[0],  curC.rgb[1],  curC.rgb[2]);
+                // printf("dcPerColumn[] == %f , %f, %f\n",  dcPerColumn[0],  dcPerColumn[1],  dcPerColumn[2]);
                 image_setColor(src, row, i, curC);
             }else if(ds->shade == ShadePhong){
 
@@ -482,6 +488,8 @@ Polygon *polygon_create(){
         exit(-1);
     }
     p->vertex=NULL;
+    p->normal=NULL;
+    p->color=NULL;
     p->numVertex=0;
     p->zBuffer = 1;
     return p;
@@ -496,6 +504,8 @@ Polygon *polygon_createp(int numV, Point *vlist){
         exit(-1);
     }
     p->vertex=malloc(sizeof(Point)*numV);
+    p->color=malloc(sizeof(Color)*numV);
+    p->normal=malloc(sizeof(Vector)*numV);
     for (int i = 0; i < numV; i++){
         point_copy(&(p->vertex[i]),&vlist[i]);
     }
@@ -510,6 +520,12 @@ void polygon_free(Polygon *p){
         if (p->vertex!=NULL) {
             free(p->vertex);
         }
+        if (p->color!=NULL) {
+            free(p->color);
+        }
+        if (p->normal!=NULL) {
+            free(p->normal);
+        }
         free(p);
     }
 }
@@ -517,6 +533,8 @@ void polygon_free(Polygon *p){
 //initializes the existing Polygon to an empty Polygon.
 void polygon_init(Polygon *p){
 	p->vertex=NULL;
+    p->color=NULL;
+    p->normal=NULL;   
     p->numVertex=0;
     p->zBuffer = 1;
 }
@@ -527,6 +545,8 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
         free(p->vertex);
     }
     p->vertex=malloc(sizeof(Point)*numV);
+    p->normal=malloc(sizeof(Vector)*numV);
+    p->color=malloc(sizeof(Color)*numV);
     for (int i = 0; i < numV; i++)
     {
         point_copy(&(p->vertex[i]),&vlist[i]);
@@ -534,6 +554,8 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
     p->numVertex = numV;
     p->zBuffer = 1;
 }
+
+
 
 // frees the internal data and resets the fields.
 void polygon_clear(Polygon *p){
@@ -558,13 +580,19 @@ void polygon_copy(Polygon *to, Polygon *from){
 	if(NULL != to && NULL != from){
         polygon_clear(to);
         to->vertex = malloc(sizeof(Point)*from->numVertex);
+        to->color = malloc(sizeof(Color)*from->numVertex);
+        to->normal = malloc(sizeof(Vector)*from->numVertex);
         int i;
         for (i=0; i < from->numVertex; i++)
         {
           to->vertex[i] = from->vertex[i];
+          to->color[i] = from->color[i];
+          to->normal[i] = from->normal[i];
         }
+
         to->numVertex = from->numVertex;
         to->zBuffer = from->zBuffer;
+        to->oneSided = from->oneSided;
     }
 }
 
@@ -840,6 +868,7 @@ void polygon_shade(Polygon *p, Lighting *lighting, DrawState *ds){
             {
                 vector_set(&viewer, (ds->viewer.val[0] - p->vertex[i].val[0]), (ds->viewer.val[1] - p->vertex[i].val[1]), (ds->viewer.val[2] - p->vertex[i].val[2]));
                 lighting_shading(lighting, &p->normal[i], &ds->viewer, &p->vertex[i], &ds->body, &ds->surface, ds->surfaceCoeff, p->oneSided, &p->color[i]);
+                // printf("r  g  b  %f   %f  %f \n", p->color[i].rgb[0],p->color[i].rgb[1],p->color[i].rgb[2]);
             }
         }
     }

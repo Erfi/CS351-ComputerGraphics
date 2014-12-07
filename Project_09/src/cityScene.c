@@ -75,10 +75,11 @@ int main(int argc, char *argv[]) {
 	// matrix_setView3D(&VTM, &view);
 
 
-	point_set2D(&p[0],0,0);
-	point_set2D(&p[1],100,0);
-	point_set2D(&p[2],100,100);
-	point_set2D(&p[3],0,100);
+	point_set3D(&p[0],0,0,1);
+	point_set3D(&p[1],100,0,1);
+	point_set3D(&p[2],100,100,1);
+	point_set3D(&p[3],0,100,1);
+	polygon_set(&poly,4,p);
 	polygon_set(&poly,4,p);
 	polygon_setSided(&poly, 0);
 	int k;
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
 
 	ds = drawstate_create();
 	// ds->shade = ShadeDepth;
-	ds->shade = ShadeFlat;
+	ds->shade = ShadeGouraud;
 
 	l = lighting_create();
   	lighting_add( l, LightAmbient, &BlueGrey, NULL, NULL, 0.0, 0.0 );
@@ -113,8 +114,7 @@ int main(int argc, char *argv[]) {
 	// for(i=0;i<36;i++) {
 	// 	char buffer[256];
 
-	// 	image_reset( src );
-
+	// 	image_reset( srcGouroud
 	// 	matrix_identity(&GTM);
 
 	// 	matrix_rotateY(&GTM, cos(i*2*M_PI/36.0), sin(i*2*M_PI/36.0));

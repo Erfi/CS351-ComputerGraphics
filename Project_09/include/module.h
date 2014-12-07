@@ -75,7 +75,7 @@ void module_translate2D(Module *md, double tx, double ty);
 void module_scale2D(Module *md, double sx, double sy);
 void module_rotateZ(Module *md, double cth, double sth);
 void module_shear2D(Module *md, double shx, double shy);
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn, Lighting *lighting,*/ Image *src);
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn,*/ Lighting *lighting, Image *src);
 
 //3D functions
 void module_translate(Module *md, double tx, double ty, double tz);
@@ -87,6 +87,9 @@ void module_cube(Module *md, int solid);
 
 //shading/color module functions
 void module_color(Module *md, Color *c);
+void module_surfaceColor(Module *md, Color *c);
+void module_bodyColor(Module *md, Color *c);
+void module_surfaceCoeff(Module *md, float* f);
 
 //shapes
 void module_circleFrame( Module *mod, int sides );//using lines -> cannot be filled

@@ -17,6 +17,7 @@ File: module.c
 #include "Image.h"
 #include "view.h"
 #include "bezier.h"
+#include "light.h"
 
 
 
@@ -533,7 +534,7 @@ void module_shear2D(Module *md, double shx, double shy){
 
 //Draw the module into the image using the given view transformation matrix [VTM], Lighting and
 //DrawState by traversing the list of Elements. (For now, Lighting can be an empty structure.)
-void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn,*/  Image *src){
+void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* vpn,*/Lighting *lighting, Image *src){
 	Matrix LTM;
 	Matrix tempGTM;
 	DrawState tempDraw;
@@ -588,20 +589,33 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 			case ObjPolygon:
 				printf("objPolygon\n");
 				polygon_copy(&tempPolygon,&iterator->obj.polygon);
+				printf("1\n");
 				matrix_xformPolygon(&LTM,&tempPolygon);
+				printf("2\n");
 				matrix_xformPolygon(GTM,&tempPolygon);
+				printf("3\n");
+				if(ds->shade == ShadeGouraud){
+					printf("poly> g > before\n");
+					polygon_shade(&tempPolygon,lighting, ds);
+					printf("poly> g > after\n");
+				}
 				matrix_xformPolygon(VTM,&tempPolygon);
 				polygon_normalize(&tempPolygon);
+
+
 				if (ds->shade == ShadeFrame)
 				{
 					polygon_draw(&tempPolygon, ds, src);
 				}
-				else{
+				else if(ds->shade == ShadeFlat || ds->shade == ShadeFlat || ds->shade == ShadeDepth){
 				//	Vector c;
 				//	polygon_normal(&tempPolygon, &c);
 				//	if(!is_surface_visible(vpn, &c)){
 				polygon_drawFill(&tempPolygon, ds,src);
 				//	}
+				}
+				else if(ds->shade == ShadeGouraud){
+					polygon_drawShade(&tempPolygon, src, ds,lighting);
 				}
 				polygon_clear(&tempPolygon);
 				break;
@@ -619,7 +633,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				printf("objModule\n");
 				matrix_multiply(GTM, &LTM, &tempGTM);
 				tempDraw = *ds;
-				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /*vpn, light, */ src); 
+				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /*vpn,*/ lighting, src); 
 				break;
 			default:
 				break;
@@ -742,7 +756,50 @@ void module_color(Module *md, Color *c){
 	}
 }
 
+//Adds the surface color  value to the tail of the module’s list.
+void module_surfaceColor(Module *md, Color *c){
+	if((NULL != md) && (NULL != c)){
+		Element* e = element_init(ObjSurfaceColor, c);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
+//Adds the body color  value to the tail of the module’s list.
+void module_bodyColor(Module *md, Color *c){
+	if((NULL != md) && (NULL != c)){
+		Element* e = element_init(ObjBodyColor, c);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
+
+//Adds the surface coefficient value to the tail of the module’s list.
+void module_surfaceCoeff(Module *md, float* f){
+	if((NULL != md) && (NULL != f)){
+		Element* e = element_init(ObjSurfaceCoeff, f);
+		if (md->head == NULL)
+		{
+			md->head = e;
+			md->tail = e;
+		}else{
+			md->tail->next = e;
+			md->tail = e;
+		}
+	}
+}
 
 
 

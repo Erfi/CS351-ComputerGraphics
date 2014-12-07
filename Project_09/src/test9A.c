@@ -1,82 +1,103 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "light.h"
-#include "color.h"
-#include "matrix.h"
-#include "point.h"
-
 /*
-	Bruce A. Maxwell
-	Fall 2014
+  Bruce A. Maxwell
+  Fall 2014
 
-  A quick and dirty visualization of a sphere using phong shading
+  Example code for drawing a single cube
 
-  Tests the Lighting_shading function over a lot of orientations.
-
+  C Version
 */
-#include <stdio.h>
 #include <stdlib.h>
-#include "light.h"
-#include "color.h"
-#include "matrix.h"
+#include <stdio.h>
+#include <math.h>
+#include "module.h"
+#include "drawState.h"
+#include "line.h"
 #include "point.h"
-#include "image.h"
-#include "math.h"
+#include "polyline.h"
+#include "polygon.h"
+#include "circle.h"
+#include "color.h"
+#include "Image.h"
+#include "matrix.h"
+#include "view.h"
+#include "light.h"
+
 
 int main(int argc, char *argv[]) {
   Image *src;
-  int i, j;
-  float x, y, z;
-  Vector N;
-  Lighting *l;
-  Point p;
-  Point V;
-  Point lp;
-  Color BlueGrey;
-  Color Sun;
-  Color Cb;
-  Color Cs;
-  Color c;
-  int rows = 500, cols = 500;
+  Matrix VTM;
+  Matrix GTM;
+  Module *cube;
+  int rows = 360;
+  int cols = 640;
 
-	Color_set(&BlueGrey, 0.2, 0.25, 0.3);
-	Color_set(&Sun, 0.9, 0.85, 0.8);
-	Color_set(&Cb, 0.7, 0.2, 0.1);
-	Color_set(&Cs, 0.3, 0.3, 0.3);
+  Color White;
+  Color Grey;
 
-	point_set(&V, 0.0, 4.0, 0.0, 1.0);
-	point_set(&lp, 1.0, 5.0, 1.0, 1.0);
+  DrawState *ds;
+  View3D view;
 
+  Lighting *light;
+
+	Color_set( &White, 1.0, 1.0, 1.0 );
+	Color_set( &Grey, 0.6, 0.62, 0.64 );
+
+  // initialize the image
   src = image_create(rows, cols);
 
-  // add an ambient light and a point light, slightly below and to the right of the viewer
-  l = lighting_create();
-  lighting_add( l, LightAmbient, &BlueGrey, NULL, NULL, 0.0, 0.0 );
-  lighting_add( l, LightPoint, &Sun, NULL, &lp, 0.0, 0.0 );
+  // initialize matrices
+  matrix_identity(&GTM);
+  matrix_identity(&VTM);
 
-  // for each pixel in the image
-  for(i=0;i<rows;i++) {
-	  // the z value is defined by the pixel (faux parallel projections)
-	  z = -1 + i * (2.0/(rows-1));
-	  for(j=0;j<cols;j++) {
-		  // the x value is defined by the pixel (faux parallel projection)
-		  x = -1 + j * (2.0/(cols-1));
-		  y = 1.0 - x*x - z*z;
-		  if( y <= 0.0 )
-			  continue;
+  // set the View parameters
+  point_set3D(&(view.vrp), 5, 5, -7.0);
+  vector_set(&(view.vpn), -5, -5, 7);
+  vector_set(&(view.vup), 0.0, 1.0, 0.0);
+  view.d = 2.0;
+  view.du = 1.6;
+  view.dv = .9;
+  view.f = 0.0;
+  view.b = 15;
+  view.screenx = cols;
+  view.screeny = rows;
+  matrix_setView3D(&VTM, &view);
 
-		  y = sqrt(y);
+  // print out VTM
+  printf("Final VTM: \n");
+  matrix_print(&VTM, stdout);
 
-		  // the surface point and normal vector are the same since the sphere is centered on 0
-		  p.val[0] = x;
-		  p.val[1] = y;
-		  p.val[2] = z;
-		  vector_set( &N, x, y, z );
-		  lighting_shading( l, &N, &V, &p, &Cb, &Cs, 32, 1, &c);
-		  image_setColor( src, i, j, c );
-	  }
-  }
-  image_write( src, "test9d.ppm");
+  // make a simple cube module
+  cube = module_create();
+  module_scale( cube, 3, 1, 2 );
+
+  // this would color the cube in ShadeConstant mode
+  module_color( cube, &Grey );
+
+  // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
+  // these colors should be the body colors
+  module_cube( cube, 1);
+
+  // manually add a light source to the Lighting structure
+  // put it in the same place as the eye in world space
+  light = lighting_create();
+  lighting_add( light, LightPoint, &White, NULL, &(view.vrp), 0, 0 );
+
+  // set the shading to Gouraud
+  ds = drawstate_create();
+  point_copy(&(ds->viewer), &(view.vrp));
+	ds->shade = ShadeGouraud;
+	//	ds->shade = ShadeFlat;
+
+  matrix_identity(&GTM);
+  module_draw(cube, &VTM, &GTM, ds, light, src);
+
+  // write out the image
+  image_write(src, "test9a.ppm");
+
+  // free stuff here
+  module_delete( cube );
+  image_free( src );
+  
 
   return(0);
 }

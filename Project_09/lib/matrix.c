@@ -165,14 +165,22 @@ void matrix_xformPolygon(Matrix *mat, Polygon *p){
 		for (i = 0; i < p->numVertex; i++)
 		{
 			Point temp;
+			Vector tempVec;
 			for (j = 0; j < 4; j++)
 			{
 				temp.val[j] = mat->m[j][0]*p->vertex[i].val[0];
 				temp.val[j] += mat->m[j][1]*p->vertex[i].val[1];
 				temp.val[j] += mat->m[j][2]*p->vertex[i].val[2];
 				temp.val[j] += mat->m[j][3]*p->vertex[i].val[3];
+
+				tempVec.val[j] = mat->m[j][0]*p->normal[i].val[0];
+				tempVec.val[j] += mat->m[j][1]*p->normal[i].val[1];
+				tempVec.val[j] += mat->m[j][2]*p->normal[i].val[2];
+				tempVec.val[j] += mat->m[j][3]*p->normal[i].val[3];
+
 			}
-			(p->vertex[i])=temp;
+			p->vertex[i]=temp;
+			p->normal[i] = tempVec;
 		}
 	}	
 }
