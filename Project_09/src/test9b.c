@@ -179,6 +179,7 @@ int main(int argc, char *argv[]) {
   Color Red;
   Color Grey;
   Color Dark;
+  Color White;
   float bodyWidth = 2.0;
   int i;
 
@@ -186,6 +187,7 @@ int main(int argc, char *argv[]) {
 	Color_set(&Red, 1.0, 0.2, 0.1 );
 	Color_set(&Grey, 0.6, 0.65, 0.67 );
 	Color_set(&Dark, 0.2, 0.2, 0.2 );
+  Color_set(&White, 1, 1, 1 );
 
   // set up the view
   point_set3D( &(view.vrp), 15, 30, 100 );
@@ -397,11 +399,13 @@ int main(int argc, char *argv[]) {
   ds->shade = ShadeGouraud;
 
   light = lighting_create();
-  light->light[0].type = LightPoint;
-  light->light[0].position.val[0] = view.vrp.val[0];
-  light->light[0].position.val[1] = view.vrp.val[1];
-  light->light[0].position.val[2] = view.vrp.val[2];
-  light->nLights = 1;
+  // light->light[0].type = LightPoint;
+  // light->light[0].position.val[0] = view.vrp.val[0];
+  // light->light[0].position.val[1] = view.vrp.val[1];
+  // light->light[0].position.val[2] = view.vrp.val[2];
+  // light->nLights = 1;
+
+  lighting_add( light, LightPoint, &White, NULL, &view.vrp, 0, 0);
   
 
   // draw into the scene

@@ -81,6 +81,7 @@ void vector_cross(Vector *a, Vector *b, Vector *c){
         c->val[0]= (a->val[1]*b->val[2])-(a->val[2]*b->val[1]);
         c->val[1]= (a->val[2]*b->val[0])-(a->val[0]*b->val[2]);
         c->val[2]= (a->val[0]*b->val[1])-(a->val[1]*b->val[0]);
+        c->val[3]= 0;
     }
 }
 

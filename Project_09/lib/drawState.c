@@ -16,12 +16,14 @@ DrawState *drawstate_create( void ){ //–create a new DrawState structure and i
 	// printf("drawstate\n");
 	DrawState *state = malloc(sizeof(DrawState));
 	Color white;
+	Color grey;
 	Color_set(&white, 1.0,1.0,1.0);
+	Color_set(&grey, .1,.1,.1);
 	state->color = white;
 	state->flatColor = white;
 	state->body = white;
-	state->surface = white;
-	state->surfaceCoeff = 1;
+	state->surface = grey;
+	state->surfaceCoeff = 10;
 	state->zBufferFlag = 1;
 	state->alpha = 1; //opaque
 	return state;

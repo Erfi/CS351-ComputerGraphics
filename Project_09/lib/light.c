@@ -121,14 +121,23 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 				dot2 = -dot2;
 			}
 
-			// printf("dot1 %f",dot1);
-			// printf("dot2 %f",dot2);
+			printf("dot1 %f",dot1);
+			printf("dot2 %f",dot2);
+
+			point_print(&L,stdout);
+
+			point_print(N,stdout);
 
 			r += Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s);
 			g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s);
 			b += Cb->rgb[2]*l->light[i].color.rgb[2]*dot1 + l->light[i].color.rgb[2]*Cs->rgb[2]*pow(dot2,s);
 
-			// printf("r %f,g %f,b %f, \n ",r,g,b);
+
+			printf("body r %f,body g %f,body b %f, \n ",Cb->rgb[0] ,Cb->rgb[1],Cb->rgb[2]);
+
+			printf("surface r %f,surface g %f,surface b %f, \n ",Cs->rgb[0] ,Cs->rgb[1],Cs->rgb[2]);
+
+			printf("r %f,g %f,b %f, \n ",r,g,b);
 		}else if(l->light[i].type == LightSpot){
 			// float alpha = vector_dot(&l->light[i].direction,)
 
@@ -156,7 +165,7 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 		if(b<0){
 			b=0;
 		}
-		printf("r %f,g %f,b %f, FINAL \n ",r,g,b);
+		// printf("r %f,g %f,b %f, FINAL \n ",r,g,b);
 	Color_set(c,r,g,b);
 }
 

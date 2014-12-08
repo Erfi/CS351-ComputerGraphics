@@ -555,6 +555,12 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 			case ObjColor:
 				ds->color = iterator->obj.color ;
 				break;
+			case ObjBodyColor:
+				ds->body = iterator->obj.color ;
+				break;
+			case ObjSurfaceColor:
+				ds->surface = iterator->obj.color ;
+				break;
 			case ObjPoint:
 				printf("objPoint\n");
 				point_copy(&tempPoint,&iterator->obj.point);
@@ -595,9 +601,9 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformPolygon(GTM,&tempPolygon);
 				// printf("3\n");
 				if(ds->shade == ShadeGouraud){
-					printf("poly> g > before\n");
+					// printf("poly> g > before\n");
 					polygon_shade(&tempPolygon,lighting, ds);
-					printf("poly> g > after\n");
+					// printf("poly> g > after\n");
 				}
 				matrix_xformPolygon(VTM,&tempPolygon);
 				polygon_normalize(&tempPolygon);
