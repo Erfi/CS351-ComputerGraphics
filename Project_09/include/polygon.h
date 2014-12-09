@@ -16,13 +16,15 @@ typedef struct{
 	int numVertex;
 	int zBuffer;
 	int oneSided;
+	float alpha; // for transparency 
 	Point *vertex;
 	Color *color;
 	Vector *normal;
 }Polygon;
 
 typedef struct{
-	Color c;
+	Color color;
+	float depth;
 	float alpha;
 }Alphainfo;
 
@@ -42,6 +44,7 @@ void polygon_drawFillBitmap(Polygon *p, DrawState* ds, Image *src, Image *bitmap
 void polygon_drawFillB(Polygon *p, DrawState* ds, Image *src);
 void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1, Color c2,Color c3 );
 void polygon_normalize(Polygon *p);
+void polygon_setAlpha(Polygon *p, float a);
 void polygon_setSided(Polygon *p, int oneSided);
 void polygon_setColors(Polygon *p, int numV, Color *clist);
 void polygon_setNormals(Polygon *p, int numV, Vector *nlist);

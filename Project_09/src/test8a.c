@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
   Matrix GTM;
   Module *cube;
   Module* cylinder;
+  Lighting *light;
   int rows = 360;
   int cols = 640;
 
@@ -75,13 +76,17 @@ int main(int argc, char *argv[]) {
 
 
   ds = drawstate_create();
-  ds->shade = ShadeDepth;
+  // ds->shade = ShadeDepth;
+  ds->shade = ShadeGouraud;
+
+  light = lighting_create();
+  lighting_add( light, LightPoint, &Grey, NULL, &view.vrp, 0, 0);
 
   matrix_identity(&GTM);
   drawstate_setAlpha(ds, 1);
-  module_draw(cylinder,&VTM, &GTM, ds, NULL, src);
+  module_draw(cylinder,&VTM, &GTM, ds, light, src);
   drawstate_setAlpha(ds, 0.8);
-  module_draw(cube, &VTM, &GTM, ds, NULL, src);
+  module_draw(cube, &VTM, &GTM, ds, light, src);
   
 
 

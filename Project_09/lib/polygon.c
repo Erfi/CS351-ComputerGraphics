@@ -54,6 +54,23 @@ static int compYStart( const void *a, const void *b ) {
 
 
 /*
+This is a comparison function that returns a value < 0 if a < b, a value 
+ > 0 if a>b, and -1 if a = b. It uses the curZ value in the fillscan for each Fpixel.
+ It is used to sort the linkedlist of fpixel by 1/z values.
+*/
+static int compZIntersect(const void *a, const void *b){
+    float fa = *(float*)a;
+    float fb = *(float*)b;
+
+    if(fa < fb) //NOTE that the equal state will result in -1 in order not to replace the background image
+        return (-1);
+    else if(fa > fb)
+        return (1);
+    return (0);
+}
+
+
+/*
     This is a comparison function that returns a value < 0 if a < b, a
     value > 0 if a > b, and 0 if a = b.  It uses the xIntersect field of the
     Edge structure.  It is used to sort the active edge list.
@@ -212,7 +229,7 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
     Draw one scanline of a polygon given the scanline, the active edges,
     a DrawState, the image, and some Lights (for Phong shading only).
  */
-static void fillScan(Polygon* p, int scan, LinkedList *active, DrawState* ds, Image *src) {
+static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds, Image *src) {
   Edge *p1, *p2;
   float curZ;
   float dzPerColumn;
@@ -264,10 +281,10 @@ static void fillScan(Polygon* p, int scan, LinkedList *active, DrawState* ds, Im
 
         if(ds->zBufferFlag == 0)
             goto label1;
-        if((curZ - src->data[row][i].z) > 0.001 ){//using 0.01 as the epsilon
+        if((curZ - src->data[row][i].z) > 0.0008 ){//using 0.01 as the epsilon
         label1:
             if(ds->shade == ShadeFrame){
-                polygon_draw(p, ds, src);
+                polygon_draw(poly, ds, src);
             }
             else if(ds->shade == ShadeConstant){
                 Color colr;
@@ -297,13 +314,51 @@ static void fillScan(Polygon* p, int scan, LinkedList *active, DrawState* ds, Im
                 // printf("r, g, b == %f , %f, %f\n", r, g, b);
                 image_setColor(src, row, i, colr);
             }else if(ds->shade == ShadeGouraud){
-                Color c;
-                Color_set(&c, curC.rgb[0]/curZ, curC.rgb[1]/curZ, curC.rgb[2]/curZ);
+                Color c;//reserved for the final color
+                Alphainfo info;//info structure for list in the fpixel
+                Alphainfo *p, *q; //while loop variables
+                float r = src->data[row][i].rgb[0];
+                float g = src->data[row][i].rgb[1];
+                float b = src->data[row][i].rgb[2];
 
+                if(src->data[row][i].list == NULL){
+                    src->data[row][i].list = ll_new();
+                }
+
+                if(src->data[row][i].list->root == NULL){//adding the first node to background image
+                    Color ctemp;
+                    Color_set(&ctemp, src->data[row][i].rgb[0], src->data[row][i].rgb[1], src->data[row][i].rgb[2]); 
+                    info.color = ctemp;//color of the image background
+                    info.alpha = 1;// opaque image background;
+                    info.depth = 1;//backclip plane (this is a 1/z value)
+                }else{//not the first node
+                    Color ctemp;
+                    Color_set(&ctemp, curC.rgb[0]/curZ,curC.rgb[1]/curZ,curC.rgb[2]/curZ);
+                    info.color = ctemp;//color of the image background
+                    info.alpha = poly->alpha;// opaque image background;
+                    info.depth = curZ;//backclip plane (this is a 1/z value)
+                }
+                ll_insert(src->data[row][i].list , &info, compZIntersect);
+
+                //Traverse the linked list and calculate the color from back to front using alpha blending
+                q = ll_head(src->data[row][i].list);
+                p = ll_next(src->data[row][i].list);
+                while(p != NULL){
+                    r += q->alpha*(q->color.rgb[0]) + (1-q->alpha)*r;
+                    g += q->alpha*(q->color.rgb[1]) + (1-q->alpha)*g;
+                    b += q->alpha*(q->color.rgb[2]) + (1-q->alpha)*b;
+
+                    q = p;
+                    p = ll_next(src->data[row][i].list);
+                }                
+                
+                // r = ds->alpha*(curC.rgb[0]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[0];
+                // g = ds->alpha*(curC.rgb[1]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[1];
+                // b = ds->alpha*(curC.rgb[2]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[2];
+
+                Color_set(&c, r, g, b);
                 image_setColor(src, row, i, c);
 
-                
-            
                 // Color_set(&curC,(z)*curC.rgb[0], (z)*curC.rgb[1], (z)*curC.rgb[2]);
                 // printf("r, g, b == %f , %f, %f\n",  curC.rgb[0],  curC.rgb[1],  curC.rgb[2]);
                 // printf("dcPerColumn[] == %f , %f, %f\n",  dcPerColumn[0],  dcPerColumn[1],  dcPerColumn[2]);
@@ -493,6 +548,8 @@ Polygon *polygon_create(){
     p->color=NULL;
     p->numVertex=0;
     p->zBuffer = 1;
+    p->alpha = 1;
+    p->oneSided = 0;
     return p;
 }
 
@@ -512,6 +569,8 @@ Polygon *polygon_createp(int numV, Point *vlist){
     }
     p->numVertex=numV;
     p->zBuffer = 1;
+    p->alpha = 1;
+    p->oneSided = 0;
     return p;
 }
 
@@ -538,6 +597,8 @@ void polygon_init(Polygon *p){
     p->normal=NULL;   
     p->numVertex=0;
     p->zBuffer = 1;
+    p->oneSided = 0;
+    p->alpha = 1;
 }
 
 // initializes the vertex array to the points in vlist
@@ -554,6 +615,8 @@ void polygon_set(Polygon *p, int numV, Point *vlist){
     }
     p->numVertex = numV;
     p->zBuffer = 1;
+    p->oneSided = 0;
+    p->alpha = 1;
 }
 
 
@@ -563,15 +626,32 @@ void polygon_clear(Polygon *p){
 	if(p->vertex != NULL){
         free(p->vertex);
     }
+    if(p->color != NULL){
+        free(p->color);
+    }
+    if(p->normal != NULL){
+        free(p->normal);
+    }
     p->vertex = NULL;
+    p->color = NULL;
+    p->normal = NULL;
     p->numVertex = 0;
     p->zBuffer = 1;
+    p->oneSided = 0;
+    p->alpha = 1;
+
 }
 
 //sets the z-buffer flag to the given value
 void polygon_zBuffer(Polygon *p, int flag){
 	if(NULL != p){
         p->zBuffer = flag;
+    }
+}
+
+void polygon_setAlpha(Polygon *p, float a){
+    if(NULL != p){
+        p->alpha = a;
     }
 }
 
@@ -594,6 +674,7 @@ void polygon_copy(Polygon *to, Polygon *from){
         to->numVertex = from->numVertex;
         to->zBuffer = from->zBuffer;
         to->oneSided = from->oneSided;
+        to->alpha = from->alpha;
     }
 }
 

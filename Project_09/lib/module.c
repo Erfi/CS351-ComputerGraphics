@@ -608,12 +608,11 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformPolygon(VTM,&tempPolygon);
 				polygon_normalize(&tempPolygon);
 
-
 				if (ds->shade == ShadeFrame)
 				{
 					polygon_draw(&tempPolygon, ds, src);
 				}
-				else if(ds->shade == ShadeFlat || ds->shade == ShadeFlat || ds->shade == ShadeDepth){
+				else if(ds->shade == ShadeFlat || ds->shade == ShadeDepth){
 				//	Vector c;
 				//	polygon_normal(&tempPolygon, &c);
 				//	if(!is_surface_visible(vpn, &c)){
