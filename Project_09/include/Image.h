@@ -14,6 +14,7 @@ typedef struct {
 	float a;
 	float z;
 	LinkedList* list;
+	int listSize;
 } FPixel;
 
 typedef struct {

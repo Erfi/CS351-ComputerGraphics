@@ -41,7 +41,7 @@ void ll_insert( LinkedList *ll, void *item, int (*comp)(const void *, const void
 	Node *p, *q, *n;
 
 	// see if the list is empty or the item replaces the starting element
-	if( ll->root == NULL || comp(item, ll->root->data) <= 0 ) {
+	if( ll->root == NULL || comp(item, ll->root->data) <= 0 ){
 		n = malloc(sizeof(Node));
 		n->next = ll->root;
 		n->data = item;

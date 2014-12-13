@@ -920,6 +920,7 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), -1, 0, 0 );
   polygon_setNormals( &p, 4, n );
+  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -931,6 +932,7 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 1, 0, 0 );
   polygon_setNormals( &p, 4, n );
+  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -942,6 +944,7 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, -1, 0 );
   polygon_setNormals( &p, 4, n );
+  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -953,6 +956,7 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, 1, 0 );
   polygon_setNormals( &p, 4, n );
+  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -964,6 +968,7 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, 0, -1 );
   polygon_setNormals( &p, 4, n );
+  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -975,6 +980,7 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, 0, 1 );
   polygon_setNormals( &p, 4, n );
+  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 

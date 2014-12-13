@@ -19,144 +19,184 @@ this is the file that helps us debug the zbuffer algorithm
 #include "matrix.h"
 #include "view.h"
 
+/*
+This is a comparison function that returns a value < 0 if a < b, a value 
+ > 0 if a>b, and -1 if a = b. It uses the curZ value in the fillscan for each Fpixel.
+ It is used to sort the linkedlist of fpixel by 1/z values.
+*/
+static int compZIntersect(const void *a, const void *b){
+    Alphainfo* ia = (Alphainfo*)a;
+    Alphainfo* ib = (Alphainfo*)b;
 
+    if(ia->depth < ib->depth){ //NOTE that the equal state will result in -1 in order not to replace the background image
+        printf("a < b : %.4f < %.4f \n", ia->depth, ib->depth);
+        return (-1);
+    }
+    else if(ia->depth > ib->depth){
+        printf("a > b : %.4f > %.4f \n", ia->depth, ib->depth);
+        return (1);
+    }else{
+        printf("a = b : %.4f = %.4f \n", ia->depth, ib->depth);
+        return (0);
+    }
+}
 
 
 // makes 3 X-wing fighters in a loose formation
 int main(int argc, char *argv[]) {
-  int i, j; //loop variables
-
-  Image *src;
-  Module* wall;
-  Module* ray;
-  Module* ray2;
-  Module *scene1;
-  Module* scene2;
-  Polygon p;
-  Line l;
-  Point point[4];
-  Point point2[2];
-  View3D view;
-  Matrix vtm, gtm;
-  DrawState *ds;
-  char filename[100];
-  Color Flame = { { 1.0, 0.7, 0.2 } };
-  Color Red =  { { 1.0, 0.2, 0.1 } };
-  Color Grey =  { { 0.745, 0.745, 0.745} };
-  Color Blue = {{0.117647, 0.564706, 1}};
-  // Color Grey = {{1, 1, 1}};
 
 
-  // set up the view
-  point_set3D( &(view.vrp), 4, 4, 4 );
-  vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
-  vector_set( &(view.vup), 0, 1, 0 );
+//trying to check if the compZintersect works LOL!
+  Alphainfo a;
+  Color_set(&a.color, 0.25, 0.5, 0.75);
+  a.alpha = 0.3;
+  a.depth = 0.1;
 
-  view.d = 1;
-  view.du = 1.6;
-  view.dv = 0.9;
-  view.f = 1;
-  view.b = 50;
-  view.screenx = 640;
-  view.screeny = 360;
+  Alphainfo b;
+  Color_set(&b.color, 0.75, 0.5, 0.25);
+  b.alpha = 0.7;
+  b.depth = 0.05;
 
-  matrix_setView3D( &vtm, &view );
-  matrix_identity( &gtm );
-
-  // //wall
-  wall = module_create();
-  module_color(wall, &Red);
-  polygon_init(&p);
-  point_set3D(&point[0], 1,1,2);
-  point_set3D(&point[1], 1,0,2);
-  point_set3D(&point[2], 0,0,2);
-  point_set3D(&point[3], 0,1,2);
-  polygon_set(&p, 4, &point[0]);
-  module_polygon(wall, &p);
-
-//ray
-  ray = module_create();
-  module_color(ray, &Blue);
-  for(i=0; i< 5; i++){
-  point_set3D(&point2[0], -1+0.01*i, -1, 1);
-  point_set3D(&point2[1], 1+0.01*i, 1, 1);
-  line_set(&l, point2[0], point2[1]);
-  module_line(ray, &l);
- }
-
- //ray2
-
-  ray2 = module_create();
-  module_color(ray2, &Red);
-  for(i=0; i< 5; i++){
-  point_set3D(&point2[0], -1+0.01*i, 1, -1);
-  point_set3D(&point2[1], 1+0.01*i, -1, -1);
-  line_set(&l, point2[0], point2[1]);
-  // line_zBuffer(&l, 0);
-  module_line(ray2, &l);
- }
+  int result = compZIntersect(&a, &b);
+  printf("result: %d\n", result);
 
 
 
-//scene
-    // scene = module_create();
-    // module_module(scene, wall);
-    // module_module(scene, ray);
-    // module_module(scene, ray2);
-    // module_module(scene, wall);
+
+
+//   int i, j; //loop variables
+
+//   Image *src;
+//   Module* wall;
+//   Module* ray;
+//   Module* ray2;
+//   Module *scene1;
+//   Module* scene2;
+//   Polygon p;
+//   Line l;
+//   Point point[4];
+//   Point point2[2];
+//   View3D view;
+//   Matrix vtm, gtm;
+//   DrawState *ds;
+//   char filename[100];
+//   Color Flame = { { 1.0, 0.7, 0.2 } };
+//   Color Red =  { { 1.0, 0.2, 0.1 } };
+//   Color Grey =  { { 0.745, 0.745, 0.745} };
+//   Color Blue = {{0.117647, 0.564706, 1}};
+//   // Color Grey = {{1, 1, 1}};
+
+
+//   // set up the view
+//   point_set3D( &(view.vrp), 4, 4, 4 );
+//   vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
+//   vector_set( &(view.vup), 0, 1, 0 );
+
+//   view.d = 1;
+//   view.du = 1.6;
+//   view.dv = 0.9;
+//   view.f = 1;
+//   view.b = 50;
+//   view.screenx = 640;
+//   view.screeny = 360;
+
+//   matrix_setView3D( &vtm, &view );
+//   matrix_identity( &gtm );
+
+//   // //wall
+//   wall = module_create();
+//   module_color(wall, &Red);
+//   polygon_init(&p);
+//   point_set3D(&point[0], 1,1,2);
+//   point_set3D(&point[1], 1,0,2);
+//   point_set3D(&point[2], 0,0,2);
+//   point_set3D(&point[3], 0,1,2);
+//   polygon_set(&p, 4, &point[0]);
+//   module_polygon(wall, &p);
+
+// //ray
+//   ray = module_create();
+//   module_color(ray, &Blue);
+//   for(i=0; i< 5; i++){
+//   point_set3D(&point2[0], -1+0.01*i, -1, 1);
+//   point_set3D(&point2[1], 1+0.01*i, 1, 1);
+//   line_set(&l, point2[0], point2[1]);
+//   module_line(ray, &l);
+//  }
+
+//  //ray2
+
+//   ray2 = module_create();
+//   module_color(ray2, &Red);
+//   for(i=0; i< 5; i++){
+//   point_set3D(&point2[0], -1+0.01*i, 1, -1);
+//   point_set3D(&point2[1], 1+0.01*i, -1, -1);
+//   line_set(&l, point2[0], point2[1]);
+//   // line_zBuffer(&l, 0);
+//   module_line(ray2, &l);
+//  }
+
+
+
+// //scene
+//     // scene = module_create();
+//     // module_module(scene, wall);
+//     // module_module(scene, ray);
+//     // module_module(scene, ray2);
+//     // module_module(scene, wall);
     
 
 
 
     
 
-for(i=0; i< 36; i++){
+// for(i=0; i< 36; i++){
 
-	//scene
-    scene1 = module_create();
-    scene2 = module_create();
-    module_rotateZ(scene1, cos(i*10 * M_PI/180), sin(i*10 * M_PI/180));
-    module_scale( scene1, 3, 1, 2 );
-    module_color( scene1, &Blue );
-    module_cube( scene1, 1);
+// 	//scene
+//     scene1 = module_create();
+//     scene2 = module_create();
+//     module_rotateZ(scene1, cos(i*10 * M_PI/180), sin(i*10 * M_PI/180));
+//     module_scale( scene1, 3, 1, 2 );
+//     module_color( scene1, &Blue );
+//     module_cube( scene1, 1);
 
 
-    module_scale(scene2, 0.5, 0.5, 0.5);
-    module_cylinder(scene2, 30);
-	// create the image and drawstate
-	src = image_create( 360, 640 );
-	ds = drawstate_create();
-  drawstate_setAlpha(ds, 1);
-	ds->shade = ShadeDepth;
+//     module_scale(scene2, 0.5, 0.5, 0.5);
+//     module_cylinder(scene2, 30);
+// 	// create the image and drawstate
+// 	src = image_create( 360, 640 );
+// 	ds = drawstate_create();
+//   drawstate_setAlpha(ds, 1);
+// 	ds->shade = ShadeDepth;
 
-	// draw into the scene
-  // module_draw( scene1, &vtm, &gtm, ds, src );
-  drawstate_setAlpha(ds, 1 );
-	module_draw( scene1, &vtm, &gtm, ds, src );
+// 	// draw into the scene
+//   // module_draw( scene1, &vtm, &gtm, ds, src );
+//   drawstate_setAlpha(ds, 1 );
+// 	module_draw( scene1, &vtm, &gtm, ds, src );
 
-	// write out the scene
-	sprintf(filename, "frame_%.2d.ppm", i);
-	image_write( src, filename );
-	module_delete( scene1);
+// 	// write out the scene
+// 	sprintf(filename, "frame_%.2d.ppm", i);
+// 	image_write( src, filename );
+// 	module_delete( scene1);
 
-}
+// }
 	 
 
 
-	//free the polygon data
-	// polygon_clear( &p );
+// 	//free the polygon data
+// 	// polygon_clear( &p );
 
-	// free the modules
-	// module_delete( scene);
-	// module_delete( wall );
+// 	// free the modules
+// 	// module_delete( scene);
+// 	// module_delete( wall );
 
 
-	// free the drawstate
-	free(ds);
+// 	// free the drawstate
+// 	free(ds);
 
-	// free the image
-	image_free( src );
+// 	// free the image
+// 	image_free( src );
 
-	return(0);
+// 	return(0);
 }
 

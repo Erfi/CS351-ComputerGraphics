@@ -59,14 +59,19 @@ This is a comparison function that returns a value < 0 if a < b, a value
  It is used to sort the linkedlist of fpixel by 1/z values.
 */
 static int compZIntersect(const void *a, const void *b){
-    float fa = *(float*)a;
-    float fb = *(float*)b;
-
-    if(fa < fb) //NOTE that the equal state will result in -1 in order not to replace the background image
+    Alphainfo* ia = (Alphainfo*)a;
+    Alphainfo* ib = (Alphainfo*)b;
+    printf("in comp: ia : ib >>> %f : %f \n", ia->depth, ib->depth);
+    if(ia->depth < ib->depth){ //NOTE that the equal state will result in -1 in order not to replace the background image
+        printf("comp in POSITIVE\n");
         return (-1);
-    else if(fa > fb)
+    }
+    else if(ia->depth > ib->depth){
+        printf("comp in NEGATIVE\n");
         return (1);
-    return (0);
+    }else{
+        return (-1);
+    }
 }
 
 
@@ -230,16 +235,16 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
     a DrawState, the image, and some Lights (for Phong shading only).
  */
 static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds, Image *src) {
-  Edge *p1, *p2;
-  float curZ;
-  float dzPerColumn;
-  float dcPerColumn[3];
-  Color curC;
-  int i;
+    Edge *p1, *p2;
+    float curZ;
+    float dzPerColumn;
+    float dcPerColumn[3];
+    Color curC;
+    int i;
 
     // loop over the list
-  p1 = ll_head( active );
-  while(p1) {
+    p1 = ll_head( active );
+    while(p1) {
         // the edges have to come in pairs, draw from one to the next
       p2 = ll_next( active );
       if( !p2 ) {
@@ -275,10 +280,10 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
       dcPerColumn[1] = (p2->cIntersect.rgb[1] - p1->cIntersect.rgb[1]) / (colEnd - colStart);
       dcPerColumn[2] = (p2->cIntersect.rgb[2] - p1->cIntersect.rgb[2]) / (colEnd - colStart);
 
+      printf("scanline: %d, colStart-colEnd: %d-%d\n", scan, colStart , colEnd);
       // printf("polygon fillScan called \n");
       for (i = colStart; i< colEnd; i++){
         // printf(" curZ %f  \n", curZ );
-
         if(ds->zBufferFlag == 0)
             goto label1;
         if((curZ - src->data[row][i].z) > 0.0008 ){//using 0.01 as the epsilon
@@ -322,34 +327,36 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
                 float b = src->data[row][i].rgb[2];
 
                 if(src->data[row][i].list == NULL){
+                     // printf("making new list for row : i === %d : %d\n",row, i);
                     src->data[row][i].list = ll_new();
                 }
+                printf("adding polygon's color color\n");
+                Color ctemp;
+                Color_set(&ctemp, curC.rgb[0]/curZ,curC.rgb[1]/curZ,curC.rgb[2]/curZ);
+                info.color = ctemp;//color of the image background
+                info.alpha = poly->alpha;// opaque image background;
+                info.depth = curZ;//backclip plane (this is a 1/z value)
 
-                if(src->data[row][i].list->root == NULL){//adding the first node to background image
-                    Color ctemp;
-                    Color_set(&ctemp, src->data[row][i].rgb[0], src->data[row][i].rgb[1], src->data[row][i].rgb[2]); 
-                    info.color = ctemp;//color of the image background
-                    info.alpha = 1;// opaque image background;
-                    info.depth = 1;//backclip plane (this is a 1/z value)
-                }else{//not the first node
-                    Color ctemp;
-                    Color_set(&ctemp, curC.rgb[0]/curZ,curC.rgb[1]/curZ,curC.rgb[2]/curZ);
-                    info.color = ctemp;//color of the image background
-                    info.alpha = poly->alpha;// opaque image background;
-                    info.depth = curZ;//backclip plane (this is a 1/z value)
-                }
                 ll_insert(src->data[row][i].list , &info, compZIntersect);
+                src->data[row][i].listSize++;
+                printf("listSize at (row, col): (%d, %d) is %d\n", row, i,  src->data[row][i].listSize);
+                printf("head's |color(%f, %f ,%f)|  |alpha: %f|  |depth:  %f|\n",((Alphainfo*)ll_head(src->data[row][i].list))->color.rgb[0], ((Alphainfo*)ll_head(src->data[row][i].list))->color.rgb[1], ((Alphainfo*)ll_head(src->data[row][i].list))->color.rgb[2],((Alphainfo*)ll_head(src->data[row][i].list))->alpha, ((Alphainfo*)ll_head(src->data[row][i].list))->depth);
+            
+                // printf("root->depth : info->depth  %f : %f\n", ((Alphainfo*)ll_head(src->data[row][i].list))->depth , info.depth);
 
                 //Traverse the linked list and calculate the color from back to front using alpha blending
                 q = ll_head(src->data[row][i].list);
                 p = ll_next(src->data[row][i].list);
-                while(p != NULL){
-                    r += q->alpha*(q->color.rgb[0]) + (1-q->alpha)*r;
-                    g += q->alpha*(q->color.rgb[1]) + (1-q->alpha)*g;
-                    b += q->alpha*(q->color.rgb[2]) + (1-q->alpha)*b;
-
-                    q = p;
-                    p = ll_next(src->data[row][i].list);
+                while(q != NULL){
+                    r = q->alpha*(q->color.rgb[0]) + (1-q->alpha)*r;
+                    g = q->alpha*(q->color.rgb[1]) + (1-q->alpha)*g;
+                    b = q->alpha*(q->color.rgb[2]) + (1-q->alpha)*b;
+                    if(p != NULL){
+                        q = p;
+                        p = ll_next(src->data[row][i].list);
+                    }else{
+                        break;
+                    }
                 }                
                 
                 // r = ds->alpha*(curC.rgb[0]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[0];
@@ -357,6 +364,11 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
                 // b = ds->alpha*(curC.rgb[2]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[2];
 
                 Color_set(&c, r, g, b);
+                Color_print(&c, stdout);
+
+                // Color_print(&c, stdout);
+                // printf("curZ : %f\n", curZ);
+
                 image_setColor(src, row, i, c);
 
                 // Color_set(&curC,(z)*curC.rgb[0], (z)*curC.rgb[1], (z)*curC.rgb[2]);
@@ -373,11 +385,12 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
         curC.rgb[0]+= dcPerColumn[0];
         curC.rgb[1]+= dcPerColumn[1];
         curC.rgb[2]+= dcPerColumn[2];
-      }
-
+        }
         // move ahead to the next pair of edges
       p1 = ll_next( active );
-  }
+    }
+
+
     return;
 }
 
