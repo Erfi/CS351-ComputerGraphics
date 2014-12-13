@@ -210,19 +210,19 @@ int readPLY(char filename[], int *nPolygons, Polygon **plist, Color **clist, int
 		// read the vertices
 		for(i=0;i<numVertex;i++) {
 			for(j=0;j<3;j++)
-				fscanf(fp, "%f", &(vertex[i].val[j]));
+				fscanf(fp, "%lf", &(vertex[i].val[j]));
 			vertex[i].val[3] = 1.0;
 
 			for(j=0;j<3;j++)
-				fscanf(fp, "%f", &(normal[i].val[j]));
+				fscanf(fp, "%lf", &(normal[i].val[j]));
 			normal[i].val[3] = 0.0;
 
 			for(j=0;j<2;j++)
-				fscanf(fp, "%*f");
+				fscanf(fp, "%*lf");
       
 			for(j=0;j<3;j++) {
-				fscanf(fp, "%f", &(color[i].c[j]));
-				color[i].c[j] /= 255.0;
+				fscanf(fp, "%f", &(color[i].rgb[j]));
+				color[i].rgb[j] /= 255.0;
 			}
 		}
 
@@ -249,11 +249,11 @@ int readPLY(char filename[], int *nPolygons, Polygon **plist, Color **clist, int
 			// assign the polygon vertices and surface normals
 			// not setting vertexWorld right now, because no Phong shading
 
-			p[i].nVertex = nv;
-//			p[i].zBufferFlag = 1;
+			p[i].numVertex = nv;
+			p[i].zBuffer = 1;
 			p[i].normal = malloc(sizeof(Vector)*nv);
 			p[i].vertex = malloc(sizeof(Point)*nv);
-			tcolor.c[0] = tcolor.c[1] = tcolor.c[2] = 0.0;
+			tcolor.rgb[0] = tcolor.rgb[1] = tcolor.rgb[2] = 0.0;
 			//      printf("%d: ", nv);
 			for(j=0;j<nv;j++) {
 				//	printf("%d  ", vid[j]);
@@ -261,13 +261,13 @@ int readPLY(char filename[], int *nPolygons, Polygon **plist, Color **clist, int
 				if(!estNormals) {
 					p[i].normal[j] = normal[vid[j]];
 				}
-				tcolor.c[0] += color[vid[j]].c[0];
-				tcolor.c[1] += color[vid[j]].c[1];
-				tcolor.c[2] += color[vid[j]].c[2];
+				tcolor.rgb[0] += color[vid[j]].rgb[0];
+				tcolor.rgb[1] += color[vid[j]].rgb[1];
+				tcolor.rgb[2] += color[vid[j]].rgb[2];
 			}
-			tcolor.c[0] /= (float)nv;
-			tcolor.c[1] /= (float)nv;
-			tcolor.c[2] /= (float)nv;
+			tcolor.rgb[0] /= (float)nv;
+			tcolor.rgb[1] /= (float)nv;
+			tcolor.rgb[2] /= (float)nv;
 
 			if(estNormals) {
 				Vector tx, ty, tn;
@@ -287,7 +287,7 @@ int readPLY(char filename[], int *nPolygons, Polygon **plist, Color **clist, int
 					p[i].normal[j] = tn;
 			}
       
-			printf("(%.2f %.2f %.2f)\n", tcolor.c[0], tcolor.c[1], tcolor.c[2]);
+			printf("(%.2f %.2f %.2f)\n", tcolor.rgb[0], tcolor.rgb[1], tcolor.rgb[2]);
 
 			(*clist)[i] = tcolor;
 		}

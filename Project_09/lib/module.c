@@ -343,26 +343,42 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 			Point ptemp2[3];
 			int i,j;
 
-			for(i=0; i<3; i++){ // draw horizontal
-				for(j=0; j<3; j++){
-					polygon_init(&poly[0]);
-					polygon_init(&poly[1]);
+			// for(i=0; i<3; i++){ // draw horizontal
+			// 	for(j=0; j<3; j++){
+			// 		polygon_init(&poly[0]);
+			// 		polygon_init(&poly[1]);
 
-					point_copy(&ptemp1[0], &b->ctrl[i][j]);//top left corner
-					point_copy(&ptemp1[1], &b->ctrl[i][j+1]);//top right corner
-					point_copy(&ptemp1[2], &b->ctrl[i+1][j]);//bottom left corner
+			// 		point_copy(&ptemp1[0], &b->ctrl[i][j]);//top left corner
+			// 		point_copy(&ptemp1[1], &b->ctrl[i][j+1]);//top right corner
+			// 		point_copy(&ptemp1[2], &b->ctrl[i+1][j]);//bottom left corner
 
-					point_copy(&ptemp2[0], &b->ctrl[i][j+1]);//top right corner
-					point_copy(&ptemp2[1], &b->ctrl[i+1][j+1]);//bottom right corner
-					point_copy(&ptemp2[2], &b->ctrl[i+1][j]);//bottom left corner
+					// point_copy(&ptemp2[0], &b->ctrl[i][j+1]);//top right corner
+					// point_copy(&ptemp2[1], &b->ctrl[i+1][j+1]);//bottom right corner
+					// point_copy(&ptemp2[2], &b->ctrl[i+1][j]);//bottom left corner
 
-					polygon_set(&poly[0], 3, ptemp1);
-					polygon_set(&poly[1], 3, ptemp2);
+			// 		polygon_set(&poly[0], 3, ptemp1);
+			// 		polygon_set(&poly[1], 3, ptemp2);
 
-					module_polygon(m, &poly[0]);
-					module_polygon(m, &poly[1]);
-				}
-			}
+			// 		module_polygon(m, &poly[0]);
+			// 		module_polygon(m, &poly[1]);
+			// 	}
+			// }
+
+			// polygon 1
+			point_copy(&ptemp1[0], &b->ctrl[0][0]);//top right corner
+			point_copy(&ptemp1[1], &b->ctrl[0][3]);//bottom right corner
+			point_copy(&ptemp1[2], &b->ctrl[3][3]);//bottom left corner
+
+//   		polygon 2
+			point_copy(&ptemp1[0], &b->ctrl[0][0]);//top right corner
+			point_copy(&ptemp1[1], &b->ctrl[3][0]);//bottom right corner
+			point_copy(&ptemp1[2], &b->ctrl[3][3]);//bottom left corner
+
+			
+
+
+
+
 
 		}else{ //subdevide lines
 			//Lets break the points into horizintal and vertical and use the de_Casteljau_surface algo.
@@ -569,7 +585,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				matrix_xformPoint(VTM,&tempPoint,&tempPoint);
 				point_normalize(&tempPoint);
 				printf("src (rows, cols): (%d, %d)\n",src->rows, src->cols);
-				point_print(&tempPoint, stdout);
+				// point_print(&tempPoint, stdout);
 				point_draw(&tempPoint,src,ds->color);
 				break;
 	 		case ObjLine:
@@ -605,6 +621,26 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 					polygon_shade(&tempPolygon,lighting, ds);
 					// printf("poly> g > after\n");
 				}
+				// copying the world coordinates, mallocing space
+				if(ds->shade == ShadePhong){
+					int i;
+					if(tempPolygon.vertexWorld != NULL){
+						free(tempPolygon.vertexWorld);
+					}
+					if(tempPolygon.normalWorld != NULL){
+						free(tempPolygon.normalWorld);
+					}
+					// printf("phong");
+					tempPolygon.phong = 1;
+					tempPolygon.vertexWorld = malloc(sizeof(Point)*tempPolygon.numVertex);
+					tempPolygon.normalWorld = malloc(sizeof(Vector)*tempPolygon.numVertex);
+					for(i = 0; i< tempPolygon.numVertex; i++){
+						point_copy(&tempPolygon.vertexWorld[i],&tempPolygon.vertex[i]);
+						vector_copy(&tempPolygon.normalWorld[i],&tempPolygon.normal[i]);
+						point_print(&tempPolygon.normalWorld[i],stdout);
+					}
+				}
+
 				matrix_xformPolygon(VTM,&tempPolygon);
 				polygon_normalize(&tempPolygon);
 
@@ -616,10 +652,10 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				//	Vector c;
 				//	polygon_normal(&tempPolygon, &c);
 				//	if(!is_surface_visible(vpn, &c)){
-				polygon_drawFill(&tempPolygon, ds,src);
+				polygon_drawFill(&tempPolygon, ds,src,NULL);
 				//	}
 				}
-				else if(ds->shade == ShadeGouraud){
+				else if(ds->shade == ShadeGouraud || ds->shade == ShadePhong){
 					polygon_drawShade(&tempPolygon, src, ds,lighting);
 				}
 				polygon_clear(&tempPolygon);
@@ -920,7 +956,6 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), -1, 0, 0 );
   polygon_setNormals( &p, 4, n );
-  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -932,7 +967,6 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 1, 0, 0 );
   polygon_setNormals( &p, 4, n );
-  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -944,7 +978,6 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, -1, 0 );
   polygon_setNormals( &p, 4, n );
-  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -956,7 +989,6 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, 1, 0 );
   polygon_setNormals( &p, 4, n );
-  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -968,7 +1000,6 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, 0, -1 );
   polygon_setNormals( &p, 4, n );
-  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 
@@ -980,7 +1011,6 @@ void module_cube( Module *mod ) {
   for(i=0;i<4;i++)
 	  vector_set( &(n[i]), 0, 0, 1 );
   polygon_setNormals( &p, 4, n );
-  polygon_setAlpha(&p, 0.5);
   polygon_setSided(&p,1);
   module_polygon( mod, &p );
 

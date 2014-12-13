@@ -27,8 +27,13 @@ typedef struct tEdge {
     int yStart, yEnd;               /* start row and end row */
     float xIntersect, dxPerScan;
     float zIntersect, dzPerScan;    /* where the edge intersects the current scanline and how it changes */
+    Point pIntersect;
+    Vector nIntersect;
+    float dpPerScan[3];
+    float dnPerScan[3];
     float dcPerScan[3];
     Color cIntersect;
+    Polygon * p;
     /* we'll add more here later */
     struct tEdge *next;
 } Edge;
@@ -59,19 +64,14 @@ This is a comparison function that returns a value < 0 if a < b, a value
  It is used to sort the linkedlist of fpixel by 1/z values.
 */
 static int compZIntersect(const void *a, const void *b){
-    Alphainfo* ia = (Alphainfo*)a;
-    Alphainfo* ib = (Alphainfo*)b;
-    printf("in comp: ia : ib >>> %f : %f \n", ia->depth, ib->depth);
-    if(ia->depth < ib->depth){ //NOTE that the equal state will result in -1 in order not to replace the background image
-        printf("comp in POSITIVE\n");
+    float fa = *(float*)a;
+    float fb = *(float*)b;
+
+    if(fa < fb) //NOTE that the equal state will result in -1 in order not to replace the background image
         return (-1);
-    }
-    else if(ia->depth > ib->depth){
-        printf("comp in NEGATIVE\n");
+    else if(fa > fb)
         return (1);
-    }else{
-        return (-1);
-    }
+    return (0);
 }
 
 
@@ -100,7 +100,7 @@ static int compXIntersect( const void *a, const void *b ) {
     Eventually, the points will be 3D and we'll add color and texture
     coordinates.
  */
-static Edge *makeEdgeRec( Point start, Point end, Color c1, Color c2, DrawState* ds, Image *src)
+static Edge *makeEdgeRec( Point start, Point end, Color c1, Color c2, DrawState* ds, Image *src,Vector normal1,Vector normal2,Point WorldPoint1, Point WorldPoint2)
 {
     Edge *edge;
     float dscan = end.val[1] - start.val[1]; //y1 - y0
@@ -115,32 +115,60 @@ static Edge *makeEdgeRec( Point start, Point end, Color c1, Color c2, DrawState*
     edge->yStart = (int)(edge->y0 + 0.5);
     edge->yEnd = (int)(edge->y1 + 0.5)-1; 
     edge->dxPerScan = (edge->x1 - edge->x0)/(edge->y1 - edge->y0);
-    if(ds->shade == ShadeDepth || ds->shade == ShadeGouraud){
+    if(ds->shade == ShadeDepth || ds->shade == ShadeGouraud || ds->shade == ShadePhong){
         edge->dzPerScan = (1/edge->z1 - 1/edge->z0)/(edge->y1 - edge->y0);
+        if(ds->shade == ShadeGouraud){
+            edge->dcPerScan[0] = (c2.rgb[0]/end.val[2] - c1.rgb[0]/start.val[2])/ dscan;
+            edge->dcPerScan[1] = (c2.rgb[1]/end.val[2] - c1.rgb[1]/start.val[2])/ dscan;
+            edge->dcPerScan[2] = (c2.rgb[2]/end.val[2] - c1.rgb[2]/start.val[2])/ dscan;
+        }
+        if(ds->shade == ShadePhong){
+            edge->dpPerScan[0] = (WorldPoint2.val[0]/end.val[2] - WorldPoint1.val[0]/start.val[2])/dscan;
+            edge->dpPerScan[1] = (WorldPoint2.val[1]/end.val[2] - WorldPoint1.val[1]/start.val[2])/dscan;
+            edge->dpPerScan[2] = (WorldPoint2.val[2]/end.val[2] - WorldPoint1.val[2]/start.val[2])/dscan;
 
-        edge->dcPerScan[0] = (c2.rgb[0]/end.val[2] - c1.rgb[0]/start.val[2])/ dscan;
-        edge->dcPerScan[1] = (c2.rgb[1]/end.val[2] - c1.rgb[1]/start.val[2])/ dscan;
-        edge->dcPerScan[2] = (c2.rgb[2]/end.val[2] - c1.rgb[2]/start.val[2])/ dscan;
+            edge->dnPerScan[0] = (normal2.val[0]/end.val[2] - normal1.val[0]/start.val[2])/dscan;
+            edge->dnPerScan[1] = (normal2.val[1]/end.val[2] - normal1.val[1]/start.val[2])/dscan;
+            edge->dnPerScan[2] = (normal2.val[2]/end.val[2] - normal1.val[2]/start.val[2])/dscan;
+        }
+
     }else{
         edge->dzPerScan = 0;
         edge->dcPerScan[0] = 0;
         edge->dcPerScan[1] = 0;
         edge->dcPerScan[2] = 0;
+
+        edge->dpPerScan[0] = 0;
+        edge->dpPerScan[1] = 0;
+        edge->dpPerScan[2] = 0;
+
+        edge->dnPerScan[0] = 0;
+        edge->dnPerScan[1] = 0;
+        edge->dnPerScan[2] = 0;
     }
 
     // printf("z0 %f\n", edge->z0);
 
 
 
-    
 
 
     //Correctly initializing xIntersect
     edge->xIntersect = edge->x0 + abs((edge->y0 - edge->yStart )) * edge->dxPerScan;
     edge->zIntersect = 1/edge->z0 + abs((edge->y0 - edge->yStart )) * edge->dzPerScan;
+// c intersect
     edge->cIntersect.rgb[0] = c1.rgb[0]/start.val[2];
     edge->cIntersect.rgb[1] = c1.rgb[1]/start.val[2];
     edge->cIntersect.rgb[2] = c1.rgb[2]/start.val[2];
+// worldpoint intersect
+    edge->pIntersect.val[0] = WorldPoint1.val[0]/start.val[2];
+    edge->pIntersect.val[1] = WorldPoint1.val[1]/start.val[2];
+    edge->pIntersect.val[2] = WorldPoint1.val[2]/start.val[2];
+// normals intersect
+    edge->nIntersect.val[0] = normal1.val[0]/start.val[2];
+    edge->nIntersect.val[1] = normal1.val[1]/start.val[2];
+    edge->nIntersect.val[2] = normal1.val[2]/start.val[2];
+
 
     // printf("intersects r g b  %f  %f   %f \n", edge->cIntersect.rgb[0],edge->cIntersect.rgb[1],edge->cIntersect.rgb[2]);
     //  printf("color  %f \n", c1.rgb[0]);
@@ -184,6 +212,9 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
     LinkedList *edges = NULL;
     Point v1, v2;
     Color c1, c2;
+    Point WorldPoint1,WorldPoint2;
+    Vector normal1, normal2;
+
     int i;
 
     // create a linked list
@@ -194,6 +225,13 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
     if(ds->shade == ShadeGouraud){
         Color_copy(&c1, &p->color[p->numVertex-1]);
     }
+
+// setting normals and points for phong edge rec
+    if(ds->shade == ShadePhong){
+        point_copy(&WorldPoint1, &p->vertexWorld[p->numVertex-1]);
+        vector_copy(&normal1, &p->normalWorld[p->numVertex-1]);
+    }
+
     for(i=0;i<p->numVertex;i++) {
         
         // the current point (i) is the end of the segment
@@ -201,6 +239,12 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
         if(ds->shade == ShadeGouraud){
             Color_copy(&c2, &p->color[i]);
         }
+        if(ds->shade == ShadePhong){
+            point_copy(&WorldPoint2, &p->vertexWorld[i]);
+            vector_copy(&normal2, &p->normalWorld[i]);
+        }
+
+
 
         // if it is not a horizontal line
         if( (int)(v1.val[1]+0.5) != (int)(v2.val[1]+0.5) ) {
@@ -208,9 +252,9 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
 
             // if the first coordinate is smaller (top edge)
             if( v1.val[1] < v2.val[1] )
-                edge = makeEdgeRec( v1, v2, c1, c2 ,ds ,src );
+                edge = makeEdgeRec( v1, v2, c1, c2 ,ds ,src,normal1,normal2,WorldPoint1,WorldPoint2 );
             else
-                edge = makeEdgeRec( v2, v1, c2, c1, ds, src );
+                edge = makeEdgeRec( v2, v1, c2, c1, ds, src,normal2,normal1,WorldPoint2,WorldPoint1 );
 
             // insert the edge into the list of edges if it's not null
             if( edge )
@@ -219,6 +263,8 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
         }
         v1 = v2;
         c1 = c2;
+        WorldPoint1 = WorldPoint2;
+        normal1 = normal2;
     }
 
     // check for empty edges (like nothing in the viewport)
@@ -234,17 +280,21 @@ static LinkedList *setupEdgeList( Polygon *p, DrawState* ds, Image *src) {
     Draw one scanline of a polygon given the scanline, the active edges,
     a DrawState, the image, and some Lights (for Phong shading only).
  */
-static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds, Image *src) {
-    Edge *p1, *p2;
-    float curZ;
-    float dzPerColumn;
-    float dcPerColumn[3];
-    Color curC;
-    int i;
+static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds, Image *src,Lighting *light) {
+  Edge *p1, *p2;
+  float curZ;
+  float dzPerColumn;
+  float dcPerColumn[3];
+  float dpPerColumn[3];
+  float dnPerColumn[3];
+  Color curC;
+  Point curP;
+  Vector curN;
+  int i;
 
     // loop over the list
-    p1 = ll_head( active );
-    while(p1) {
+  p1 = ll_head( active );
+  while(p1) {
         // the edges have to come in pairs, draw from one to the next
       p2 = ll_next( active );
       if( !p2 ) {
@@ -257,7 +307,7 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
         // Just go to the next pair.
       if( p2->xIntersect == p1->xIntersect ) {
           p1 = ll_next( active );
-          printf("good good good pairs \n" );
+          // printf("good good good pairs \n" );
           continue;
       }
 
@@ -275,18 +325,37 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
       curZ = p1->zIntersect;
       dzPerColumn = (p2->zIntersect - p1->zIntersect) / (colEnd - colStart);
 
+      // shade phong logic
+      curP = p1->pIntersect;
+      curN = p1->nIntersect;
+
+      dpPerColumn[0] =  (p2->pIntersect.val[0] - p1->pIntersect.val[0]) / (colEnd - colStart);
+      dpPerColumn[1] =  (p2->pIntersect.val[1] - p1->pIntersect.val[1]) / (colEnd - colStart);
+      dpPerColumn[2] =  (p2->pIntersect.val[2] - p1->pIntersect.val[2]) / (colEnd - colStart);
+
+      dnPerColumn[0] =  (p2->nIntersect.val[0] - p1->nIntersect.val[0]) / (colEnd - colStart);
+      dnPerColumn[1] =  (p2->nIntersect.val[1] - p1->nIntersect.val[1]) / (colEnd - colStart);
+      dnPerColumn[2] =  (p2->nIntersect.val[2] - p1->nIntersect.val[2]) / (colEnd - colStart);
+
+// shade gouraud logic
       curC = p1->cIntersect;
+
+
+
       dcPerColumn[0] = (p2->cIntersect.rgb[0] - p1->cIntersect.rgb[0]) / (colEnd - colStart);
       dcPerColumn[1] = (p2->cIntersect.rgb[1] - p1->cIntersect.rgb[1]) / (colEnd - colStart);
       dcPerColumn[2] = (p2->cIntersect.rgb[2] - p1->cIntersect.rgb[2]) / (colEnd - colStart);
 
-      printf("scanline: %d, colStart-colEnd: %d-%d\n", scan, colStart , colEnd);
+// calculates viewer vector once
+    
+
       // printf("polygon fillScan called \n");
       for (i = colStart; i< colEnd; i++){
         // printf(" curZ %f  \n", curZ );
+
         if(ds->zBufferFlag == 0)
             goto label1;
-        if((curZ - src->data[row][i].z) > 0.0008 ){//using 0.01 as the epsilon
+        if((curZ - src->data[row][i].z) > 0.001 ){//using 0.01 as the epsilon
         label1:
             if(ds->shade == ShadeFrame){
                 polygon_draw(poly, ds, src);
@@ -320,55 +389,48 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
                 image_setColor(src, row, i, colr);
             }else if(ds->shade == ShadeGouraud){
                 Color c;//reserved for the final color
-                Alphainfo info;//info structure for list in the fpixel
-                Alphainfo *p, *q; //while loop variables
+                // Alphainfo info;//info structure for list in the fpixel
+                // Alphainfo *p, *q; //while loop variables
                 float r = src->data[row][i].rgb[0];
                 float g = src->data[row][i].rgb[1];
                 float b = src->data[row][i].rgb[2];
 
-                if(src->data[row][i].list == NULL){
-                     // printf("making new list for row : i === %d : %d\n",row, i);
-                    src->data[row][i].list = ll_new();
-                }
-                printf("adding polygon's color color\n");
-                Color ctemp;
-                Color_set(&ctemp, curC.rgb[0]/curZ,curC.rgb[1]/curZ,curC.rgb[2]/curZ);
-                info.color = ctemp;//color of the image background
-                info.alpha = poly->alpha;// opaque image background;
-                info.depth = curZ;//backclip plane (this is a 1/z value)
+                // if(src->data[row][i].list == NULL){
+                //     src->data[row][i].list = ll_new();
+                // }
 
-                ll_insert(src->data[row][i].list , &info, compZIntersect);
-                src->data[row][i].listSize++;
-                printf("listSize at (row, col): (%d, %d) is %d\n", row, i,  src->data[row][i].listSize);
-                printf("head's |color(%f, %f ,%f)|  |alpha: %f|  |depth:  %f|\n",((Alphainfo*)ll_head(src->data[row][i].list))->color.rgb[0], ((Alphainfo*)ll_head(src->data[row][i].list))->color.rgb[1], ((Alphainfo*)ll_head(src->data[row][i].list))->color.rgb[2],((Alphainfo*)ll_head(src->data[row][i].list))->alpha, ((Alphainfo*)ll_head(src->data[row][i].list))->depth);
-            
-                // printf("root->depth : info->depth  %f : %f\n", ((Alphainfo*)ll_head(src->data[row][i].list))->depth , info.depth);
+                // if(src->data[row][i].list->root == NULL){//adding the first node to background image
+                //     Color ctemp;
+                //     Color_set(&ctemp, src->data[row][i].rgb[0], src->data[row][i].rgb[1], src->data[row][i].rgb[2]); 
+                //     info.color = ctemp;//color of the image background
+                //     info.alpha = 1;// opaque image background;
+                //     info.depth = 1;//backclip plane (this is a 1/z value)
+                // }else{//not the first node
+                //     Color ctemp;
+                //     Color_set(&ctemp, curC.rgb[0]/curZ,curC.rgb[1]/curZ,curC.rgb[2]/curZ);
+                //     info.color = ctemp;//color of the image background
+                //     info.alpha = poly->alpha;// opaque image background;
+                //     info.depth = curZ;//backclip plane (this is a 1/z value)
+                // }
+                // ll_insert(src->data[row][i].list , &info, compZIntersect);
 
                 //Traverse the linked list and calculate the color from back to front using alpha blending
-                q = ll_head(src->data[row][i].list);
-                p = ll_next(src->data[row][i].list);
-                while(q != NULL){
-                    r = q->alpha*(q->color.rgb[0]) + (1-q->alpha)*r;
-                    g = q->alpha*(q->color.rgb[1]) + (1-q->alpha)*g;
-                    b = q->alpha*(q->color.rgb[2]) + (1-q->alpha)*b;
-                    if(p != NULL){
-                        q = p;
-                        p = ll_next(src->data[row][i].list);
-                    }else{
-                        break;
-                    }
-                }                
+                // q = ll_head(src->data[row][i].list);
+                // p = ll_next(src->data[row][i].list);
+                // while(p != NULL){
+                //     r += q->alpha*(q->color.rgb[0]) + (1-q->alpha)*r;
+                //     g += q->alpha*(q->color.rgb[1]) + (1-q->alpha)*g;
+                //     b += q->alpha*(q->color.rgb[2]) + (1-q->alpha)*b;
+
+                //     q = p;
+                //     p = ll_next(src->data[row][i].list);
+                // }                
                 
-                // r = ds->alpha*(curC.rgb[0]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[0];
-                // g = ds->alpha*(curC.rgb[1]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[1];
-                // b = ds->alpha*(curC.rgb[2]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[2];
+                r = ds->alpha*(curC.rgb[0]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[0];
+                g = ds->alpha*(curC.rgb[1]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[1];
+                b = ds->alpha*(curC.rgb[2]/curZ) + (1-ds->alpha)*src->data[row][i].rgb[2];
 
                 Color_set(&c, r, g, b);
-                Color_print(&c, stdout);
-
-                // Color_print(&c, stdout);
-                // printf("curZ : %f\n", curZ);
-
                 image_setColor(src, row, i, c);
 
                 // Color_set(&curC,(z)*curC.rgb[0], (z)*curC.rgb[1], (z)*curC.rgb[2]);
@@ -376,21 +438,48 @@ static void fillScan(Polygon* poly, int scan, LinkedList *active, DrawState* ds,
                 // printf("dcPerColumn[] == %f , %f, %f\n",  dcPerColumn[0],  dcPerColumn[1],  dcPerColumn[2]);
                 
             }else if(ds->shade == ShadePhong){
+                Color c;
+                Point interp;
+                Vector interpN;
+                Vector viewer;
+
+
+                point_set3D(&interp,curP.val[0]/curZ,curP.val[1]/curZ,curP.val[2]/curZ);
+                vector_set(&interpN,curN.val[0]/curZ,curN.val[1]/curZ,curN.val[2]/curZ);
+
+                vector_set(&viewer,(ds->viewer.val[0] - interp.val[0]), (ds->viewer.val[1] - interp.val[1]), (ds->viewer.val[2] - interp.val[2]));
+
+                // point_set3D(&interp, p->vertex[i].val[0]*curZ,p->vertex[i].val[1]*curZ,p->vertex[i].val[2]*curZ);
+                // lighting_shading(light, &interpN, &viewer, &interp, &ds->body, &ds->surface, ds->surfaceCoeff, poly->oneSided, &c);
+                lighting_shading(light, &interpN, &viewer, &interp, &ds->body, &ds->surface, ds->surfaceCoeff, poly->oneSided, &c);
+                image_setColor(src, row, i, c);
+
+                // need updates for point and normal?
+                // need lighting
 
             }
             // printf("hi %d \n", colEnd);
             src->data[row][i].z = curZ;
         }
+        // updates
         curZ += dzPerColumn;
         curC.rgb[0]+= dcPerColumn[0];
         curC.rgb[1]+= dcPerColumn[1];
         curC.rgb[2]+= dcPerColumn[2];
-        }
+
+        curN.val[0]+= dnPerColumn[0];
+        curN.val[1]+= dnPerColumn[1];
+        curN.val[2]+= dnPerColumn[2];
+
+        curP.val[0]+= dpPerColumn[0];
+        curP.val[1]+= dpPerColumn[1];
+        curP.val[2]+= dpPerColumn[2];
+
+      }
+
         // move ahead to the next pair of edges
       p1 = ll_next( active );
-    }
-
-
+  }
     return;
 }
 
@@ -464,7 +553,7 @@ static void fillScanBitmap( int scan, LinkedList *active, Image *src,Image *bitm
 /* 
      Process the edge list, assumes the edges list has at least one entry
 */
-static int processEdgeList(Polygon* p, LinkedList *edges, DrawState* ds, Image *src, Image *bitmap) {
+static int processEdgeList(Polygon* p, LinkedList *edges, DrawState* ds, Image *src, Image *bitmap,Lighting *Lights) {
     LinkedList *active = NULL;
     LinkedList *tmplist = NULL;
     LinkedList *transfer = NULL;
@@ -494,7 +583,7 @@ static int processEdgeList(Polygon* p, LinkedList *edges, DrawState* ds, Image *
 ////        checks to see if a bitmap has been added, defaults to regular scan if not
         if (bitmap == NULL) {
             // printf("polygon process called \n");
-            fillScan(p, scan, active, ds, src);
+            fillScan(p, scan, active, ds, src,Lights);
         }
 //
 ////        if so, bitmap scan
@@ -515,6 +604,14 @@ static int processEdgeList(Polygon* p, LinkedList *edges, DrawState* ds, Image *
                 tedge->cIntersect.rgb[0] += tedge->dcPerScan[0];
                 tedge->cIntersect.rgb[1] += tedge->dcPerScan[1];
                 tedge->cIntersect.rgb[2] += tedge->dcPerScan[2];
+
+                tedge->nIntersect.val[0] += tedge->dnPerScan[0];
+                tedge->nIntersect.val[1] += tedge->dnPerScan[1];
+                tedge->nIntersect.val[2] += tedge->dnPerScan[2];
+
+                tedge->pIntersect.val[0] += tedge->dpPerScan[0];
+                tedge->pIntersect.val[1] += tedge->dpPerScan[1];
+                tedge->pIntersect.val[2] += tedge->dpPerScan[2];
                 // printf("polygon process called \n");
                 // adjust in the case of partial overlap
                 if( tedge->dxPerScan < 0.0 && tedge->xIntersect < tedge->x1 ) {
@@ -559,6 +656,7 @@ Polygon *polygon_create(){
     p->vertex=NULL;
     p->normal=NULL;
     p->color=NULL;
+    p->vertexWorld = NULL;
     p->numVertex=0;
     p->zBuffer = 1;
     p->alpha = 1;
@@ -577,6 +675,7 @@ Polygon *polygon_createp(int numV, Point *vlist){
     p->vertex=malloc(sizeof(Point)*numV);
     p->color=malloc(sizeof(Color)*numV);
     p->normal=malloc(sizeof(Vector)*numV);
+    // p->vertexWorld=malloc(sizeof(Point)*numV);
     for (int i = 0; i < numV; i++){
         point_copy(&(p->vertex[i]),&vlist[i]);
     }
@@ -599,6 +698,12 @@ void polygon_free(Polygon *p){
         if (p->normal!=NULL) {
             free(p->normal);
         }
+        if (p->vertexWorld!=NULL && p->phong == 1) {
+            free(p->vertexWorld);
+        }
+        if(p->normalWorld != NULL && p->phong == 1){
+            free(p->normalWorld);
+        }
         free(p);
     }
 }
@@ -607,11 +712,14 @@ void polygon_free(Polygon *p){
 void polygon_init(Polygon *p){
 	p->vertex=NULL;
     p->color=NULL;
-    p->normal=NULL;   
+    p->normal=NULL;  
+    p->vertexWorld=NULL; 
+    p->normalWorld = NULL;
     p->numVertex=0;
     p->zBuffer = 1;
     p->oneSided = 0;
     p->alpha = 1;
+    p->phong = 0;
 }
 
 // initializes the vertex array to the points in vlist
@@ -645,13 +753,22 @@ void polygon_clear(Polygon *p){
     if(p->normal != NULL){
         free(p->normal);
     }
+    if(p->vertexWorld != NULL && p->phong == 1){
+        free(p->vertexWorld);
+    }
+    if(p->normalWorld != NULL && p->phong == 1){
+        free(p->normalWorld);
+    }
+    p->normalWorld = NULL;
     p->vertex = NULL;
     p->color = NULL;
     p->normal = NULL;
+    p->vertexWorld = NULL;
     p->numVertex = 0;
     p->zBuffer = 1;
     p->oneSided = 0;
     p->alpha = 1;
+    p->phong = 0;
 
 }
 
@@ -672,18 +789,29 @@ void polygon_setAlpha(Polygon *p, float a){
 //vertex and color data from one polygon to the other
 void polygon_copy(Polygon *to, Polygon *from){
 	if(NULL != to && NULL != from){
-        polygon_clear(to);
+        polygon_clear(to); 
         to->vertex = malloc(sizeof(Point)*from->numVertex);
         to->color = malloc(sizeof(Color)*from->numVertex);
         to->normal = malloc(sizeof(Vector)*from->numVertex);
+        if(from->phong == 1){
+            printf("not null\n" );
+            to->vertexWorld = malloc(sizeof(Point)*from->numVertex);
+            to->normalWorld = malloc(sizeof(Vector)*from->numVertex);
+        }
         int i;
         for (i=0; i < from->numVertex; i++)
         {
           to->vertex[i] = from->vertex[i];
           to->color[i] = from->color[i];
           to->normal[i] = from->normal[i];
-        }
+            if(from->phong == 1){
+                printf("not null1\n" );
+                to->vertexWorld[i] = from->vertexWorld[i];
+                to->normalWorld[i] = from ->normalWorld[i];
+            }
 
+        }
+        to->phong = from->phong;
         to->numVertex = from->numVertex;
         to->zBuffer = from->zBuffer;
         to->oneSided = from->oneSided;
@@ -718,7 +846,7 @@ void polygon_draw(Polygon *p, DrawState* ds, Image *src){
 /*
     Draws a filled polygon of the specified color into the image src.
  */
-void polygon_drawFill(Polygon *p, DrawState* ds, Image *src ) {
+void polygon_drawFill(Polygon *p, DrawState* ds, Image *src,Lighting * Lights ) {
     LinkedList *edges = NULL;
 
     // set up the edge list
@@ -727,7 +855,7 @@ void polygon_drawFill(Polygon *p, DrawState* ds, Image *src ) {
         return;
     // printf("polygon drawfill called \n");
     // process the edge list (should be able to take an arbitrary edge list)
-    processEdgeList(p, edges, ds, src, NULL);
+    processEdgeList(p, edges, ds, src, NULL, Lights);
 
     // clean up
     ll_delete( edges, (void (*)(const void *))free );
@@ -749,7 +877,7 @@ void polygon_drawFillBitmap(Polygon *p, DrawState* ds, Image *src, Image *bitmap
     if( !edges )
         return;
     // process the edge list (should be able to take an arbitrary edge list)
-    processEdgeList(p, edges, ds, src, bitmap);
+    processEdgeList(p, edges, ds, src, bitmap,NULL);
     
     // clean up
     ll_delete( edges, (void (*)(const void *))free );
@@ -933,12 +1061,15 @@ void polygon_drawShade(Polygon *p, Image *src, DrawState *ds, Lighting *light){
         if(ds->shade == ShadeFrame){
             polygon_draw(p, ds, src);
         }else if(ds->shade == ShadeConstant || ds->shade == ShadeDepth){
-            polygon_drawFill(p,ds,src );
+            polygon_drawFill(p,ds,src,NULL );
         }
         else if(ds->shade == ShadeFlat || ds->shade == ShadeGouraud){
             // polygon_shade(p, light, ds);
             // printf("rgb    %f,%f,%f \n",ds->flatColor.rgb[0],ds->flatColor.rgb[1],ds->flatColor.rgb[2]);
-            polygon_drawFill(p, ds, src);
+            polygon_drawFill(p, ds, src,NULL);
+        }
+        else if(ds->shade == ShadePhong){
+            polygon_drawFill(p, ds, src,light);
         }
     }
 }
@@ -975,6 +1106,27 @@ void polygon_shade(Polygon *p, Lighting *lighting, DrawState *ds){
                 // printf("r  g  b  %f   %f  %f \n", p->color[i].rgb[0],p->color[i].rgb[1],p->color[i].rgb[2]);
             }
         }
+        // else if(ds->shade == ShadePhong){
+        //     for (int i = 0; i < p->numVertex; i++)
+        //     {
+                // vector_set(&viewer, (ds->viewer.val[0] - p->vertex[i].val[0]), (ds->viewer.val[1] - p->vertex[i].val[1]), (ds->viewer.val[2] - p->vertex[i].val[2]));
+
+                // printf("i %d  surfaceCoeff: %f \n", i,ds->surfaceCoeff);
+                // printf("rcolor  gcolor bcolor  %f   %f  %f \n", p->color[i].rgb[0],p->color[i].rgb[1],p->color[i].rgb[2]);
+                // printf("rsurface  gsurface bsurface  %f   %f  %f \n", ds->surface.rgb[0],ds->surface.rgb[1],ds->surface.rgb[2]);
+                // printf("rbody gbody bbody  %f   %f  %f \n", ds->body.rgb[0],ds->body.rgb[1],ds->body.rgb[2]);
+                // point_print(&p->normal[i],stdout);
+                // point_print(&p->vertex[i],stdout);
+
+                // lighting_shading(lighting, &p->normal[i], &viewer, &p->vertex[i], &ds->body, &ds->surface, ds->surfaceCoeff, p->oneSided, &p->color[i]);
+
+                // printf("r  g  b  %f   %f  %f \n", p->color[i].rgb[0],p->color[i].rgb[1],p->color[i].rgb[2]);
+            // }
+
+
+
+
+        // }
     }
 }
 

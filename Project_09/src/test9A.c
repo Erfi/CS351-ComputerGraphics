@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
   Color White;
   Color Grey;
-  Color Blue;
+  Color BlueGrey;
 
   DrawState *ds;
   View3D view;
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
 	Color_set( &White, 1.0, 1.0, 1.0 );
 	Color_set( &Grey, 0.6, 0.62, 0.64 );
-  Color_set( &Blue, 0.117647, 0.564706, 1);
+  Color_set(&BlueGrey, 0.2, 0.25, 0.3);
 
   // initialize the image
   src = image_create(rows, cols);
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
   module_scale(cube, 0.5, 0.5, 0.5);
 
   // this would color the cube in ShadeConstant mode
-  module_color( cube, &Blue );
+  module_color( cube, &Grey );
 
   // the example cube is blue (Y/-Y), red (Z/-Z), yellow (X/-X)
   // these colors should be the body colors
@@ -83,14 +83,19 @@ int main(int argc, char *argv[]) {
   // manually add a light source to the Lighting structure
   // put it in the same place as the eye in world space
   light = lighting_create();
-  lighting_add( light, LightPoint, &Blue, NULL, &(view.vrp), 0, 0 );
+  Vector new;
+  Vector new1;
+  vector_set(&new,-3,-4,7);
+  vector_set(&new1,5, 5, -14.0);
+
+  lighting_add( light, LightSpot, &White, &(new), &new1, cos(11*M_PI/180), 100 );
+    lighting_add( light, LightAmbient, &BlueGrey, NULL, NULL, 0, 0 );
 
   // set the shading to Gouraud
   ds = drawstate_create();
   point_copy(&(ds->viewer), &(view.vrp));
-	ds->shade = ShadeGouraud;
-  // ds->zBufferFlag = 0;
-		// ds->shade = ShadeFlat;
+	// ds->shade = ShadeGouraud;
+		ds->shade = ShadePhong;
 
   matrix_identity(&GTM);
   module_draw(cube, &VTM, &GTM, ds, light, src);

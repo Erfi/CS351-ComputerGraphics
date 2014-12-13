@@ -30,11 +30,6 @@ void Color_set(Color *to, float r, float g, float b){
     }
     to->rgb[0]=r;
     to->rgb[1]=g;
-    to->rgb[2]=b; 
-}
-
-void Color_print(Color* colr, FILE *fp){
-    if(NULL != colr && NULL != fp){
-        fprintf(fp, " ( %.3f %.3f %.3f )\n",colr->rgb[0], colr->rgb[1], colr->rgb[2]);
-    }
+    to->rgb[2]=b;
+    
 }

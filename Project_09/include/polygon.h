@@ -18,6 +18,9 @@ typedef struct{
 	int oneSided;
 	float alpha; // for transparency 
 	Point *vertex;
+	Point *vertexWorld;
+	Vector *normalWorld;
+	int phong;
 	Color *color;
 	Vector *normal;
 }Polygon;
@@ -39,7 +42,7 @@ void polygon_zBuffer(Polygon *p, int flag);
 void polygon_copy(Polygon *to, Polygon *from);
 void polygon_print(Polygon *p, FILE *fp);
 void polygon_draw(Polygon *p, DrawState* ds, Image *src);
-void polygon_drawFill(Polygon *p, DrawState* ds, Image *src);
+void polygon_drawFill(Polygon *p, DrawState* ds, Image *src,Lighting *Lights);
 void polygon_drawFillBitmap(Polygon *p, DrawState* ds, Image *src, Image *bitmap );
 void polygon_drawFillB(Polygon *p, DrawState* ds, Image *src);
 void polygon_drawFillB_Gradient(Polygon *p, Image *src, Color c1, Color c2,Color c3 );

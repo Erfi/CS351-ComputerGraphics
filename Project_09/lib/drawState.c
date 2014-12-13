@@ -18,7 +18,7 @@ DrawState *drawstate_create( void ){ //–create a new DrawState structure and i
 	Color white;
 	Color grey;
 	Color_set(&white, 1.0,1.0,1.0);
-	Color_set(&grey, .1,.1,.1);
+	Color_set(&grey, .3,.3,.3);
 	state->color = white;
 	state->flatColor = white;
 	state->body = white;

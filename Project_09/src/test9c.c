@@ -5,8 +5,23 @@
 	Test program for project 9
  */
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include "module.h"
+#include "drawState.h"
+#include "line.h"
+#include "point.h"
+#include "polyline.h"
+#include "polygon.h"
+#include "circle.h"
+#include "color.h"
+#include "Image.h"
+#include "matrix.h"
+#include "view.h"
+#include "light.h"
+#include "plyRead.h"
+
 
 
 int main(int argc, char *argv[]) {
@@ -79,11 +94,13 @@ int main(int argc, char *argv[]) {
 
   starfury = module_create();
   module_surfaceColor(starfury, &SurfaceColor);
-  for(i=0;i < nPolygons;i++) {
-	  printf("%.2f %.2f %.2f\n", clist[i].c[0], clist[i].c[1], clist[i].c[2] );
+  for(i=0;i < 1;i++) {
+	  printf("%.2f %.2f %.2f\n", clist[i].rgb[0], clist[i].rgb[1], clist[i].rgb[2] );
     module_bodyColor(starfury, &clist[i]);
-    module_polygon(starfury, &(plist[i]));
+    module_polygon(starfury, &plist[i]);
   }
+
+  // printf("Read %d polygons\n", &plist[0]);
 
   scene = module_create();
   module_rotateY(scene, cos(angle), sin(angle));

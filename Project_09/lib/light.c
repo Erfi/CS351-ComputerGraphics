@@ -97,6 +97,8 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 
 			vector_normalize(&L);
 			float dot1 = vector_dot(&L,N);
+
+			
 			if(dot1<0 && oneSided == 1){
 				printf("light not on\n");
 				continue;
@@ -107,7 +109,6 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 			if((sigma>0 && dot1 < 0) || (sigma<0 && dot1 > 0)){
 				printf("light and view on different sides of shape\n");
 				continue;
-
 			}
 
 
@@ -121,12 +122,14 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 				dot2 = -dot2;
 			}
 
+
+
 			// printf("dot1 %f",dot1);
 			// printf("dot2 %f",dot2);
 
-			// point_print(&L,stdout);
+			point_print(&L,stdout);
 
-			// point_print(N,stdout);
+			point_print(N,stdout);
 
 			r += Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s);
 			g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s);
@@ -139,7 +142,57 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 
 			// printf("r %f,g %f,b %f, \n ",r,g,b);
 		}else if(l->light[i].type == LightSpot){
-			// float alpha = vector_dot(&l->light[i].direction,)
+			Vector L;
+			Vector Lneg;
+			Vector dir;
+			vector_set(&L,l->light[i].position.val[0] -p->val[0],l->light[i].position.val[1] -p->val[1],l->light[i].position.val[2] -p->val[2]);
+			vector_set(&Lneg,-(l->light[i].position.val[0] -p->val[0]),-(l->light[i].position.val[1] -p->val[1]),-(l->light[i].position.val[2] -p->val[2]));
+			vector_normalize(&L);
+			vector_normalize(&Lneg);
+			vector_copy(&dir,&l->light[i].direction);
+			vector_normalize(&dir);
+
+			float dot1 = vector_dot(&L,N);
+
+			
+			if(dot1<0 && oneSided == 1){
+				printf("light not on\n");
+				continue;
+			}
+
+			float sigma = vector_dot(V,N);
+
+			if((sigma>0 && dot1 < 0) || (sigma<0 && dot1 > 0)){
+				printf("light and view on different sides of shape\n");
+				continue;
+			}
+
+
+
+			Vector temp = vector_add(&L,V);
+			vector_set(&H, temp.val[0]/2, temp.val[1]/2, temp.val[2]/2);
+			float dot2 = vector_dot(&H,N);
+
+			if(dot1<0){
+				dot1= -dot1;
+				dot2 = -dot2;
+			}
+
+			float t = vector_dot(&Lneg,&dir);
+// pow(l->light[i].cutoff,l->light[i].sharpness)*
+			if(t>l->light[i].cutoff){
+				printf("happening \n" );
+					(r += Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s));
+					(g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s));
+					(b += Cb->rgb[2]*l->light[i].color.rgb[2]*dot1 + l->light[i].color.rgb[2]*Cs->rgb[2]*pow(dot2,s));
+				continue;
+			}
+			else{
+				r += pow(l->light[i].cutoff,l->light[i].sharpness)*(Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s));
+				g += pow(l->light[i].cutoff,l->light[i].sharpness)*(Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s));
+				b += pow(l->light[i].cutoff,l->light[i].sharpness)*(Cb->rgb[2]*l->light[i].color.rgb[2]*dot1 + l->light[i].color.rgb[2]*Cs->rgb[2]*pow(dot2,s));
+
+			}
 
 		}else{
 			continue;

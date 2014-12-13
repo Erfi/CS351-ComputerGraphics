@@ -396,16 +396,21 @@ int main(int argc, char *argv[]) {
   src = image_create( view.screeny, view.screenx );
   ds = drawstate_create();
   point_copy(&(ds->viewer), &(view.vrp) );
-  ds->shade = ShadeGouraud;
+  ds->shade = ShadePhong;
+    // ds->shade = ShadeGouraud;
 
   light = lighting_create();
+  Vector new;
+  Vector new1;
+  vector_set(&new,50, 30, 50 );
+  vector_set(&new1,-50, -30, -50);
   // light->light[0].type = LightPoint;
   // light->light[0].position.val[0] = view.vrp.val[0];
   // light->light[0].position.val[1] = view.vrp.val[1];
   // light->light[0].position.val[2] = view.vrp.val[2];
   // light->nLights = 1;
 
-  lighting_add( light, LightPoint, &White, NULL, &view.vrp, 0, 0);
+  lighting_add( light, LightSpot, &White, &new1, &new, cos(10*M_PI/180), 40);
   
 
   // draw into the scene
@@ -413,14 +418,14 @@ int main(int argc, char *argv[]) {
 
   image_write( src, "test9b.ppm" );
 
-  polygon_clear( &p );
-  module_delete( scene );
-  module_delete( wing );
-  module_delete( wings );
-  module_delete( laser );
-  module_delete( body );
-  module_delete( engine );
-  image_free( src );
+  // polygon_clear( &p );
+  // module_delete( scene );
+  // module_delete( wing );
+  // module_delete( wings );
+  // module_delete( laser );
+  // module_delete( body );
+  // module_delete( engine );
+  // image_free( src );
 
   return(0);
 }
