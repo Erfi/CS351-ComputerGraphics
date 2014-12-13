@@ -127,9 +127,9 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 			// printf("dot1 %f",dot1);
 			// printf("dot2 %f",dot2);
 
-			point_print(&L,stdout);
+			// point_print(&L,stdout);
 
-			point_print(N,stdout);
+			// point_print(N,stdout);
 
 			r += Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s);
 			g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s);
@@ -181,7 +181,7 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 			float t = vector_dot(&Lneg,&dir);
 // pow(l->light[i].cutoff,l->light[i].sharpness)*
 			if(t>l->light[i].cutoff){
-				printf("happening \n" );
+				// printf("happening \n" );
 					(r += Cb->rgb[0]*l->light[i].color.rgb[0]*dot1 + l->light[i].color.rgb[0]*Cs->rgb[0]*pow(dot2,s));
 					(g += Cb->rgb[1]*l->light[i].color.rgb[1]*dot1 + l->light[i].color.rgb[1]*Cs->rgb[1]*pow(dot2,s));
 					(b += Cb->rgb[2]*l->light[i].color.rgb[2]*dot1 + l->light[i].color.rgb[2]*Cs->rgb[2]*pow(dot2,s));

@@ -637,7 +637,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 					for(i = 0; i< tempPolygon.numVertex; i++){
 						point_copy(&tempPolygon.vertexWorld[i],&tempPolygon.vertex[i]);
 						vector_copy(&tempPolygon.normalWorld[i],&tempPolygon.normal[i]);
-						point_print(&tempPolygon.normalWorld[i],stdout);
+						// point_print(&tempPolygon.normalWorld[i],stdout);
 					}
 				}
 
@@ -1141,7 +1141,52 @@ void module_ellipse(Module* mod, double a, double b, int sides){
 	polygon_clear( &p );
 }
 
-void module_cylinder( Module *mod, int sides ) {
+// void module_cylinder( Module *mod, int sides ) {
+//   Polygon p;
+//   Point xtop, xbot;
+//   double x1, x2, z1, z2;
+//   int i;
+
+//   polygon_init( &p );
+//   point_set3D( &xtop, 0, 1.0, 0.0 );
+//   point_set3D( &xbot, 0, 0.0, 0.0 );
+
+//   // make a fan for the top and bottom sides
+//   // and quadrilaterals for the sides
+//   for(i=0;i<sides;i++) {
+//     Point pt[4];
+
+//     x1 = cos( i * M_PI * 2.0 / sides );
+//     z1 = sin( i * M_PI * 2.0 / sides );
+//     x2 = cos( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+//     z2 = sin( ( (i+1)%sides ) * M_PI * 2.0 / sides );
+
+//     point_copy( &pt[0], &xtop );
+//     point_set3D( &pt[1], x1, 1.0, z1 );
+//     point_set3D( &pt[2], x2, 1.0, z2 );
+
+//     polygon_set( &p, 3, pt );
+//     module_polygon( mod, &p );
+
+//     point_copy( &pt[0], &xbot );
+//     point_set3D( &pt[1], x1, 0.0, z1 );
+//     point_set3D( &pt[2], x2, 0.0, z2 );
+
+//     polygon_set( &p, 3, pt );
+//     module_polygon( mod, &p );
+
+//     point_set3D( &pt[0], x1, 0.0, z1 );
+//     point_set3D( &pt[1], x2, 0.0, z2 );
+//     point_set3D( &pt[2], x2, 1.0, z2 );
+//     point_set3D( &pt[3], x1, 1.0, z1 );
+    
+//     polygon_set( &p, 4, pt );
+//     module_polygon( mod, &p );
+//   }
+
+//   polygon_clear( &p );
+// }
+void cylinder( Module *mod, int sides ) {
   Polygon p;
   Point xtop, xbot;
   double x1, x2, z1, z2;
@@ -1155,6 +1200,8 @@ void module_cylinder( Module *mod, int sides ) {
   // and quadrilaterals for the sides
   for(i=0;i<sides;i++) {
     Point pt[4];
+    Vector n[4];
+    int j;
 
     x1 = cos( i * M_PI * 2.0 / sides );
     z1 = sin( i * M_PI * 2.0 / sides );
@@ -1166,6 +1213,9 @@ void module_cylinder( Module *mod, int sides ) {
     point_set3D( &pt[2], x2, 1.0, z2 );
 
     polygon_set( &p, 3, pt );
+    for(j=0;j<3;j++)
+	    vector_set( &(n[j]), 0, 1, 0 );
+    polygon_setNormals( &p, 3, n );
     module_polygon( mod, &p );
 
     point_copy( &pt[0], &xbot );
@@ -1173,14 +1223,23 @@ void module_cylinder( Module *mod, int sides ) {
     point_set3D( &pt[2], x2, 0.0, z2 );
 
     polygon_set( &p, 3, pt );
+    for(j=0;j<3;j++)
+	    vector_set( &(n[j]), 0, -1, 0 );
+    polygon_setNormals( &p, 3, n );
     module_polygon( mod, &p );
 
     point_set3D( &pt[0], x1, 0.0, z1 );
     point_set3D( &pt[1], x2, 0.0, z2 );
     point_set3D( &pt[2], x2, 1.0, z2 );
     point_set3D( &pt[3], x1, 1.0, z1 );
+
+    vector_set( &n[0], x1, 0.0, z1 );
+    vector_set( &n[1], x2, 0.0, z2 );
+    vector_set( &n[2], x2, 0.0, z2 );
+    vector_set( &n[3], x1, 0.0, z1 );
     
     polygon_set( &p, 4, pt );
+    polygon_setNormals( &p, 4, n );
     module_polygon( mod, &p );
   }
 
@@ -1290,6 +1349,8 @@ void module_tetrahedron(Module *md){
 		module_polygon(md,&pol[i]);
 	}
 }
+
+
 
 
 
