@@ -183,6 +183,93 @@ void module_alphabet_H(Module *md){
 	}
 }
 
+void module_alphabet_I(Module *md);
+void module_alphabet_I(Module *md){
+	//1
+	module_translate(md, 2,0,0);
+	module_cube(md);
+	for(int i=0; i<6; i++){
+		module_translate(md, 0, 0, -2);
+		module_cube(md);
+	}
+
+	//2
+	module_translate(md, -2,0,0);
+	module_cube(md);
+	for(int i=0; i<2; i++){
+		module_translate(md, 2, 0, 0);
+		module_cube(md);
+	}
+
+	//3
+	module_translate(md, 0,0,12);
+	module_cube(md);
+	for(int i=0; i<2; i++){
+		module_translate(md, -2, 0, 0);
+		module_cube(md);
+	}
+}
+
+void module_alphabet_C(Module *md);
+void module_alphabet_C(Module *md){
+	//1
+	module_translate(md, 2,0,0);
+	module_cube(md);
+	for(int i=0; i<6; i++){
+		module_translate(md, 0, 0, -2);
+		module_cube(md);
+	}
+
+	//2
+	module_cube(md);
+	for(int i=0; i<3; i++){
+		module_translate(md, 2, 0, 0);
+		module_cube(md);
+	}
+
+	//3
+	module_translate(md, -6,0,12);
+	module_cube(md);
+	for(int i=0; i<3; i++){
+		module_translate(md, 2, 0, 0);
+		module_cube(md);
+	}
+}
+
+void module_alphabet_S(Module *md);
+void module_alphabet_S(Module *md){
+	//1
+	module_cube(md);
+	for(int i=0; i<3; i++){
+		module_translate(md, 2, 0, 0);
+		module_cube(md);
+	}
+
+	//2
+	for(int i=0; i<3; i++){
+		module_translate(md, 0, 0, -2);
+		module_cube(md);
+	}
+
+	//3
+	for(int i=0; i<3; i++){
+		module_translate(md, -2, 0, 0);
+		module_cube(md);
+	}
+
+	//4
+	for(int i=0; i<3; i++){
+		module_translate(md, 0, 0, -2);
+		module_cube(md);
+	}
+
+	//5
+	for(int i=0; i<3; i++){
+		module_translate(md, 2, 0, 0);
+		module_cube(md);
+	}
+}
+
 
 int main(int argc, char* argv[]){
 	Image* src;
@@ -204,8 +291,8 @@ int main(int argc, char* argv[]){
 	Color_set(&White, 1, 1, 1 );
 
 	// setting the view
-	point_set3D( &(view.vrp), 20, 60, 30 );
-	vector_set( &(view.vpn), -view.vrp.val[0]+20, -view.vrp.val[1], -view.vrp.val[2]);
+	point_set3D( &(view.vrp), 35, 60, 30 );
+	vector_set( &(view.vpn), -view.vrp.val[0]+35, -view.vrp.val[1], -view.vrp.val[2]);
 	vector_set( &(view.vup), 0, 1, 0 );
 	view.d = 1;
 	view.du = 1.6;
@@ -239,10 +326,17 @@ int main(int argc, char* argv[]){
 	module_translate(GRAPHICS, 40, 0, 0);
 	module_alphabet_H(GRAPHICS);
 
+	module_identity(GRAPHICS);
+	module_translate(GRAPHICS, 50, 0, 0);
+	module_alphabet_I(GRAPHICS);
 
+	module_identity(GRAPHICS);
+	module_translate(GRAPHICS, 56, 0, 0);
+	module_alphabet_C(GRAPHICS);
 
-
-
+	module_identity(GRAPHICS);
+	module_translate(GRAPHICS, 68, 0, 0);
+	module_alphabet_S(GRAPHICS);
 
 
 
@@ -252,8 +346,8 @@ int main(int argc, char* argv[]){
 
 	// setting the light
 	light = lighting_create();
-	// lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
-	lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
+	// lighting_add( light, LightAmbient, &Red, NULL, NULL, 0, 0);
+	lighting_add(light, LightPoint, &Red , NULL, &view.vrp, 0, 0);
 
 	// image
 	src = image_create( view.screeny, view.screenx );
