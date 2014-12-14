@@ -578,18 +578,18 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				ds->surface = iterator->obj.color ;
 				break;
 			case ObjPoint:
-				printf("objPoint\n");
+				// printf("objPoint\n");
 				point_copy(&tempPoint,&iterator->obj.point);
 				matrix_xformPoint(&LTM,&tempPoint,&tempPoint);
 				matrix_xformPoint(GTM,&tempPoint,&tempPoint);
 				matrix_xformPoint(VTM,&tempPoint,&tempPoint);
 				point_normalize(&tempPoint);
-				printf("src (rows, cols): (%d, %d)\n",src->rows, src->cols);
+				// printf("src (rows, cols): (%d, %d)\n",src->rows, src->cols);
 				// point_print(&tempPoint, stdout);
 				point_draw(&tempPoint,src,ds->color);
 				break;
 	 		case ObjLine:
-				printf("objline\n");
+				// printf("objline\n");
 				line_copy(&tempLine,&iterator->obj.line);
 				matrix_xformLine(&LTM,&tempLine);
 				matrix_xformLine(GTM,&tempLine);
@@ -599,7 +599,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				line_draw(&tempLine,src,ds->color);
 				break;
 			case ObjPolyline:
-				printf("objPolyline\n");
+				// printf("objPolyline\n");
 				polyline_copy(&tempPolyline,&iterator->obj.polyline);
 				matrix_xformPolyline(&LTM,&tempPolyline);
 				matrix_xformPolyline(GTM,&tempPolyline);
@@ -609,7 +609,7 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				polyline_clear(&tempPolyline);
 				break;
 			case ObjPolygon:
-				printf("objPolygon\n");
+				// printf("objPolygon\n");
 				polygon_copy(&tempPolygon,&iterator->obj.polygon);
 				// printf("1\n");
 				matrix_xformPolygon(&LTM,&tempPolygon);
@@ -661,17 +661,17 @@ void module_draw(Module *md, Matrix *VTM, Matrix *GTM, DrawState *ds, /*Vector* 
 				polygon_clear(&tempPolygon);
 				break;
 			case ObjMatrix:
-				printf("objMatrix\n");
+				// printf("objMatrix\n");
 				matrix_multiply(&(iterator->obj.matrix), &LTM, &LTM);
 				break;
 			case ObjIdentity:
-				printf("objIdentity\n");
+				// printf("objIdentity\n");
 				matrix_identity(&LTM);
 				break;
 			case ObjLight:
 				break;
 			case ObjModule:
-				printf("objModule\n");
+				// printf("objModule\n");
 				matrix_multiply(GTM, &LTM, &tempGTM);
 				tempDraw = *ds;
 				module_draw(iterator->obj.module, VTM, &tempGTM, &tempDraw, /*vpn,*/ lighting, src); 

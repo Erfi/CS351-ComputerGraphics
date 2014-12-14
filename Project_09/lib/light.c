@@ -100,14 +100,14 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 
 			
 			if(dot1<0 && oneSided == 1){
-				printf("light not on\n");
+				// printf("light not on\n");
 				continue;
 			}
 
 			float sigma = vector_dot(V,N);
 
 			if((sigma>0 && dot1 < 0) || (sigma<0 && dot1 > 0)){
-				printf("light and view on different sides of shape\n");
+				// printf("light and view on different sides of shape\n");
 				continue;
 			}
 
@@ -156,14 +156,14 @@ void lighting_shading( Lighting *l, Vector *N, Vector *V, Point *p, Color *Cb, C
 
 			
 			if(dot1<0 && oneSided == 1){
-				printf("light not on\n");
+				// printf("light not on\n");
 				continue;
 			}
 
 			float sigma = vector_dot(V,N);
 
 			if((sigma>0 && dot1 < 0) || (sigma<0 && dot1 > 0)){
-				printf("light and view on different sides of shape\n");
+				// printf("light and view on different sides of shape\n");
 				continue;
 			}
 

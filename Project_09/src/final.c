@@ -279,16 +279,27 @@ int main(int argc, char* argv[]){
 	Matrix vtm, gtm;
 	DrawState *ds;
 	Lighting *light;
+	Point center;//center of animation
+	Polygon poly;//polygon that holds the animation path points
+	int frameNum;//holds the frame number for animation
+	char filename[100];//holds the frame name
 	Color Red;
+	Color Blue;
 	Color Green;
 	Color Grey;
+	Color Black;
 	Color White;
+	Color Yellow;
 
 	//setting colors
 	Color_set(&Red, 1.0, 0.2, 0.1 );
-	Color_set(&Grey, 0.6, 0.65, 0.67 );
+	Color_set(&Blue, 0.1, 0.1, 1.0);
 	Color_set(&Green, 0.1, 1, 0.1 );
 	Color_set(&White, 1, 1, 1 );
+	Color_set(&Grey, 0.6, 0.65, 0.67 );
+	Color_set(&Black, 0.0, 0.0, 0.0);
+	Color_set(&Yellow, 1.0, 0.8, 0);
+
 
 	// setting the view
 	point_set3D( &(view.vrp), 35, 60, 30 );
@@ -339,28 +350,45 @@ int main(int argc, char* argv[]){
 	module_alphabet_S(GRAPHICS);
 
 
+	//Animation
+	frameNum =0;
+	point_set3D(&center, 40, 0, -10);
+  	view_rotate_circle(&poly, &center, 50, 50, 0, 0, 0);
+  	polygon_print(&poly, stdout);
+  	for(int k=0; k<50; k++){
+  		frameNum++;
+		point_set3D( &(view.vrp), poly.vertex[k].val[0], poly.vertex[k].val[1], poly.vertex[k].val[2]);
+		vector_set( &(view.vpn), -view.vrp.val[0], -view.vrp.val[1], -view.vrp.val[2] );
+		matrix_setView3D( &vtm, &view );
 
-	//creating scene module
-	scene = module_create();
-	module_module(scene, GRAPHICS);
+		//creating scene module
+		scene = module_create();
+		module_module(scene, GRAPHICS);
 
-	// setting the light
-	light = lighting_create();
-	// lighting_add( light, LightAmbient, &Red, NULL, NULL, 0, 0);
-	lighting_add(light, LightPoint, &Red , NULL, &view.vrp, 0, 0);
+		// setting the light
+		light = lighting_create();
+		lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
+		lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
+		// lighting_add(light, LightSpot, &Yellow, &view.vpn, &view.vrp, cos(10*M_PI/180), 60);
 
-	// image
-	src = image_create( view.screeny, view.screenx );
+		// image
+		src = image_create( view.screeny, view.screenx );
 
-	//setting drawstate
-	ds = drawstate_create();
-	point_copy(&(ds->viewer), &(view.vrp) );
-	ds->shade = ShadePhong;
-	// ds->shade = ShadeDepth;
+		//setting drawstate
+		ds = drawstate_create();
+		point_copy(&(ds->viewer), &(view.vrp) );
+		ds->shade = ShadePhong;
+		// ds->shade = ShadeDepth;
+		drawstate_setBody(ds, Black);
+		drawstate_setSurface(ds, Grey);
+		drawstate_setSurfaceCoeff(ds, 1);
 
-	//Drawing
-	module_draw( scene, &vtm, &gtm, ds, light, src );
-	image_write( src, "final.ppm" );
+		//Drawing
+		module_draw( scene, &vtm, &gtm, ds, light, src );
+		sprintf(filename, "../images/frame_%.2d.ppm",k);
+		image_write( src, filename);
+	}
+
 
 	return(0);
 }
