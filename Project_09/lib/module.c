@@ -1186,7 +1186,7 @@ void module_ellipse(Module* mod, double a, double b, int sides){
 
 //   polygon_clear( &p );
 // }
-void cylinder( Module *mod, int sides ) {
+void module_cylinder( Module *mod, int sides ) {
   Polygon p;
   Point xtop, xbot;
   double x1, x2, z1, z2;
