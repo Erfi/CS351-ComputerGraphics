@@ -271,6 +271,7 @@ void module_alphabet_S(Module *md){
 }
 
 
+
 int main(int argc, char* argv[]){
 	Image* src;
 	Module *scene;
@@ -290,15 +291,31 @@ int main(int argc, char* argv[]){
 	Color Black;
 	Color White;
 	Color Yellow;
+	Color DarkAmbiant;
+	Color randColor[10];
+
 
 	//setting colors
 	Color_set(&Red, 1.0, 0.2, 0.1 );
 	Color_set(&Blue, 0.1, 0.1, 1.0);
 	Color_set(&Green, 0.1, 1, 0.1 );
 	Color_set(&White, 1, 1, 1 );
-	Color_set(&Grey, 0.6, 0.65, 0.67 );
+	Color_set(&Grey, 0.6, 0.6, 0.6 );
 	Color_set(&Black, 0.05, 0.05, 0.05);
-	Color_set(&Yellow, 1.0, 0.8, 0);
+	Color_set(&Yellow, 1, 0.894118, 0.709804);
+	Color_set(&DarkAmbiant, 0.1, 0.1, 0.1);
+
+	Color_set(&randColor[0], 0, 1, 1);
+	Color_set(&randColor[1], 0.498039, 1, 0);
+	Color_set(&randColor[2], 1, 0.54902, 0);
+	Color_set(&randColor[3], 1, 0.0784314, 0.576471);
+	Color_set(&randColor[4], 1, 0.843137, 0);
+	Color_set(&randColor[5], 0.960784, 1, 0.980392);
+	Color_set(&randColor[6], 1, 0.647059, 0);
+	Color_set(&randColor[7], 1, 0.270588, 0);
+	Color_set(&randColor[8], 0, 1, 0.498039);
+	Color_set(&randColor[9], 1, 1, 0);
+
 
 
 	// setting the view
@@ -350,6 +367,21 @@ int main(int argc, char* argv[]){
 	module_alphabet_S(GRAPHICS);
 
 
+	// setting the light
+	light = lighting_create();
+	lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
+	lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
+	// lighting_add(light, LightSpot, &White, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
+
+	//setting drawstate
+	ds = drawstate_create();
+	point_copy(&(ds->viewer), &(view.vrp) );
+	ds->shade = ShadePhong;
+	// ds->shade = ShadeDepth;
+	drawstate_setBody(ds, Black);
+	drawstate_setSurface(ds, Red);
+	drawstate_setSurfaceCoeff(ds, 5);
+
 	//Animation
 	frameNum =0;
 
@@ -367,27 +399,12 @@ int main(int argc, char* argv[]){
 		scene = module_create();
 		module_module(scene, GRAPHICS);
 
-		// setting the light
-		light = lighting_create();
-		lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
-		lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
-		lighting_add(light, LightSpot, &Yellow, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
-
 		// image
 		src = image_create( view.screeny, view.screenx );
 
-		//setting drawstate
-		ds = drawstate_create();
-		point_copy(&(ds->viewer), &(view.vrp) );
-		ds->shade = ShadePhong;
-		// ds->shade = ShadeDepth;
-		drawstate_setBody(ds, Black);
-		drawstate_setSurface(ds, Yellow);
-		drawstate_setSurfaceCoeff(ds, 50);
-
 		//Drawing
 		module_draw( scene, &vtm, &gtm, ds, light, src );
-		sprintf(filename, "../images/frame_%.2d.ppm",frameNum);
+		sprintf(filename, "../images/frame_%.4d.ppm",frameNum);
 		image_write( src, filename);
 	}
 
@@ -410,35 +427,20 @@ int main(int argc, char* argv[]){
 		scene = module_create();
 		module_module(scene, GRAPHICS);
 
-		// setting the light
-		light = lighting_create();
-		lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
-		lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
-		lighting_add(light, LightSpot, &Yellow, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
-
 		// image
 		src = image_create( view.screeny, view.screenx );
 
-		//setting drawstate
-		ds = drawstate_create();
-		point_copy(&(ds->viewer), &(view.vrp) );
-		ds->shade = ShadePhong;
-		// ds->shade = ShadeDepth;
-		drawstate_setBody(ds, Black);
-		drawstate_setSurface(ds, Yellow);
-		drawstate_setSurfaceCoeff(ds, 50);
-
 		//Drawing
 		module_draw( scene, &vtm, &gtm, ds, light, src );
-		sprintf(filename, "../images/frame_%.2d.ppm",frameNum);
+		sprintf(filename, "../images/frame_%.4d.ppm",frameNum);
 		image_write( src, filename);
 	}
 
 	//path #3
-	for(int k=0; k<100; k++){
+	for(int k=0; k<120; k++){
 
   		frameNum++;
-  		if(frameNum <=40){
+  		if(frameNum <= 160){
 			point_set3D( &(view.vrp), -3.345+(k), 36.298+(k), 28.391-(k/2.0));
 			vector_set( &(view.vpn), -view.vrp.val[0]+k, -view.vrp.val[1], -view.vrp.val[2]);
 			matrix_setView3D( &vtm, &view );
@@ -448,13 +450,45 @@ int main(int argc, char* argv[]){
 		scene = module_create();
 		module_module(scene, GRAPHICS);
 
-		
+		if(frameNum == 160){
+			light = lighting_create();
+			lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
+		}
 		// setting the light
-		light = lighting_create();
-		lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
-		lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
-		lighting_add(light, LightSpot, &Yellow, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
+		if(frameNum == 165){
+			Point plight1;
+			point_set3D(&plight1, -5, 10, -10);
 
+			lighting_add(light, LightSpot, &White, &view.vpn, &plight1, cos(10*M_PI/180), 40);
+		}
+		if(frameNum == 175){
+			Point plight2;
+			point_set3D(&plight2, 85, 10, -10);
+
+			lighting_add(light, LightSpot, &White, &view.vpn, &plight2, cos(10*M_PI/180), 40);
+		}
+		if(frameNum == 180){
+			lighting_add(light, LightSpot, &White, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
+		}
+
+		if(frameNum >= 183){
+			light = lighting_create();
+			lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
+
+			int output1 = 0 + (rand() % (int)(10 - 0 + 1));
+			int output2 = 0 + (rand() % (int)(10 - 0 + 1));
+			int output3 = 0 + (rand() % (int)(10 - 0 + 1));
+
+			Point plight1;
+			point_set3D(&plight1, -5, 10, -10);
+			lighting_add(light, LightSpot, &randColor[output1], &view.vpn, &plight1, cos(10*M_PI/180), 40);
+
+			Point plight2;
+			point_set3D(&plight2, 85, 10, -10);
+			lighting_add(light, LightSpot, &randColor[output2], &view.vpn, &plight2, cos(10*M_PI/180), 40);
+
+			lighting_add(light, LightSpot, &randColor[output3], &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
+		}
 		// image
 		src = image_create( view.screeny, view.screenx );
 
@@ -464,16 +498,13 @@ int main(int argc, char* argv[]){
 		ds->shade = ShadePhong;
 		// ds->shade = ShadeDepth;
 		drawstate_setBody(ds, Black);
-		drawstate_setSurface(ds, Yellow);
-		drawstate_setSurfaceCoeff(ds, 50);
+		drawstate_setSurface(ds, Red);
+		drawstate_setSurfaceCoeff(ds, 5);
 
 		//Drawing
 		module_draw( scene, &vtm, &gtm, ds, light, src );
-		sprintf(filename, "../images/frame_%.2d.ppm",frameNum);
+		sprintf(filename, "../images/frame_%.4d.ppm",frameNum);
 		image_write( src, filename);
 	}
-
-
-
 	return(0);
 }
