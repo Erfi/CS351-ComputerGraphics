@@ -24,6 +24,8 @@ How to run the demo file:
 	The executable file can then be found in /bin directory.
 3) Navigate to the /bin directory and run the executable file by typing "./demo".
 4) After process is finished you will get the message "Finished Successfully :)". 
+   NOTE: I am using “ImageMagic” to convert the .ppm files into a single .gif file. You should have ImageMagic installed on your
+   computer.
 5) Navigate to /images directory. You will find the "demo.gif" animation file there. You may use your browsers (i.e.
 	Firefox, Chrome, ...) to view the file.
 
