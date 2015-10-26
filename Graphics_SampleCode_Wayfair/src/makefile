@@ -32,10 +32,10 @@ _DEPS = ppmIO.h ppmMethods.h Image.h fract.h color.h point.h line.h circle.h pol
 DEPS = $(patsubst %,$(INCDIR)/%,$(_DEPS))
 
 # put a list of the executables here
-EXECUTABLES = final
+EXECUTABLES = demo
 
 # put a list of all the object files here for all executables (with .o endings)
-_OBJ = final.o
+_OBJ = demo.o
 
 # convert them to point to the right place
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
@@ -57,7 +57,7 @@ all:
 
 
 # put the specific executable rules here
-final: $(ODIR)/final.o
+demo: $(ODIR)/demo.o
 	$(CC) -g -o $(BINDIR)/$@ $^ $(LFLAGS) $(LIBS)
 
 .PHONY: clean

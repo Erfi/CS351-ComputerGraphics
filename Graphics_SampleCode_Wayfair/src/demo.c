@@ -288,6 +288,7 @@ int main(int argc, char* argv[]){
 	Color Blue;
 	Color Green;
 	Color Grey;
+	Color Lemon;
 	Color Black;
 	Color White;
 	Color Yellow;
@@ -300,7 +301,8 @@ int main(int argc, char* argv[]){
 	Color_set(&Blue, 0.1, 0.1, 1.0);
 	Color_set(&Green, 0.1, 1, 0.1 );
 	Color_set(&White, 1, 1, 1 );
-	Color_set(&Grey, 0.6, 0.6, 0.6 );
+	Color_set(&Grey, 0.7, 0.7, 0.7 );
+	Color_set(&Lemon, 1.0, 1.0, 0.8);
 	Color_set(&Black, 0.05, 0.05, 0.05);
 	Color_set(&Yellow, 1, 0.894118, 0.709804);
 	Color_set(&DarkAmbiant, 0.3, 0.3, 0.3);
@@ -369,9 +371,9 @@ int main(int argc, char* argv[]){
 
 	// setting the light
 	light = lighting_create();
-	lighting_add( light, LightAmbient, &Grey, NULL, NULL, 0, 0);
+	lighting_add( light, LightAmbient, &Lemon, NULL, NULL, 0, 0);
 	lighting_add(light, LightPoint, &White , NULL, &view.vrp, 0, 0);
-	// lighting_add(light, LightSpot, &White, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
+	lighting_add(light, LightSpot, &White, &view.vpn, &view.vrp, cos(10*M_PI/180), 40);
 
 	//setting drawstate
 	ds = drawstate_create();
@@ -380,7 +382,7 @@ int main(int argc, char* argv[]){
 	// ds->shade = ShadeDepth;
 	drawstate_setBody(ds, Black);
 	drawstate_setSurface(ds, Red);
-	drawstate_setSurfaceCoeff(ds, 5);
+	drawstate_setSurfaceCoeff(ds, 10);
 
 	//Animation
 	frameNum =0;
@@ -401,6 +403,7 @@ int main(int argc, char* argv[]){
 
 		// image
 		src = image_create( view.screeny, view.screenx );
+		image_fillrgb(src, 1.0, 1.0, 0.8);
 
 		//Drawing
 		module_draw( scene, &vtm, &gtm, ds, light, src );
@@ -429,6 +432,7 @@ int main(int argc, char* argv[]){
 
 		// image
 		src = image_create( view.screeny, view.screenx );
+		image_fillrgb(src, 1.0, 1.0, 0.8);
 
 		//Drawing
 		module_draw( scene, &vtm, &gtm, ds, light, src );
@@ -491,6 +495,7 @@ int main(int argc, char* argv[]){
 		}
 		// image
 		src = image_create( view.screeny, view.screenx );
+		image_fillrgb(src, 1.0, 1.0, 0.8);
 
 		//setting drawstate
 		ds = drawstate_create();
@@ -499,7 +504,7 @@ int main(int argc, char* argv[]){
 		// ds->shade = ShadeDepth;
 		drawstate_setBody(ds, Black);
 		drawstate_setSurface(ds, Red);
-		drawstate_setSurfaceCoeff(ds, 5);
+		drawstate_setSurfaceCoeff(ds, 10);
 
 		//Drawing
 		module_draw( scene, &vtm, &gtm, ds, light, src );
@@ -508,10 +513,10 @@ int main(int argc, char* argv[]){
 	}
 
 	//***Uncomment for making the .gif animation***
-	// printf("Making the final/gif file....\n");
-	// system("convert -delay 10 ../images/frame_*.ppm ../images/final.gif");
-	// printf("Cleaning up...\n");
-	// system("rm -f ../images/frame_.ppm*");
-	// printf("Finished Successfully :)\n");
+	printf("Making the demo.gif file....\n");
+	system("convert -delay 10 ../images/frame_*.ppm ../images/demo.gif");
+	printf("Cleaning up...\n");
+	system("rm -f ../images/frame_*.ppm");
+	printf("Finished Successfully :)\n");
 	return(0);
 }
