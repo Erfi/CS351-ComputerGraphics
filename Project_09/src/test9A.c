@@ -88,14 +88,15 @@ int main(int argc, char *argv[]) {
   vector_set(&new,-3,-4,7);
   vector_set(&new1,5, 5, -14.0);
 
-  lighting_add( light, LightSpot, &White, &(new), &new1, cos(11*M_PI/180), 100 );
-    lighting_add( light, LightAmbient, &BlueGrey, NULL, NULL, 0, 0 );
+  lighting_add( light , LightPoint, &White, NULL, &view.vrp,0,0 );
+  //lighting_add( light, LightSpot, &White, &view.vpn, &view.vrp, cos(11*M_PI/180), 100 );
+  // lighting_add( light, LightAmbient, &BlueGrey, NULL, NULL, 0, 0 );
 
   // set the shading to Gouraud
   ds = drawstate_create();
   point_copy(&(ds->viewer), &(view.vrp));
-	// ds->shade = ShadeGouraud;
-		ds->shade = ShadePhong;
+  ds->shade = ShadeGouraud;
+  //ds->shade = ShadePhong;
 
   matrix_identity(&GTM);
   module_draw(cube, &VTM, &GTM, ds, light, src);

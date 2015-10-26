@@ -303,7 +303,7 @@ int main(int argc, char* argv[]){
 	Color_set(&Grey, 0.6, 0.6, 0.6 );
 	Color_set(&Black, 0.05, 0.05, 0.05);
 	Color_set(&Yellow, 1, 0.894118, 0.709804);
-	Color_set(&DarkAmbiant, 0.1, 0.1, 0.1);
+	Color_set(&DarkAmbiant, 0.3, 0.3, 0.3);
 
 	Color_set(&randColor[0], 0, 1, 1);
 	Color_set(&randColor[1], 0.498039, 1, 0);
