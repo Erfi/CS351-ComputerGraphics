@@ -338,40 +338,17 @@ void module_bezierSurface(Module *m, BezierSurface *b, int divisions, int solid)
 		}
 	}else{//drawusing triangles
 		if(divisions == 0){//addlines to module
-			Polygon poly[2];
 			Point ptemp1[3];
-			Point ptemp2[3];
-			int i,j;
 
-			// for(i=0; i<3; i++){ // draw horizontal
-			// 	for(j=0; j<3; j++){
-			// 		polygon_init(&poly[0]);
-			// 		polygon_init(&poly[1]);
-
-			// 		point_copy(&ptemp1[0], &b->ctrl[i][j]);//top left corner
-			// 		point_copy(&ptemp1[1], &b->ctrl[i][j+1]);//top right corner
-			// 		point_copy(&ptemp1[2], &b->ctrl[i+1][j]);//bottom left corner
-
-					// point_copy(&ptemp2[0], &b->ctrl[i][j+1]);//top right corner
-					// point_copy(&ptemp2[1], &b->ctrl[i+1][j+1]);//bottom right corner
-					// point_copy(&ptemp2[2], &b->ctrl[i+1][j]);//bottom left corner
-
-			// 		polygon_set(&poly[0], 3, ptemp1);
-			// 		polygon_set(&poly[1], 3, ptemp2);
-
-			// 		module_polygon(m, &poly[0]);
-			// 		module_polygon(m, &poly[1]);
-			// 	}
-			// }
 
 			// polygon 1
 			point_copy(&ptemp1[0], &b->ctrl[0][0]);//top right corner
 			point_copy(&ptemp1[1], &b->ctrl[0][3]);//bottom right corner
 			point_copy(&ptemp1[2], &b->ctrl[3][3]);//bottom left corner
 
-//   		polygon 2
+			//polygon 2
 			point_copy(&ptemp1[0], &b->ctrl[0][0]);//top right corner
-			point_copy(&ptemp1[1], &b->ctrl[3][0]);//bottom right corner
+			point_copy(&ptemp1[1], &b->ctrl[3][0]);//top left corner
 			point_copy(&ptemp1[2], &b->ctrl[3][3]);//bottom left corner
 
 			

@@ -506,5 +506,12 @@ int main(int argc, char* argv[]){
 		sprintf(filename, "../images/frame_%.4d.ppm",frameNum);
 		image_write( src, filename);
 	}
+
+	//***Uncomment for making the .gif animation***
+	// printf("Making the final/gif file....\n");
+	// system("convert -delay 10 ../images/frame_*.ppm ../images/final.gif");
+	// printf("Cleaning up...\n");
+	// system("rm -f ../images/frame_.ppm*");
+	// printf("Finished Successfully :)\n");
 	return(0);
 }
