@@ -15,7 +15,7 @@ void matrix_setView2D(Matrix *vtm, View2D *view){
 	if(NULL != vtm && NULL != view){
 		float dv = (view->dx*view->screeny)/view->screenx;
 		matrix_identity(vtm);
- 		 matrix_print(vtm, stdout);
+ 		matrix_print(vtm, stdout);
 		matrix_translate2D(vtm, -view->vrp.val[0], -view->vrp.val[1]);
 		matrix_rotateZ(vtm, view->x.val[0], -view->x.val[1]);
 		matrix_scale2D(vtm, view->screenx/view->dx, -view->screeny/dv);

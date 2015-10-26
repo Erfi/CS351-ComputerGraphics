@@ -2,7 +2,7 @@
 //  color.c
 //  
 //
-//  Created by Ryan Brandt on 9/22/14.
+//  Created by Erfan Azad & Ryan Brandt on 9/22/14.
 //
 //
 
